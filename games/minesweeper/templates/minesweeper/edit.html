@@ -1,0 +1,23 @@
+{% extends "minesweeper/layout.html" %}
+
+{% block title %}
+    Minesweeper
+{% endblock %}
+
+{% block body %}
+
+    <h1>Edit</h1>
+
+    <form action="/update/" method="post">
+        {% csrf_token %}
+              
+        <table>
+          {{ form.as_table }}
+        </table>
+
+        <div class="">
+          <input type="submit" value="Save">
+        </div>
+    </form>
+
+{% endblock %}

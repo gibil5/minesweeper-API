@@ -1,0 +1,16 @@
+{% extends "minesweeper/layout.html" %}
+
+{% block title %}
+    Minesweeper
+{% endblock %}
+
+{% block body %}
+<div>
+    {{ html | safe}}
+</div>
+
+<a href="{% url 'edit' board %}">
+    Edit
+</a>
+
+{% endblock %}

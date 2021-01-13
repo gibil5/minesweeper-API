@@ -1,0 +1,19 @@
+{% extends "minesweeper/layout.html" %}
+
+{% block title %}
+    Minesweeper
+{% endblock %}
+
+{% block body %}
+    <h1>All Boards</h1>
+
+    <ul>
+      
+        {% for board in boards %}
+            <a href="{% url 'show' board %}">
+                <li>{{ board }}</li>
+            </a>
+        {% endfor %}
+    
+    </ul>
+{% endblock %}

@@ -13,11 +13,11 @@ class Cell(models.Model):
     flagged = models.BooleanField()
 
 
-    def __init__(self):
-        print('Cell - init')
+    #def __init__(self):
+    #    print('Cell - init')
 
-    def __str__(self):
-        return f"Cell: {self.x}, {self.y}, {self.value}"
+    #def __str__(self):
+    #    return f"Cell: {self.x}, {self.y}, {self.value}"
 
 
 class Board(models.Model):
@@ -27,18 +27,19 @@ class Board(models.Model):
     mines = models.IntegerField()
 
     start = models.DateTimeField()
-    end = models.DateTimeField()
-    duration = models.DurationField()
+    end = models.DateTimeField(blank=True)
+    duration = models.DurationField(default=0)
 
     nr_hidden_cells = models.IntegerField()
+
     state = models.CharField(max_length=16)
     
     cells = models.ManyToManyField(Cell, blank=True)
 
 
-    def __init__(self):
-        print('Board - init')
+    #def __init__(self):
+    #    print('Board - init')
 
-    def __str__(self):
-        return f"Board: {self.name}, {self.y}, {self.value}"
+    #def __str__(self):
+    #    return f"Board: {self.name}, {self.rows}, {self.cols}, {self.mines}"
 
