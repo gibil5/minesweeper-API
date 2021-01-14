@@ -1,16 +1,65 @@
 {% extends "minesweeper/layout.html" %}
-
 {% block title %}
-    Minesweeper
+    Minesweeper - Show
 {% endblock %}
-
 {% block body %}
+<h1>Board - {{ board.name }}</h1>
 <div>
-    {{ html | safe}}
+    <ul>
+      <li>
+        Name: {{ board.id }}
+      </li>
+      <li>
+        Rows: {{ board.rows }}
+      </li>
+      <li>
+        Cols: {{ board.cols }}
+      </li>
+      <li>
+        Mines: {{ board.mines }}
+      </li>
+      <li>
+        Start: {{ board.start }}
+      </li>
+      <li>
+        End: {{ board.end }}
+      </li>
+      <li>
+        Duration: {{ board.duration }}
+      </li>
+      <li>
+        Hidden cells: {{ board.nr_hidden_cells }}
+      </li>
+      <li>
+        State: {{ board.state }}
+      </li>
+      <li>
+        Nr cells: {{ board.get_nr_cells }}
+      </li>
+
+      {% for x, value in board.get_rows %}
+        <li>
+          {% for y, value in board.get_cols %}
+            {{ x }}, {{ y }}
+          {% endfor %}
+        </li>
+      {% endfor %}
+    </ul>
 </div>
-
-<a href="{% url 'edit' board %}">
-    Edit
-</a>
-
+<!--
+Cells: <br/>{% for cell in cells %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
+Cells: <br/>{% for cell in board.cells.all %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
+Cells: {{ board.cells.all }}
+Cells: {{ board.cells.all|join:", " }}
+-->
+<div>
+  <a href="{% url 'add_cells' board.id %}">
+    Add cells
+  </a>  
+</div>
+<div>
+  <a href="{% url 'index' %}">
+    Home
+  </a>
+</div>
 {% endblock %}

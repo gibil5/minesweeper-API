@@ -1,5 +1,6 @@
 from django.shortcuts import render
-
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from . import util
 
 # Create your views here.
@@ -13,23 +14,42 @@ def index(request):
             "boards": util.list_boards()
         })
 
-def show(request, board):
+def show(request, board_id):
     """
     Show
     """
     print('*** show')
     return render(request, "minesweeper/show.html",
         {
-            "board": util.get_board('Board 1')
+            "board": util.get_board(board_id),
+            "cells": util.get_cells(board_id),
         })
 
-
-def edit(request, board):
+def delete(request, board_id):
     """
-    Edit
+    Delete
     """
-    print('*** edit')
-    return render(request, "minesweeper/edit.html",
+    print('*** delete')
+    util.delete_board(board_id)
+    return render(request, "minesweeper/index.html",
         {
-            #"cells": util.list_cells()
+            "boards": util.list_boards()
         })
+
+def add_cells(request, board_id):
+    """
+    Add cells
+    """
+    print('*** add_cells')
+    return render(request, "minesweeper/show.html",
+        {
+            "board": util.add_cells(board_id)
+        })
+
+def add_board(request):
+    """
+    Add board
+    """
+    print('*** add_board')
+    board = util.add_board('Test')
+    return HttpResponseRedirect(reverse("index"))
