@@ -1,0 +1,42 @@
+{% extends "minesweeper/layout.html" %}
+{% block title %}
+Flex
+{% endblock %}
+{% block body %}
+<h1>Board - {{ board.name }}</h1>
+<div>
+  <a href="{% url 'index' %}">
+    Home
+  </a>
+  <style>
+      #container {
+          display: flex;
+          flex-wrap: wrap;
+      }
+      #container > div {
+          background-color: springgreen;
+          font-size: 20px;
+          margin: 20px;
+          padding: 20px;          
+          width: 250px;
+      }
+  </style>
+  <div id="container">
+    <!--
+    {% for cell in cells %}
+      <div class="grid-item">
+        {{ cell.x }}, {{ cell.y }}
+      </div>
+    {% endfor %}
+    -->
+    {% for x, value in board.get_rows %}
+        {% for y, value in board.get_cols %}
+          <div class="grid-item">
+            {{ x }}, {{ y }}
+          </div>
+        {% endfor %}
+    {% endfor %}
+  </div>
+  Cells: <br/>{% for cell in cells %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
+</div>
+{% endblock %}

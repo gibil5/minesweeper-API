@@ -53,3 +53,15 @@ def add_board(request):
     print('*** add_board')
     board = util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
+
+def play(request, board_id):
+    """
+    Play
+    """
+    print('*** play')
+    #return render(request, "minesweeper/flex.html",
+    return render(request, "minesweeper/grid.html",
+        {
+            "board": util.get_board(board_id),
+            "cells": util.get_cells(board_id),
+        })

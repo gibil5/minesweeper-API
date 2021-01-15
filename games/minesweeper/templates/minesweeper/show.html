@@ -36,7 +36,7 @@
       <li>
         Nr cells: {{ board.get_nr_cells }}
       </li>
-
+      <!--
       {% for x, value in board.get_rows %}
         <li>
           {% for y, value in board.get_cols %}
@@ -44,6 +44,7 @@
           {% endfor %}
         </li>
       {% endfor %}
+      -->
     </ul>
 </div>
 <!--
@@ -55,6 +56,11 @@ Cells: {{ board.cells.all|join:", " }}
 <div>
   <a href="{% url 'add_cells' board.id %}">
     Add cells
+  </a>  
+</div>
+<div>
+  <a href="{% url 'play' board.id %}">
+    Play
   </a>  
 </div>
 <div>

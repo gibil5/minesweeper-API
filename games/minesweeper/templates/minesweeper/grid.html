@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Grid 2</title>
+        <style>
+            #grid {
+                display: grid;
+                padding: 10px;
+                grid-gap: 4px;
+                background-color: seagreen;
+                /*
+                background-color: forestgreen;
+                grid-template-columns: repeat(5, 1fr);
+                grid-auto-flow: column;
+                grid-auto-rows: auto;
+                grid-template-columns: auto auto auto auto auto;
+                align-content: center;
+                justify-content: space-around;
+                grid-column-gap: 5px;
+                grid-template-columns: 100px 100px 100px;
+                grid-column-start: 1;
+                grid-column-end: 3;
+                */
+            }
+            .grid-item {
+                background-color: gainsboro;
+                font-size: 20px;
+                padding: 20px;
+            }
+        </style>
+    </head>
+    <body>
+      <div id="grid">
+        {% for x, value in board.get_rows %}
+            {% for y, value in board.get_cols %}
+              <button id="btn_{{ x }}_{{ y }}" class="grid-item">
+              </button>
+            {% endfor %}
+        {% endfor %}
+      </div>
+      <h3 id='rows'>{{ board.rows }}</h3>
+
+      <script>
+        function random(min,max) {
+          const num = Math.floor(Math.random()*(max-min)) + min;
+          return num;
+        }
+
+        function randomColor() {
+          return 'rgb(' + random(0,255) + ', ' + random(0,255) + ', ' + random(0,255) +  ')';
+        }
+
+        //document.getElementById("rows").innerHTML = "Hello JavaScript!";
+        var rows = document.getElementById("rows").innerHTML;
+        console.log(rows);
+        var style_value = "repeat(" + rows + ",1fr)"
+        console.log(style_value);
+
+        document.querySelectorAll('[id=grid]').forEach(element=> {
+            //document.write(element);
+            //element.innerHTML = "Hello JavaScript!";
+            //element.style.setProperty('--grid-template-columns', 'repeat(5, 1fr)');
+            element.style.setProperty('grid-template-columns', style_value);
+            var newBgColor = randomColor();
+            //element.style.setProperty('background-color', newBgColor);
+        });
+
+        // Button handler
+        //const buttonElement = document.getElementById('btn');
+        const buttonElement = document.getElementById('btn_0_0');
+        const buttonElement_1 = document.getElementById('btn_0_1');
+        const buttonElement_2 = document.getElementById('btn_0_2');
+
+        buttonElement.addEventListener('click', function (event) {
+          //alert('Element clicked through function!');
+          console.log('jx');
+          console.log(event);
+          var jx = event.target.id;
+          console.log(jx);
+        });
+
+        buttonElement_1.addEventListener('click', function (event) {
+          console.log('jx');
+          var jx = event.target.id;
+          console.log(jx);
+        });
+
+        buttonElement_2.addEventListener('click', function (event) {
+          console.log('jx');
+          var jx = event.target.id;
+          console.log(jx);
+        });
+
+        // For compatibility, a non-function object with a `handleEvent` property is
+        // treated just the same as a function itself.
+        //buttonElement.addEventListener('click', {
+        //  handleEvent: function (event) {
+            //alert('Element clicked through handleEvent property!');
+        //  }
+        //});
+      </script> 
+    </body>
+</html>
