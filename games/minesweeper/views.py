@@ -1,7 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.http import JsonResponse
 from . import util
+from .models import Board
 
 # Create your views here.
 def index(request):
@@ -65,3 +67,25 @@ def play(request, board_id):
             "board": util.get_board(board_id),
             "cells": util.get_cells(board_id),
         })
+
+def cells(request):
+    """
+    Cells
+    """
+    print('cells')
+    board = Board.objects.get(name='Test 3')
+    print(board)
+    cells = util.get_cells(board.id)
+    print(cells)
+    name = 'name'
+    x = 'x'
+    y = 'y'
+    value = 'value'
+    return JsonResponse(
+        {
+            'name':name,
+            'x':x,
+            'y':y,
+            'value':value
+        }
+    )

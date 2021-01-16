@@ -12,4 +12,5 @@ urlpatterns = [
     path("delete/<int:board_id>/", views.delete, name="delete"),
     path("add_cells/<int:board_id>/", views.add_cells, name="add_cells"),
     path('play/<int:board_id>/', views.play, name="play"),
+    path("cells/", views.cells, name="cells"),
 ]
