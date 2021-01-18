@@ -46,12 +46,13 @@ class Cell(models.Model):
     name = models.CharField(max_length=16)
     x = models.IntegerField()
     y = models.IntegerField()
-    value = models.IntegerField()   # 1 to 8
-    hidden = models.BooleanField()
-    mined = models.BooleanField()
-    flagged = models.BooleanField()
+    value = models.IntegerField(default=0)
+    visible = models.BooleanField(default=False)
+    mined = models.BooleanField(default=False)
+    flagged = models.BooleanField(default=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"Cell: {self.name}, {self.x}, {self.y}, {self.value}, {self.hidden}, {self.mined}, {self.flagged}"
+        #return f"Cell: {self.name}, {self.x}, {self.y}, {self.value}, {self.hidden}, {self.mined}, {self.flagged}"
+        return f"Cell: {self.name}, {self.x}, {self.y}, {self.value}, {self.visible}, {self.mined}, {self.flagged}"
 
