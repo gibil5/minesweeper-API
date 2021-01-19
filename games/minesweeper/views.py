@@ -32,7 +32,7 @@ class CellList(generics.ListAPIView):
         if board_id is not None:
             board = Board.objects.get(id=board_id)
             print(board)
-            #board.calc(cmd, cell_name)
+            board.calc(cmd, cell_name)
             queryset = queryset.filter(board=board_id)
         return queryset
 
@@ -141,7 +141,7 @@ def play(request, board_id):
     """
     print('*** play')
     board = util.get_board(board_id)
-    #board.calc('init')
+    board.calc('init')
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),
