@@ -2,41 +2,42 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.http import JsonResponse
+
 from . import util
 from .models import Board, Cell
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
 from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
-
 from rest_framework import generics
 
 
 class CellList(generics.ListAPIView):
+    """
+    Called by REST query:
+    http://127.0.0.1:8000/cells_from/?board_id=<board_id>&cmd=update&cell_name=<cell_name>
+    Ex:
+        curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5 
+    """
     serializer_class = CellSerializer
 
     def get_queryset(self):
         """
-        Optionally restricts the returned purchases to a given user,
-        by filtering against a `username` query parameter in the URL.
+        Sends the update message to the model
+        Returns to caller a filtered list of Cells.
         """
-        print('mark 1')
         queryset = Cell.objects.all()
         board_id = self.request.query_params.get('board_id', None)
         cmd = self.request.query_params.get('cmd', None)
         cell_name = self.request.query_params.get('cell_name', None)
-        #if (board_id & cmd) is not None:
         if board_id is not None:
             board = Board.objects.get(id=board_id)
             print(board)
-            board.calc(cmd, cell_name)
+            board.update_game(cell_name)
             queryset = queryset.filter(board=board_id)
         return queryset
-
-
 
 class CellViewSet(viewsets.ModelViewSet):
     """
@@ -135,13 +136,20 @@ def add_board(request):
     board = util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
 
+
+
 def play(request, board_id):
     """
     Play
     """
     print('*** play')
     board = util.get_board(board_id)
-    board.calc('init')
+    #board.calc('init')
+    #board.calc_engine()
+
+    #jx
+    board.init_game()
+
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),

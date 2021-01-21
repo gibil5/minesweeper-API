@@ -52,12 +52,12 @@ Cells: <br/>{% for cell in cells %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<
 Cells: <br/>{% for cell in board.cells.all %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
 Cells: {{ board.cells.all }}
 Cells: {{ board.cells.all|join:", " }}
--->
 <div>
   <a href="{% url 'add_cells' board.id %}">
     Add cells
   </a>  
 </div>
+-->
 <div>
   <a href="{% url 'play' board.id %}">
     Play

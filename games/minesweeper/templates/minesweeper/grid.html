@@ -1,4 +1,5 @@
-
+ <!-- <html> -->
+ 
 {% load static %}
 
 <!DOCTYPE html>
@@ -17,13 +18,16 @@
                 text-align: center;
               	position: relative;
               	z-index: 1; /* original z-index */
-
                 /*
                 padding: 30px;
                 */
             }
             .label {
+              visibility: visible;              
+              font-size: 40px;
+              /*
               visibility: hidden;              
+              */
             }
             .square {
                 width: 40vw;
@@ -34,13 +38,34 @@
     </head>
     <body>
       <h1 id="play">Play Minesweeper</h1>
+
+      <h2>
+        <form class="" action="" method="">
+          <input id="is_visible" type="checkbox" name="is_visible" value="checked">
+          <label for="is_visible">Visible</label><br>
+        </form>        
+      </h2>
+
+      <h2>
+        <button hidden id="reset" type="button" name="button">
+          Reset
+        </button>
+      </h2>
+
+
       <div id="container">        
         <div id="grid" class="square">
           {% for cell in cells %}
 
               <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
-                <div class="label">
-                  0
+                <div id="cell_label" class="label">
+<!--
+                  {{cell.name}},
+                  {{cell.x}},
+                  {{cell.y}},
+-->
+                  {{cell.value}}
+
                 </div>
               </button>
 
@@ -61,5 +86,6 @@
     <!--
     <h3 id='rows'>{{ board.mines }}</h3>
     -->
+
     </body>
 </html>

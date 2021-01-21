@@ -47,3 +47,6 @@ def add_cells(board_id):
             c.save()
     #print(board)
     return board
+
+
+
