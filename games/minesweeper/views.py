@@ -1,25 +1,23 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.http import JsonResponse
-
-from . import util
-from .models import Board, Cell
-from django.views.decorators.csrf import csrf_exempt
-from django.core import serializers
 from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
-from rest_framework import generics
+#from django.http import JsonResponse
 
+#from django.core import serializers
+#from django.views.decorators.csrf import csrf_exempt
+
+from rest_framework import viewsets, permissions, generics
+from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
+from .models import Board, Cell
+from . import util
 
 class CellList(generics.ListAPIView):
     """
     Called by REST query:
     http://127.0.0.1:8000/cells_from/?board_id=<board_id>&cmd=update&cell_name=<cell_name>
     Ex:
-        curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5 
+    curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5
     """
     serializer_class = CellSerializer
 
@@ -30,12 +28,13 @@ class CellList(generics.ListAPIView):
         """
         queryset = Cell.objects.all()
         board_id = self.request.query_params.get('board_id', None)
-        cmd = self.request.query_params.get('cmd', None)
+        #cmd = self.request.query_params.get('cmd', None)
         cell_name = self.request.query_params.get('cell_name', None)
+        flag = self.request.query_params.get('flag', None)
         if board_id is not None:
             board = Board.objects.get(id=board_id)
             print(board)
-            board.update_game(cell_name)
+            board.update_game(cell_name, flag)
             queryset = queryset.filter(board=board_id)
         return queryset
 
@@ -46,7 +45,6 @@ class CellViewSet(viewsets.ModelViewSet):
     queryset = Cell.objects.all().order_by('-name')
     serializer_class = CellSerializer
     #permission_classes = [permissions.IsAuthenticated]
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -68,11 +66,9 @@ class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Boards to be viewed or edited.
     """
-    #queryset = Board.objects.all().order_by('-start')
     queryset = Board.objects.all().order_by('name')
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
-
 
 
 # Create your views here.
@@ -97,15 +93,15 @@ def show(request, board_id):
             "cells": util.get_cells(board_id),
         })
 
-def edit(request, board):
-    """
-    Edit
-    """
-    print('*** edit')
-    return render(request, "minesweeper/edit.html",
-        {
+#def edit(request, board):
+#    """
+#    Edit
+#    """
+#    print('*** edit')
+#    return render(request, "minesweeper/edit.html",
+#        {
             #"cells": util.list_cells()
-        })
+#        })
 
 def delete(request, board_id):
     """
@@ -118,41 +114,24 @@ def delete(request, board_id):
             "boards": util.list_boards()
         })
 
-def add_cells(request, board_id):
-    """
-    Add cells
-    """
-    print('*** add_cells')
-    return render(request, "minesweeper/show.html",
-        {
-            "board": util.add_cells(board_id)
-        })
-
 def add_board(request):
     """
     Add board
     """
     print('*** add_board')
-    board = util.add_board('Test')
+    util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
-
-
 
 def play(request, board_id):
     """
     Play
+    Calls board.init_game
     """
     print('*** play')
     board = util.get_board(board_id)
-    #board.calc('init')
-    #board.calc_engine()
-
-    #jx
     board.init_game()
-
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),
             "cells": util.get_cells(board_id),
         })
-

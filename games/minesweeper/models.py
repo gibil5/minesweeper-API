@@ -2,8 +2,8 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 from django.contrib.postgres.fields import ArrayField
-#from django.contrib.postgres.fields import JSONField
 from . import ms_engine as ms
+#from django.contrib.postgres.fields import JSONField
 
 BOARD_CHOICES = (
     ("BEGIN", "Begin"),
@@ -18,34 +18,15 @@ class Board(models.Model):
     rows = models.IntegerField(default=1)
     cols = models.IntegerField(default=1)
     mines = models.IntegerField(default=1)
-    nr_hidden_cells = models.IntegerField(blank=True, null=True)
-
+    #nr_hidden_cells = models.IntegerField(blank=True, null=True)
     start = models.DateTimeField(auto_now_add=True, blank=True)
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
     state = models.CharField(max_length=16, choices=BOARD_CHOICES, default='BEGIN')
-
     #numbers = JSONField()
     #numbers = models.JSONField(null=True, blank=True)
-
-    #numbers = ArrayField(ArrayField(models.IntegerField(blank=True)))
-    #numbers = ArrayField(ArrayField(models.IntegerField(blank=True)))
-    #numbers = ArrayField(ArrayField(models.IntegerField(default=0, blank=True, null=True)))
-    #numbers = ArrayField(
-    #                    ArrayField(
-    #                        models.IntegerField(default=list(list()), blank=True, null=True),
-    #                        size=100,
-    #                    ),
-    #                    size=100,
-    #                )
-
-    #data = ArrayField(
-    #    ArrayField(
-    #        models.CharField(max_length=10, blank=True, default=''),
-    #        size=100,
-    #    ),
-    #    size=100,
-    #)
+    numbers = ArrayField(ArrayField(models.IntegerField()))
+    apparent = ArrayField(ArrayField(models.IntegerField()))
 
     class Meta:
         #ordering = ('-start', )
@@ -68,253 +49,189 @@ class Board(models.Model):
         return enumerate(arr)
 
 
-    def reset_cells(self):
-        cells = self.get_cells()
-        for cell in cells:
-            cell.value = '0'
-            cell.mined = False 
-            cell.visible = False
-            cell.save()
-            
+
 
     def get_cells(self):
+        """
+        Get cells
+        """
         if Cell.objects.filter(board=self.id).count() == 0:
             print('\n\n***Creating cells !!!\n\n')
             for x in range(self.rows):
                 for y in range(self.cols):
-                    c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', visible=False, mined=False, flagged=False, board=self)
+                    #c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', visible=False, mined=False, flagged=False, board=self)
+                    c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
                     c.save()
-            
-        return Cell.objects.filter(board=self.id)
+        cells = Cell.objects.filter(board=self.id).order_by('name')
+        return cells 
 
 
+    def get_cell(self, x, y):
+        """
+        Get cell
+        """
+        cell = Cell.objects.get(board=self.id, x=x, y=y)
+        return cell
+
+
+    def get_cell_name(self, name):
+        """
+        Get cell by name
+        """
+        cell = Cell.objects.get(board=self.id, name=name)
+        return cell
+
+
+    def reset_cells(self):
+        """
+        Reset
+        """
+        cells = self.get_cells()
+        for cell in cells:
+            #cell.value = '0'
+            cell.value = 0
+            cell.label = ''
+            cell.mined = False 
+            cell.visible = False
+            cell.save()
+
 #-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-    #jx
     def init_game(self):
         """
-        Inits game
         Called by views.py
+
+        The actual values of the grid
+            numbers
+            
+        The apparent values of the grid (shown to the player)
+            apparent
+
+        The positions that have been flagged
+            flags
         """
+        print('\n\ninit_game')
+
+        # Reset
         self.reset_cells()
 
-        # Init
+        # Init - only square boards, for the moment
         n = self.rows
 
         #The actual values of the grid    
-        numbers = [[0 for y in range(n)] for x in range(n)] 
+        self.numbers = [[0 for y in range(n)] for x in range(n)] 
+
+        #The apparent values of the grid
+        #self.apparent = [[0 for y in range(n)] for x in range(n)]
+        #self.apparent = [[9 for y in range(n)] for x in range(n)]
+        self.apparent = [[None for y in range(n)] for x in range(n)]
 
         # Set the mines
         nr_mines = self.mines
-        numbers = ms.set_mines(n, numbers, nr_mines)
+        self.numbers = ms.set_mines(n, self.numbers, nr_mines)
 
+        # Set the actual values
+        self.numbers = ms.set_values(n, self.numbers)
 
-        # Set the values - Here !
-        # an object member
-        numbers = ms.set_values(n, numbers)
+        #print()
+        #print(self.numbers)
+        #print(self.apparent)
+        self.save()
 
-
-        print()
-        print(numbers)
-
-        # Init the board 
+        # Initialize the board 
         cells = self.get_cells()
         for cell in cells:
             x = cell.x 
             y = cell.y
-            cell.value = numbers[x][y]
-            if numbers[x][y] == -1:
+            value = self.numbers[x][y]
+            cell.value = value
+            cell.label = str(value)
+            if self.numbers[x][y] == -1:
                 cell.mined = True
             cell.save()
 
 
-    def update_game(self, cell_name):
+
+    def update_game(self, cell_name, flag):
         """
         Called by grid.js
-        Looks for the cell that has been clicked. 
+
         Actions:
-            It is rendered visible. 
+            clicked cell is rendered visible,
+            if value is equal to zero, adjacent cells also.
         """
         print('** update_game')
-        
-        cells = self.get_cells()
-        
+        print(cell_name)
+        print(flag)
+        print()
+
         # Init
-        arr = []
-        r = self.rows
-        n = self.cols
+        cell = self.get_cell_name(cell_name)
 
-        #The apparent values of the grid
-        mine_values = [[' ' for y in range(n)] for x in range(n)]
-        for cell in cells:
-            if cell.name == cell_name:
-                cell.visible = True
-                cell.save()
+        # Render the cell visible
+        cell.visible = True
+        x = cell.x
+        y = cell.y
+        self.apparent[x][y] = self.numbers[x][y]
+        self.save()
+        cell.save()
 
-                # If landing on a cell with 0 mines in neighboring cells
-                if numbers[r][n] == 0:
-                    pass
-                    
-                if cell.value == 0:
-                    r = self.rows
-                    vis = []
-                    mine_values[r][n] = '0'
+        # If landing on a cell with 0 mines in neighboring cells
+        if cell.value == 0:    
+            # Init
+            vis = []
+            self.apparent[x][y] = 0                  
+            n = self.rows
 
-                    #ms.neighbours(r, col, vis, mine_values, numbers)
-
-                    # The positions that have been flagged
-                    #flags = []
-                    #vis = []
-        
-        
-        
-
-#-------------------------------------------------------------------------------
-    def update_nex(self, cell_name):
-        """
-        Dep !
-        """
-        print('** update_nex')
-        cells = Cell.objects.filter(board=self.id)
-        arr = []
-        for cell in cells:
-            if cell.name == cell_name:
-                cell.visible = True
-                cell.save()
-
-                if cell.value == '0':
-                    ms.get_empty_neighbors(cell.x, cell.y, arr, self.id, Cell)
-
-        print(arr)
-        if False:
-            for tup in arr:
-                x = tup[0]
-                y = tup[1]
-                try:
-                    cell = Cell.objects.get(board=self.id, x=x, y=y)
-                except:
-                    print('error')
-                else:            
-                    #print('ok')
-                    if cell.value == '0': 
-                        cell.visible = True
-                        cell.save()
-
-
-
-
-    # Calc board
-    def update(self, cell_name):
-        """
-        Dep !
-        """
-        print('** update')
-
-        cells = Cell.objects.filter(board=self.id)
-        #count = 1
-
-        # Update - called by grid.js
-        for cell in cells:
-            if cell.name == cell_name:
-                cell.visible = True
-                cell.save()
-
-                # Get adjacent empty cells
-                if cell.value == '0':
-
-                    # Horizontal
-                    count_h = 1
-                    solution_hor = []
-                    if True:
-                        #ms.explore_horizontal(cell, count_h, self.rows, self.cols, Cell, self.id, solution_hor, 0, 1)
-                        ms.explore_all(cell, count_h, self.rows, self.cols, Cell, self.id, solution_hor, 0, 1)
-                        print('****************')
-                        print(solution_hor)
-                        print('****************')
-
-                    # Vertical
-                    count_v = 1
-                    solution_ver = []
-                    if True:
-                        #ms.explore_vertical(cell, count_v, self.rows, self.cols, Cell, self.id, solution_ver, 1, 0)
-                        ms.explore_all(cell, count_v, self.rows, self.cols, Cell, self.id, solution_ver, 1, 0)
-                        print('****************')
-                        print(solution_ver)
-                        print('****************')
-
-        # Adjacent cells must be visible also
-        for tup in solution_hor:
-            x = tup[0]
-            y = tup[1]
-            cell = Cell.objects.get(board=self.id, x=x, y=y)
-            cell.visible = True
-            cell.save()
-
-        for tup in solution_ver:
-            x = tup[0]
-            y = tup[1]
-            cell = Cell.objects.get(board=self.id, x=x, y=y)
-            cell.visible = True
-            cell.save()
-
-
-
-    # Calc engine
-    def calc_engine(self):
-        print('calc_engine')
-        
-        p = 0.1
-        bombs, solution = ms.create_board(self.rows, self.cols, p)
-        board = ms.clean(bombs, solution, self.rows, self.cols)
-        print(board)
-
-        
-        cells = Cell.objects.filter(board=self.id)
-
-        # init
-        for cell in cells:
-            cell.name = f'{cell.x}_{cell.y}'
-            cell.visible = False
-            cell.value = board[cell.x][cell.y]
-            if cell.value == '*':
-                cell.mined = True 
-            else: 
-                cell.mined = False 
-            cell.save()
-            #print(cell.name, cell.value, cell.x, cell.y)
+            # Looks for adjacent cells that can be cleared - Recursive
+            ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
+            #print()
+            #print(self.apparent)
+            #print()
+            #print(vis)
             #print()
 
+            # Update cells
+            for x in range(self.rows):
+                for y in range(self.cols):
+                    value = self.apparent[x][y]
+                    #if self.apparent[x][y] != None:
+                    #if self.apparent[x][y] != 9:
+                    #if value != 9:
+                    if value != None:
+                        cell = self.get_cell(x, y)
+                        cell.visible = True
+                        if value == 0:
+                            cell.label = ''
+                        else:
+                            cell.label = str(value)
+                        cell.value = self.apparent[x][y]
+                        cell.save()
 
-        # Check adherence
-        #print('check adherence')
-        #for cell in cells:
-        #    if cell.value == '0':
-        #        print('zero')
-        #        print(cell.name)
-        #        print()
+            # The positions that have been flagged
+            #flags = []
 
-
-
-
-
-
-
-
-
-
-
+        
+#-------------------------------------------------------------------------------    
 class Cell(models.Model):
     name = models.CharField(max_length=16)
+
     x = models.IntegerField()
     y = models.IntegerField()
 
+    #value = models.CharField(max_length=10, default=None)
     #value = models.IntegerField(default=0)
-    value = models.CharField(max_length=10, default=None)
+    value = models.IntegerField()
+    label = models.CharField(max_length=10, default='', blank=True, null=True)
 
     visible = models.BooleanField(default=False)
     mined = models.BooleanField(default=False)
     flagged = models.BooleanField(default=False)
+
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+
+    class Meta:
+        #ordering = ('-start', )
+        ordering = ('name', )
 
     def __str__(self):
         #return f"Cell: {self.name}, {self.x}, {self.y}, {self.value}, {self.hidden}, {self.mined}, {self.flagged}"

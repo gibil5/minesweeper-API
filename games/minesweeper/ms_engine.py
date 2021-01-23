@@ -4,6 +4,64 @@
 import random
 
 #-------------------------------------------------------------------------------
+def neighbours(n, row, col, vis, apparent, numbers):
+    """
+    Recursive
+    """
+    #print('** neighbours')
+ 
+    # If the cell already not visited
+    if [row,col] not in vis:
+ 
+        # Mark the cell visited
+        vis.append([row,col])
+ 
+        # If the cell is zero-valued
+        if numbers[row][col] == 0:
+ 
+            # Display it to the user
+            apparent[row][col] = numbers[row][col]
+ 
+            # Recursive calls for the neighbouring cells
+            if row > 0:
+                #neighbours(row-1, col)
+                neighbours(n, row-1, col, vis, apparent, numbers)
+
+            if row < n-1:
+                #neighbours(row+1, col)
+                neighbours(n, row+1, col, vis, apparent, numbers)
+
+            if col > 0:
+                #neighbours(row, col-1)
+                neighbours(n, row, col-1, vis, apparent, numbers)
+
+            if col < n-1:
+                #neighbours(row, col+1)    
+                neighbours(n, row, col+1, vis, apparent, numbers)
+
+            if row > 0 and col > 0:
+                #neighbours(row-1, col-1)
+                neighbours(n, row-1, col-1, vis, apparent, numbers)
+
+            if row > 0 and col < n-1:
+                #neighbours(row-1, col+1)
+                neighbours(n, row-1, col+1, vis, apparent, numbers)
+
+            if row < n-1 and col > 0:
+                #neighbours(row+1, col-1)
+                neighbours(n, row+1, col-1, vis, apparent, numbers)
+
+            if row < n-1 and col < n-1:
+                #neighbours(row+1, col+1)  
+                neighbours(n, row+1, col+1, vis, apparent, numbers)  
+
+        # If the cell is not zero-valued         
+        if numbers[row][col] != 0:
+            apparent[row][col] = numbers[row][col]
+# neighbours
+
+
+
 def set_mines(n, numbers, nr_mines):
     """
     The actual values of the grid    
@@ -25,9 +83,9 @@ def set_mines(n, numbers, nr_mines):
         if numbers[r][col] != -1:
             count = count + 1
             numbers[r][col] = -1
-
     return numbers
-    
+# set_mines    
+
 
 def set_values(n, numbers):
     """
@@ -53,7 +111,8 @@ def set_values(n, numbers):
             # Check left
             if col > 0 and numbers[r][col-1] == -1:
                 #numbers[r] = numbers[r] + 1
-                numbers[r].append(1)
+                #numbers[r].append(1)
+                numbers[r][col] = numbers[r][col] + 1
 
             # Check right
             if col < n-1 and numbers[r][col+1] == -1:
@@ -74,51 +133,8 @@ def set_values(n, numbers):
             # Check below-right
             if r < n-1 and col< n-1 and numbers[r+1][col+1]==-1:
                 numbers[r][col] = numbers[r][col] + 1
-
     return numbers
-
-
-def neighbours(r, col, vis, mine_values, numbers):
-    #global mine_values
-    #global numbers
-    #global vis
- 
-    # If the cell already not visited
-    if [r,col] not in vis:
- 
-        # Mark the cell visited
-        vis.append([r,col])
- 
-        # If the cell is zero-valued
-        if numbers[r][col] == 0:
- 
-            # Display it to the user
-            mine_values[r][col] = numbers[r][col]
- 
-            # Recursive calls for the neighbouring cells
-            if r > 0:
-                neighbours(r-1, col)
-            if r < n-1:
-                neighbours(r+1, col)
-            if col > 0:
-                neighbours(r, col-1)
-            if col < n-1:
-                neighbours(r, col+1)    
-            if r > 0 and col > 0:
-                neighbours(r-1, col-1)
-            if r > 0 and col < n-1:
-                neighbours(r-1, col+1)
-            if r < n-1 and col > 0:
-                neighbours(r+1, col-1)
-            if r < n-1 and col < n-1:
-                neighbours(r+1, col+1)  
-                 
-        # If the cell is not zero-valued            
-        if numbers[r][col] != 0:
-                mine_values[r][col] = numbers[r][col]
-
-
-
+# set_values    
 
 
 
