@@ -15,7 +15,10 @@ class Board(models.Model):
     name = models.CharField(max_length=16)
     rows = models.IntegerField(default=1)
     cols = models.IntegerField(default=1)
-    mines = models.IntegerField(default=1)
+
+    #mines = models.IntegerField(default=1)
+    nr_mines = models.IntegerField(default=1)
+
     start = models.DateTimeField(auto_now_add=True, blank=True)
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
@@ -24,6 +27,11 @@ class Board(models.Model):
     numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
+    mines = ArrayField(ArrayField(models.IntegerField()))
+
+    game_over = models.BooleanField(default=False)
+    success = models.BooleanField(default=False)
+
 
     class Meta:
         ordering = ('name', )
@@ -80,7 +88,8 @@ class Board(models.Model):
             cell.label = ''
             cell.mined = False
             cell.visible = False
-            cell.flagged = False            
+            cell.flagged = False       
+            cell.success = False
             cell.save()
 
 #-------------------------------------------------------------------------------
@@ -97,7 +106,11 @@ class Board(models.Model):
         # Reset
         self.reset_cells()
 
-        # Init - only square boards, for the moment
+        # Init 
+        self.game_over = False
+        self.success = False
+
+        # Only square boards, for the moment
         n = self.rows
 
         # The positions that have been flagged
@@ -110,14 +123,22 @@ class Board(models.Model):
         self.apparent = [[None for y in range(n)] for x in range(n)]
 
         # Set the mines
-        nr_mines = self.mines
+        nr_mines = self.nr_mines
         self.numbers = ms.set_mines(n, self.numbers, nr_mines)
 
         # Set the actual values
         self.numbers = ms.set_values(n, self.numbers)
 
-        self.save()
+        # The positions that have been mined
+        self.mines = []
+        for x in range(self.rows):
+            for y in range(self.cols):
+                value = self.numbers[x][y]
+                if value == -1:
+                    self.mines.append([x, y])
+        print(self.mines)
 
+        self.save()
 
         # Initialize the board
         cells = self.get_cells()
@@ -130,8 +151,8 @@ class Board(models.Model):
             if self.numbers[x][y] == -1:
                 cell.mined = True
             cell.flagged = False
+            cell.success = False
             cell.save()
-
 
 
 #-------------------------------------------------------------------------------
@@ -163,22 +184,35 @@ class Board(models.Model):
             # If not cell already been flagged
             # If not cell already been displayed
             # If nr of flags less than nr of mines 
-            if ([x, y] not in self.flags) and (self.apparent[x][y] == None) and (len(self.flags) < self.mines):
+            if ([x, y] not in self.flags) and (self.apparent[x][y] == None) and (len(self.flags) < self.nr_mines):
                 print("Set Flag")
+                cell = self.get_cell(x, y)
              
                 # Adding flag to the list
                 self.flags.append([x, y])
-                 
+                print(self.flags)
+                
+                #if self.flags.sort() == self.mines.sort():
+                if self.flags == self.mines:
+                    print('*** WIN !!!')
+                    print(self.mines)
+                    self.game_over = False
+                    self.success = False
+                    cell.success = True
+                else:
+                    print('Not yet !!')
+                    cell.success = False
+                
                 # Set the flag for display
-                self.apparent[x][y] = 'F'
+                #self.apparent[x][y] = 'F'
 
                 # Set cell
-                cell = self.get_cell(x, y)
-                #cell.visible = True
                 cell.flagged = True                
                 cell.label = 'F'
+
                 cell.save()
-                #print(self.apparent)
+
+                self.save()
                 #print(self.flags)
             
 
@@ -188,6 +222,13 @@ class Board(models.Model):
             # Render the cell visible
             cell.visible = True
             self.apparent[x][y] = self.numbers[x][y]
+
+            # Mined - Game over
+            if cell.mined:
+                print('*** LOOSE !')
+                self.game_over = True
+                self.success = False
+
             self.save()
             cell.save()
                 
@@ -215,6 +256,7 @@ class Board(models.Model):
                             cell.value = self.apparent[x][y]
                             cell.save()
 
+
 #-------------------------------------------------------------------------------
 class Cell(models.Model):
     name = models.CharField(max_length=16)
@@ -226,6 +268,8 @@ class Cell(models.Model):
     mined = models.BooleanField(default=False)
     flagged = models.BooleanField(default=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+
+    success = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('name', )

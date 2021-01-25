@@ -15,10 +15,13 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class BoardSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Board
-        fields = ['id', 'name', 'rows', 'cols', 'mines', 'start', 'end', 'duration', 'nr_hidden_cells', 'state']
+        #fields = ['id', 'name', 'rows', 'cols', 'mines', 'start', 'end', 'duration', 'nr_hidden_cells', 'state']
+        #fields = ['id', 'name', 'rows', 'cols', 'nr_mines', 'start', 'end', 'duration', 'state']
+        fields = ['id', 'name', 'rows', 'cols', 'nr_mines', 'mines', 'flags', 'game_over', 'success']
 
 class CellSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Cell
         #fields = ['name', 'value', 'visible', 'mined', 'flagged']
-        fields = ['name', 'value', 'label', 'visible', 'mined', 'flagged']
+        #fields = ['name', 'value', 'label', 'visible', 'mined', 'flagged']
+        fields = ['name', 'value', 'label', 'visible', 'mined', 'flagged', 'success']

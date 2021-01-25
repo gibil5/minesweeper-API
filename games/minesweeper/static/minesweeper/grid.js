@@ -13,15 +13,15 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
 
-    // Board id
-    var board_id = document.getElementById("board_id").innerHTML;
-    console.log(board_id);
-
-
     // End game - called from update_board
-    function end_game() {
+    function end_game(success) {
+      if (success) { 
+        color = 'lightgreen'
+      } else {        
+        color = 'red'
+      }
       document.querySelectorAll('button').forEach(button => {
-          button.style.backgroundColor = 'red';
+          button.style.backgroundColor = color;
           let mined = button.dataset.mined;
           if (mined === 'True') {
             button.style.size = '40px';
@@ -32,44 +32,73 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
+    // Get board
+    /*
+    function get_board(board_id) {
+      console.log('get_board');
+      const url = `http://127.0.0.1:8000/boards/${board_id}/`;
+      fetch(url)
+      .then(response => response.json())
+      .then(data => {
+          console.log(url);
+          console.log(data);
+          console.log(data.mines);
+          console.log(data.flags);
+          console.log(data.game_over);
+          console.log(data.success);
+          if (data.game_over && data.success) {
+            console.log('GAME OVER - SUCEESS !!!');
+          }
+      }
+    )};
+    */
+
+    // Update cell
+    function update_cell(item) {
+      document.getElementById(item.name).style.backgroundColor = 'silver';
+      document.getElementById(`cell_label_${item.name}`).innerHTML = `${item.label}`;
+      document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';      
+    }
+
+    // Flag cell
+    function flag_cell_func(item) {
+      console.log('flagged');
+      document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';
+      document.getElementById(`cell_label_${item.name}`).innerHTML = 'F';      
+      console.log(item);
+      if (item.success) {
+        console.log('SUCCESS !!!');
+        end_game(true);            
+      }
+    }
+
     // Update board
-    function update_board(cell_name, flag) {
+    function update_board(board_id, cell_name, flag) {
       console.log('update_board');
       console.log(`cell_name: ${cell_name}`);
       console.log(`flag: ${flag}`);
       const is_visible = document.getElementById(`cell_label_${cell_name}`).style.visibility;
       console.log(is_visible);
       if (is_visible != 'visible') {
-        const url_cells=  `http://127.0.0.1:8000/cells_from/?board_id=${board_id}&cmd=update&cell_name=${cell_name}&flag=${flag}`;
+        const url_cells = `http://127.0.0.1:8000/cells_from/?board_id=${board_id}&cmd=update&cell_name=${cell_name}&flag=${flag}`;
         fetch(url_cells)
         .then(response => response.json())
         .then(data => {
-            console.log(url_cells);
-            // loop
             let hit_mine = false;
             data.forEach((item, i) => {
-              //console.log(i, item);
-              // If visible
               if (item.visible) {
                 if (item.mined) {
                   hit_mine = true;                
                 } else {
-                  // update 
-                  document.getElementById(item.name).style.backgroundColor = 'silver';
-                  document.getElementById(`cell_label_${item.name}`).innerHTML = `${item.label}`;
-                  document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';
+                  update_cell(item);
                 } 
               } else if (item.flagged) {
-                console.log('flagged');
-                document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';
-                document.getElementById(`cell_label_${item.name}`).innerHTML = 'F';                
-              }
+                  flag_cell_func(item);
+                }
             });
-            // end of game
             if (hit_mine) {
-              console.log('*** END GAME !!!');
-              end_game();            
-            }  
+              end_game(false);            
+            } 
         })
         .catch(error => {
             console.log('Error', error);
@@ -88,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function(){
       }      
     }
     
-    
     // Reset game
     function reset_game() {
       document.querySelectorAll('button').forEach(button => {
@@ -100,20 +128,21 @@ document.addEventListener('DOMContentLoaded', function(){
     // Add event listener - To all buttons
     document.querySelectorAll('button').forEach(button => {
         button.onclick = function() {
-            console.log('onclick');
+            //console.log('onclick');
             let cell = button.dataset.cell;
             const flag_cell = document.getElementById('flag_cell');
             var flag = 0;
             if (flag_cell.checked) {
-              console.log('flag cell');
               flag = 1;
               flag_cell.checked = false;
             } else {
-              console.log('do not flag cell');
               flag = 0;
             }
             if (cell != undefined) {
-              update_board(cell, flag);
+              const board_id = document.getElementById("board_id").innerHTML;
+              console.log(board_id);
+              // Update board
+              update_board(board_id, cell, flag);
             } else if (button.id === 'reset') {
               console.log('reset');
               reset_game();
