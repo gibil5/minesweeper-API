@@ -56,81 +56,53 @@
     <body>
       <h1 id="play">Play Minesweeper</h1>
 
-      <div id='lorem' oncontextmenu="javascript:alert('success!');return false;">
-          <h2>
-            Lorem Ipsum
-          </h2>
-      </div>
-<!--
+      <!-- For flagging -->
       <h2>
         <form class="" action="" method="">
-          <input id="is_visible" type="checkbox" name="is_visible" value="checked">
-          <label for="is_visible">Visible</label><br>
+          <input id="flag_cell" type="checkbox" name="flag_cell" value="">
+          <label for="flag_cell">Flag cell</label><br>
         </form>        
       </h2>
-      <h2>
-        <button hidden id="reset" type="button" name="button">
-          Reset
-        </button>
-      </h2>
--->
 
-<div class="row">
-  <div class="col-md-6">
+    <!-- Game -->
+    <div class="row">
+      <div class="col-md-6">
+        <div id="grid" class="square">
+          {% for cell in cells %}
+              <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+                <div id="cell_label_{{cell.name}}" class="label">
+    <!--
+                  {{cell.name}},
+                  {{cell.x}},
+                  {{cell.y}},
+                  {{cell.value}}
+    -->
+                  {{cell.label}}
+                </div>
+              </button>
+          {% endfor %}
+        </div>
+      </div>
 
-
-    <div id="grid" class="square">
-      {% for cell in cells %}
-
-          <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
-
-            <div id="cell_label_{{cell.name}}" class="label">
-<!--
-              {{cell.name}},
-              {{cell.x}},
-              {{cell.y}},
-              {{cell.value}}
--->
-              {{cell.label}}
-            </div>
-          </button>
-      {% endfor %}
+      <!-- Admin mode -->
+      <div class="col-md-6">
+        <div id="grid" class="square">
+          {% for cell in cells %}
+              <button id="" class="grid-item">
+                <div id="" class="label_visible">
+                  {{cell.value}}
+                </div>
+              </button>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-  </div>
 
 
-  <div class="col-md-6">
-    <div id="grid" class="square">
-      {% for cell in cells %}
-          <button id="" class="grid-item">
-            <div id="" class="label_visible">
-              {{cell.value}}
-            </div>
-          </button>
-      {% endfor %}
-    </div>
-  </div>
-</div>
-
-
-
-
-<div id="container">        
-</div>
-
+    <!-- Info for styling -->
     <div hidden>
       <h3  id='board_id'>{{ board.id }}</h3>
       <h3 id='rows'>{{ board.rows }}</h3>      
     </div>
-    <!--
-    <h3 id='rows'>{{ board.mines }}</h3>
-    -->
-    <!--
-    <h3>Cells:</h3> 
-    {% for cell in cells %}
-        {{ cell.x }}, {{ cell.y }}, {{ cell.value }}, {{ cell.visible }}  <br/>
-    {% endfor %}
-    -->
-
     </body>
 </html>
