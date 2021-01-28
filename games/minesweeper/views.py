@@ -1,17 +1,14 @@
+#!/usr/bin/env python3
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User, Group
-#from django.http import JsonResponse
-
-#from django.core import serializers
-#from django.views.decorators.csrf import csrf_exempt
-
 from rest_framework import viewsets, permissions, generics
 from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
 from .models import Board, Cell
 from . import util
 
+#-------------------------------------------------------------------------------
 class CellList(generics.ListAPIView):
     """
     Called by REST query:
@@ -70,7 +67,7 @@ class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
-
+#-------------------------------------------------------------------------------
 # Create your views here.
 def index(request):
     """

@@ -3,12 +3,22 @@
     Minesweeper - Show
 {% endblock %}
 {% block body %}
-<h1>Board - {{ board.name }}</h1>
-<div>
+
+<style media="screen">
+  
+  .my_container {
+    padding-top: 25px;    
+    padding-left: 25px;    
+    font-size: 18px;              
+    line-height: 150%;
+  }
+</style>
+
+<h2>{{ board.name }}</h2>
+
+<div class="my_container">
+
     <ul>
-      <li>
-        Name: {{ board.id }}
-      </li>
       <li>
         Rows: {{ board.rows }}
       </li>
@@ -16,16 +26,23 @@
         Cols: {{ board.cols }}
       </li>
       <li>
-        Mines: {{ board.mines }}
-      </li>
+        Nr cells: {{ board.get_nr_cells }}
       <li>
         Start: {{ board.start }}
       </li>
       <li>
-        End: {{ board.end }}
+        Duration: {{ board.duration }}
       </li>
       <li>
-        Duration: {{ board.duration }}
+        End: {{ board.end }}
+      </li>
+      <!--
+      <li>
+        Mines: {{ board.mines }}
+      </li>
+      <li>
+      <li>
+        Name: {{ board.id }}
       </li>
       <li>
         Hidden cells: {{ board.nr_hidden_cells }}
@@ -33,10 +50,8 @@
       <li>
         State: {{ board.state }}
       </li>
-      <li>
-        Nr cells: {{ board.get_nr_cells }}
-      </li>
-      <!--
+
+
       {% for x, value in board.get_rows %}
         <li>
           {% for y, value in board.get_cols %}
@@ -46,21 +61,17 @@
       {% endfor %}
       -->
     </ul>
-</div>
-<!--
-Cells: <br/>{% for cell in cells %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
-Cells: <br/>{% for cell in board.cells.all %}{{ cell.x }}, {{ cell.y }}, {{ cell.value }}<br/>{% endfor %}
-Cells: {{ board.cells.all }}
-Cells: {{ board.cells.all|join:", " }}
--->
-<div>
-  <a href="{% url 'play' board.id %}">
-    Play
-  </a>  
-</div>
-<div>
-  <a href="{% url 'index' %}">
-    Home
-  </a>
+
+    <div>
+      <a href="{% url 'play' board.id %}">
+        Play
+      </a>  
+    </div>
+    <div>
+      <a href="{% url 'index' %}">
+        Home
+      </a>
+    </div>
+
 </div>
 {% endblock %}

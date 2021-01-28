@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-    Test
+    Tests
 """
 
 import unittest
@@ -34,12 +34,12 @@ class GameEngineTestCase(unittest.TestCase):
         board = Board.objects.get(id=self.board_id)
         board.init_game()
         cells = Cell.objects.filter(board=self.board_id).order_by('name')
-        print()
-        print(board.numbers)
-        print()
-        print(board.apparent)
-        print()
-        print(cells)
+        #print()
+        #print(board.numbers)
+        #print()
+        #print(board.apparent)
+        #print()
+        #print(cells)
         
     #@unittest.skip
     def test_update_game(self):
@@ -50,6 +50,3 @@ class GameEngineTestCase(unittest.TestCase):
         board = Board.objects.get(id=self.board_id)
         flag = self.flag
         board.update_game(self.cell_name, flag)
-
-
-

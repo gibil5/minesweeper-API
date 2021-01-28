@@ -3,41 +3,61 @@
   Minesweeper
 {% endblock %}
 {% block body %}
-<h1>All Boards</h1>
-<div class="container">      
+
+<style media="screen">
+  .container_idx {
+    padding-top: 25px;    
+    padding-left: 25px;    
+    font-size: 18px;              
+    line-height: 200%;
+  }
+</style>
+
+<h1>All Games</h1>
+
+<div class="container_idx">      
+
   {% for board in boards %}
-      <div class="row">
-          <div class="col-1">
-            <a href="{% url 'show' board.id %}">
-              {{ board.name }}
-            </a>
-          </div>
-          <div class="col-1">
-            Rows: {{ board.rows }}
-          </div>
-          <div class="col-1">
-            Cols: {{ board.cols }}
-          </div>
-          <div class="col-1">
-            Mines: {{ board.mines }}
-          </div>
-          <div class="col-2">
-            {{ board.start }}
-          </div>
-          <div class="col-2">
-            State: {{ board.state }}
-          </div>
-          <div class="col-2">
-            Nr cells: {{ board.get_nr_cells }}
-          </div>
-          <div class="col-1">
-            <a href="{% url 'delete' board.id %}" onclick="return confirm('Are you sure you want to delete this?')">Del</a>
-            <!--
-            <a href="{% url 'delete' board.id %}">REMOVE</a>
-            -->                  
-          </div>
-      </div>
+  <div class="row">
+
+
+    <div class="col-1">
+      <a href="{% url 'show' board.id %}">
+        {{ board.name }}
+      </a>
+    </div>
+
+    <div class="col-1">
+      Size: {{ board.get_nr_cells }}
+    </div>
+
+    <div class="col-1">
+      Mines: {{ board.nr_mines }}
+    </div>
+
+    <div class="col-3">
+      {{ board.start }}
+    </div>
+
+    <div class="col-3">
+      {{ board.duration }}
+    </div>
+
+    <div class="col-1">
+      {{ board.state }}
+    </div>
+
+    <div class="col-1">
+      <a href="{% url 'delete' board.id %}" onclick="return confirm('Are you sure you want to delete this?')">Del</a>
+      <!--
+      <a href="{% url 'delete' board.id %}">REMOVE</a>
+      -->                  
+    </div>
+  </div>
   {% endfor %}
+  <br>
+  <a href="{% url 'add_board' %}">Add game</a>
 </div>
-<a href="{% url 'add_board' %}">Add</a>
+
+
 {% endblock %}

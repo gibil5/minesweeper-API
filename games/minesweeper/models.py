@@ -1,28 +1,30 @@
-from datetime import timedelta
+#!/usr/bin/env python3
+from datetime import tzinfo, timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from . import ms_engine as ms
 
 BOARD_CHOICES = (
-    ("BEGIN", "Begin"),
-    ("IN_PROGRESS", "In progress"),
-    ("PAUSE", "Pause"),
-    ("END", "End"),
+    ("created", "Created"),
+    ("start", "Start"),
+    ("pause", "Pause"),
+    ("end", "End"),
 )
+# created, start, pause, end 
+
 
 # Create your models here.
 class Board(models.Model):
     name = models.CharField(max_length=16)
     rows = models.IntegerField(default=1)
     cols = models.IntegerField(default=1)
-
-    #mines = models.IntegerField(default=1)
     nr_mines = models.IntegerField(default=1)
+    nr_hidden = models.IntegerField(default=0)
 
-    start = models.DateTimeField(auto_now_add=True, blank=True)
+    start = models.DateTimeField(blank=True, null=True)
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
-    state = models.CharField(max_length=16, choices=BOARD_CHOICES, default='BEGIN')
+    state = models.CharField(max_length=16, choices=BOARD_CHOICES, blank=True, null=True)
 
     numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
@@ -31,7 +33,6 @@ class Board(models.Model):
 
     game_over = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
-
 
     class Meta:
         ordering = ('name', )
@@ -93,6 +94,47 @@ class Board(models.Model):
             cell.save()
 
 #-------------------------------------------------------------------------------
+    def not_cell_flagged(self, x, y):
+        return [x, y] not in self.flags
+        
+    def not_cell_displayed(self, x, y):
+        return self.apparent[x][y] == None
+
+    def nr_flags_ok(self, x, y):
+        return len(self.flags) < self.nr_mines
+
+    def flagging_ok(self, x, y):
+        return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y) and self.nr_flags_ok(x, y)
+
+    def nr_cells_hidden(self):
+        cells = self.get_cells()
+        count = 0
+        for cell in cells:
+            if not cell.visible:
+                count += 1
+        return count
+        
+    def short_win(self):
+        # Win condition - 1
+        print('*** win condition 1')
+        self.flags.sort()
+        print(self.flags)
+        print(self.mines)
+        return self.flags == self.mines
+
+    def long_win(self):
+        # Win condition - 2
+        print('*** win condition 2')
+        print(self.nr_cells_hidden())            
+        return self.nr_cells_hidden() == self.nr_mines
+
+    def mined_defeat(self, cell):
+        # Mined - Game over
+        print('*** defeat condition 1')
+        return cell.mined and cell.visible
+
+
+#-------------------------------------------------------------------------------
     def init_game(self):
         """
         Called by views.py
@@ -109,6 +151,9 @@ class Board(models.Model):
         # Init 
         self.game_over = False
         self.success = False
+        self.nr_hidden = self.rows * self.cols
+        self.start = datetime.now()
+        self.duration = timedelta(minutes=0)
 
         # Only square boards, for the moment
         n = self.rows
@@ -154,7 +199,6 @@ class Board(models.Model):
             cell.success = False
             cell.save()
 
-
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
@@ -174,61 +218,27 @@ class Board(models.Model):
         x = cell.x
         y = cell.y
 
-
-        # If cell is flagged
+        # Flag cell
         if flag == '1':
-            print('*** manage flag')
+            print('*** Flag cell')
             print(self.flags)
-
-            # Check the number for flags    
-            # If not cell already been flagged
-            # If not cell already been displayed
-            # If nr of flags less than nr of mines 
-            if ([x, y] not in self.flags) and (self.apparent[x][y] == None) and (len(self.flags) < self.nr_mines):
+            # Check if flagging ok
+            if self.flagging_ok(x, y):
                 print("Set Flag")
                 cell = self.get_cell(x, y)
-             
-                # Adding flag to the list
                 self.flags.append([x, y])
-                print(self.flags)
-                
-                #if self.flags.sort() == self.mines.sort():
-                if self.flags == self.mines:
-                    print('*** WIN !!!')
-                    print(self.mines)
-                    self.game_over = False
-                    self.success = False
-                    cell.success = True
-                else:
-                    print('Not yet !!')
-                    cell.success = False
-                
-                # Set the flag for display
-                #self.apparent[x][y] = 'F'
-
-                # Set cell
-                cell.flagged = True                
-                cell.label = 'F'
-
+                cell.flagged = True     # Set cell for flag display
+                cell.label = '?'
                 cell.save()
-
                 self.save()
-                #print(self.flags)
-            
 
         # Cell not flagged
         else:
             print('*** manage cells')
+
             # Render the cell visible
             cell.visible = True
             self.apparent[x][y] = self.numbers[x][y]
-
-            # Mined - Game over
-            if cell.mined:
-                print('*** LOOSE !')
-                self.game_over = True
-                self.success = False
-
             self.save()
             cell.save()
                 
@@ -238,10 +248,8 @@ class Board(models.Model):
                 vis = []
                 self.apparent[x][y] = 0
                 n = self.rows
-
                 # Looks for adjacent cells that can be cleared - Recursive
                 ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
-
                 # Update cells
                 for x in range(self.rows):
                     for y in range(self.cols):
@@ -250,11 +258,32 @@ class Board(models.Model):
                             cell = self.get_cell(x, y)
                             cell.visible = True
                             if value == 0:
-                                cell.label = ''
+                                cell.label = '.'
                             else:
                                 cell.label = str(value)
                             cell.value = self.apparent[x][y]
                             cell.save()
+
+
+        # Check win conditions
+        cell = self.get_cell_name(cell_name)
+
+        if (self.short_win() or self.long_win()) and not self.mined_defeat(cell):
+            self.game_over = True
+            self.success = True
+            cell.success = True
+        else:
+            print('Not yet !!')
+            cell.success = False
+        
+        # Stats
+        self.nr_hidden = self.nr_cells_hidden()
+        if self.start == None:
+             self.start = datetime.now(timezone.utc)
+        self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
+
+        self.save()
+        cell.save()
 
 
 #-------------------------------------------------------------------------------
@@ -268,7 +297,6 @@ class Cell(models.Model):
     mined = models.BooleanField(default=False)
     flagged = models.BooleanField(default=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-
     success = models.BooleanField(default=False)
 
     class Meta:
