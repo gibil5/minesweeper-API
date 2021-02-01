@@ -8,8 +8,21 @@ from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellS
 from .models import Board, Cell
 from . import util
 
+
 #-------------------------------------------------------------------------------
-class CellList(generics.ListAPIView):
+class BoardInit(generics.ListAPIView):
+    serializer_class = BoardSerializer
+    def get_queryset(self):
+        queryset = Board.objects.all()
+        board_id = self.request.query_params.get('board_id', None)
+        if board_id is not None:
+            board = Board.objects.get(id=board_id)
+            board.init_game()
+            queryset = queryset.filter(id=board_id)
+        return queryset
+
+
+class BoardUpdate(generics.ListAPIView):
     """
     Called by REST query:
     http://127.0.0.1:8000/cells_from/?board_id=<board_id>&cmd=update&cell_name=<cell_name>
@@ -25,16 +38,35 @@ class CellList(generics.ListAPIView):
         """
         queryset = Cell.objects.all()
         board_id = self.request.query_params.get('board_id', None)
-        #cmd = self.request.query_params.get('cmd', None)
+
         cell_name = self.request.query_params.get('cell_name', None)
         flag = self.request.query_params.get('flag', None)
+
+        duration = self.request.query_params.get('duration', None)
+
+        state = self.request.query_params.get('state', None)
+
         if board_id is not None:
             board = Board.objects.get(id=board_id)
             print(board)
-            board.update_game(cell_name, flag)
             queryset = queryset.filter(board=board_id)
+
+        # Update game 
+        if (cell_name is not None) and (flag is not None):
+            board.update_game(cell_name, flag)
+
+        # Update duration
+        if duration is not None:
+            board.update_duration(duration)
+
+        # Update state 
+        if state is not None:
+            board.update_state(state)
+
         return queryset
 
+
+#-------------------------------------------------------------------------------
 class CellViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows cells to be viewed or edited.
@@ -119,6 +151,7 @@ def add_board(request):
     util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
 
+
 def play(request, board_id):
     """
     Play
@@ -126,9 +159,46 @@ def play(request, board_id):
     """
     print('*** play')
     board = util.get_board(board_id)
-    board.init_game()
+
+
+    if board.state in ['end']:
+        return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
+    elif board.state in ['init']:
+        board.init_game()
+
+    elif board.state in ['pause']:
+        board.state = 'start'
+        board.save()
+
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),
             "cells": util.get_cells(board_id),
         })
+
+
+def reset(request, board_id):
+    """
+    Reset
+    """
+    print('*** reset')
+    board = util.get_board(board_id)
+    board.reset_game()
+    return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
+
+def pause(request, board_id):
+    """
+    pause
+    """
+    print('*** pause')
+    board = util.get_board(board_id)
+    board.pause_game()
+    return HttpResponseRedirect(reverse('show', args=(board_id,)))
+    #return render(request, "minesweeper/grid.html",
+    #    {
+    #        "board": util.get_board(board_id),
+    #        "cells": util.get_cells(board_id),
+    #    })
+

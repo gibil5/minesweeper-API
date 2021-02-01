@@ -20,21 +20,22 @@
 
     <ul>
       <li>
-        Rows: {{ board.rows }}
+        State: {{ board.state }}
       </li>
-      <li>
-        Cols: {{ board.cols }}
-      </li>
-      <li>
-        Nr cells: {{ board.get_nr_cells }}
       <li>
         Start: {{ board.start }}
       </li>
       <li>
-        Duration: {{ board.duration }}
+        End: {{ board.end }}
       </li>
       <li>
-        End: {{ board.end }}
+        Duration: {{ board.get_duration }}
+      </li>
+      <li>
+        Game over: {{ board.game_over }}
+      </li>
+      <li>
+        Game win: {{ board.game_win }}
       </li>
       <!--
       <li>
@@ -50,8 +51,6 @@
       <li>
         State: {{ board.state }}
       </li>
-
-
       {% for x, value in board.get_rows %}
         <li>
           {% for y, value in board.get_cols %}
@@ -62,16 +61,25 @@
       -->
     </ul>
 
+    <!-- Reset -->
+    <div>
+      <a href="{% url 'reset' board.id %}">
+        Reset
+      </a>  
+    </div>
+
+    <!-- Play -->
     <div>
       <a href="{% url 'play' board.id %}">
         Play
       </a>  
     </div>
+
+    <!-- Home -->
     <div>
       <a href="{% url 'index' %}">
         Home
       </a>
     </div>
-
 </div>
 {% endblock %}

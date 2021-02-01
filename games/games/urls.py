@@ -31,6 +31,6 @@ urlpatterns = [
     path('', include("minesweeper.urls")),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-
-    path('cells_from/', views.CellList.as_view()),
+    path('board_init/', views.BoardInit.as_view()),
+    path('board_update/', views.BoardUpdate.as_view()),
 ]

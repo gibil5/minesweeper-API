@@ -1,3 +1,120 @@
+// 1 Feb 2021
+
+
+// Fetch - update duration
+function fetch_update_duration(board_id, duration) {
+  //console.log('fetch_update_duration');
+  const url = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&duration=${duration}`;
+  go_fetch(url);
+}
+
+// Fetch - update state
+function fetch_update_state(board_id, state) {
+  //console.log('fetch_update_state');
+  const url = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&state=${state}`;
+  go_fetch(url);
+}
+
+// Pause
+function pause() {
+  console.log('pause');
+  // Globals
+  game_pause = true;
+  // Update the backend
+  board_id = get_board_id();
+  const state = 'pause';
+  fetch_update_state(board_id, state);
+}
+
+// Continue
+function continue_game() {      
+  console.log('continue');
+  // Globals
+  game_pause = false;
+  // Update the backend
+  board_id = get_board_id();
+  const state = 'start';
+  fetch_update_state(board_id, state)
+}
+
+// All buttons - Add event listener
+document.querySelectorAll('button').forEach(button => {
+    button.onclick = function() {
+      let cell = button.dataset.cell;
+      // If board cell
+      if (cell) {
+        const is_visible = document.getElementById(`cell_label_${cell}`).style.visibility;
+        if (!is_visible) {
+
+          // Update board
+          board_id = get_board_id();
+          flag = get_flag();
+          fetch_chain_update(board_id, cell, flag);
+        }
+      // Other buttons
+      //} else if (button.id === 'reset') {
+      //  reset_game();
+      //} else if (button.id === 'pause_btn') {
+      //  pause();
+      //} else if (button.id === 'continue_btn') {
+      //  continue_game();
+      //} else if (button.id === 'return_btn') {
+      //  return_game();
+      }
+    }
+})
+
+
+
+
+
+
+// 31 jan 
+
+// listener
+//const button_pause = document.getElementById('pause_btn')
+//button_pause.onclick = function() {      
+//  pause();
+//  console.log(ret);
+//}
+
+
+// listener
+//const button_continue = document.getElementById('continue_btn')
+//button_continue.onclick = function() {      
+//  continue_game();
+//  console.log(ret);
+//}
+
+
+
+
+
+// 30 jan 
+
+// Reset
+function reset() {      
+  console.log('Reset');
+  // Init startDate
+  game_over = false;
+  startDate = new Date();
+  const date_fmt = formatDate(startDate)
+  document.getElementById('start').innerHTML = 'Start: ' + date_fmt;
+  return 5;
+}
+
+// Reset button
+const button = document.getElementById('reset_btn')
+button.onclick = function() {      
+  ret = reset();
+  console.log(ret);
+}
+
+
+
+
+
+
 // 26 jan 2021
 
 

@@ -5,12 +5,12 @@ from django.contrib.postgres.fields import ArrayField
 from . import ms_engine as ms
 
 BOARD_CHOICES = (
-    ("created", "Created"),
+    ("init", "Init"),
     ("start", "Start"),
     ("pause", "Pause"),
     ("end", "End"),
 )
-# created, start, pause, end 
+# init, start, pause, end 
 
 
 # Create your models here.
@@ -32,7 +32,7 @@ class Board(models.Model):
     mines = ArrayField(ArrayField(models.IntegerField()))
 
     game_over = models.BooleanField(default=False)
-    success = models.BooleanField(default=False)
+    game_win = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('name', )
@@ -40,17 +40,52 @@ class Board(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    
+    def update_state(self, state):
+        print('*** update_state')
+        print(state)
+        self.state = state
+        self.save()
+
+
+    def update_duration(self, duration):
+        print('*** update_duration')
+        print(duration)
+        self.duration = timedelta(milliseconds=int(duration))
+        self.save()
+
+
+    def get_duration(self):
+        print(self.duration)
+        duration = str(self.duration).split('.')[0]
+        return duration
+
+    def get_state(self):
+        print(self.state)
+        return self.state.capitalize()
+
+    def reset_game(self):
+        print('reset_game')
+        self.state = 'init'
+        self.start = None
+        self.end = None
+        self.duration = timedelta(0)
+        self.game_over = False
+        self.game_win = False
+        self.save()
+
+
+    def pause_game(self):
+        print('pause_game')
+        self.state = 'pause'
+        self.save()
+
+
+
+#-------------------------------------------------------------------------------
     def get_nr_cells(self):
         count = Cell.objects.filter(board=self.id).count()
         return count
-
-    def get_rows(self):
-        arr = list(range(self.rows))
-        return enumerate(arr)
-
-    def get_cols(self):
-        arr = list(range(self.cols))
-        return enumerate(arr)
 
     def get_cells(self):
         """
@@ -115,22 +150,22 @@ class Board(models.Model):
         return count
         
     def short_win(self):
-        # Win condition - 1
-        print('*** win condition 1')
+        """
+        Win condition - 1
+        """
         self.flags.sort()
-        print(self.flags)
-        print(self.mines)
         return self.flags == self.mines
 
-    def long_win(self):
-        # Win condition - 2
-        print('*** win condition 2')
-        print(self.nr_cells_hidden())            
+    def fast_win(self):
+        """
+        Win condition - 2
+        """
         return self.nr_cells_hidden() == self.nr_mines
 
     def mined_defeat(self, cell):
-        # Mined - Game over
-        print('*** defeat condition 1')
+        """
+        Mined - Game over
+        """
         return cell.mined and cell.visible
 
 
@@ -143,17 +178,18 @@ class Board(models.Model):
             apparent - The apparent values of the grid (shown to the player)
             flags - The positions that have been flagged
         """
-        print('\n\ninit_game')
+        print('*** init_game')
 
         # Reset
         self.reset_cells()
 
         # Init 
         self.game_over = False
-        self.success = False
+        self.game_win = False
         self.nr_hidden = self.rows * self.cols
-        self.start = datetime.now()
+        self.start = datetime.now(timezone.utc)
         self.duration = timedelta(minutes=0)
+        self.state = 'start'
 
         # Only square boards, for the moment
         n = self.rows
@@ -199,6 +235,7 @@ class Board(models.Model):
             cell.success = False
             cell.save()
 
+
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
@@ -208,10 +245,10 @@ class Board(models.Model):
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
         """
-        print('** update_game')
-        print(f'cell_name: {cell_name}')
-        print(f'flag: {flag}')
-        print()
+        print('*** update_game')
+        #print(f'cell_name: {cell_name}')
+        #print(f'flag: {flag}')
+        #print()
 
         # Init
         cell = self.get_cell_name(cell_name)
@@ -234,8 +271,6 @@ class Board(models.Model):
 
         # Cell not flagged
         else:
-            print('*** manage cells')
-
             # Render the cell visible
             cell.visible = True
             self.apparent[x][y] = self.numbers[x][y]
@@ -268,14 +303,21 @@ class Board(models.Model):
         # Check win conditions
         cell = self.get_cell_name(cell_name)
 
-        if (self.short_win() or self.long_win()) and not self.mined_defeat(cell):
+        if (self.short_win() or self.fast_win()) and not self.mined_defeat(cell):
             self.game_over = True
-            self.success = True
+            self.game_win = True
             cell.success = True
         else:
-            print('Not yet !!')
             cell.success = False
-        
+
+        if self.mined_defeat(cell):
+            self.game_over = True
+            self.game_win = False
+
+        if self.game_over:
+            self.end = datetime.now(timezone.utc)
+            self.state = 'end'
+
         # Stats
         self.nr_hidden = self.nr_cells_hidden()
         if self.start == None:

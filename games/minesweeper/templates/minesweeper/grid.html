@@ -13,8 +13,6 @@
                 display: grid;
                 padding: 50px;
                 grid-template-columns repeat(6,1fr)
-                  /*
-                */
             }
             .grid-item {
                 background-color: gainsboro;
@@ -22,13 +20,11 @@
                 text-align: center;
               	position: relative;
               	z-index: 1; /* original z-index */
-                /*
-                padding: 30px;
-                */
             }
+
             .label {
-              visibility: hidden;
               display: block;
+              visibility: hidden;
               /*
               font-size: 40px;
               visibility: visible;              
@@ -36,21 +32,22 @@
             }
             .label_visible {       
               visibility: visible;              
+              background-color: silver;
+            }
+
+
+            .label_admin {       
+              visibility: visible;              
               font-size: 20px;
             }
             .square {
                 width: 30vw;
                 height: 30vw;
-                /*
-                width: 40vw;
-                height: 40vw;
-                */
             }
             .square_small {
               width: 10vw;
               height: 10vw;
-            }
-            
+            }            
             .game_over_success {
               visibility: hidden;              
               display: none;
@@ -93,7 +90,7 @@
           <!-- Title -->
           <div class="row">
             <div class="col-md-6">          
-              <h2 id="play">Play Minesweeper</h2>
+              <h2 id="play">Play Minesweeper - {{ board.name }}</h2>
             </div>
             <div class="col-md-6">          
               <h3 id="game_over_success" class="game_over_success">Game over - Success !</h3>
@@ -103,47 +100,88 @@
 
           <!-- For flagging -->
           <div class="row">
-            <div class="col-md-3 stats">              
+
+            <div class="col-md-2 stats">
               <form class="" action="" method="">
                 <input id="flag_cell_chk" type="checkbox" name="flag_cell_chk" value="">
                 <label for="flag_cell_chk">Flag cell</label><br>
               </form>        
             </div>
 
-            <div class="col-md-3">
+
+            <!-- Pause -->
+            <div class="col-md-1">
+              <a href="{% url 'pause' board.id %}">
+                <button id="pause_btn" type="button">Pause</button>
+              </a>              
+            </div>
+
+
+            <!-- continue -->
+            <!--
+            <div class="col-md-1">
+              <button id="continue_btn" type="button">Start</button>
+            </div>
+            -->
+            
+            <!-- Return -->
+            <div class="col-md-1">
+              <a href="{% url 'show' board.id %}">
+                <button id="return_btn" type="button">Return</button>              
+              </a>
+            </div>
+
+
+            <!-- Reset -->
+            <div hidden class="col-md-3">
               <button id="reset_btn" type="button">Reset</button>
             </div>
           </div>
 
+
         <!-- Game -->
         <div class="row">
+
 
           <!-- Game -->
           <div class="col-md-6">
             <div id="grid" class="square">
+
               {% for cell in cells %}
-                  <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
-                    <div id="cell_label_{{cell.name}}" class="label">
-        <!--
-                      {{cell.name}},
-                      {{cell.x}},
-                      {{cell.y}},
-                      {{cell.value}}
-                      {{cell.label}}
-        -->
-                      {{cell.label}}
-                    </div>
-                  </button>
+
+              <!-- Visible -->
+              {% if cell.visible %}
+              <button id="{{cell.name}}" class="grid-item label_visible" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+
+                <label id="cell_label_{{cell.name}}" class="label_visible">
+                  {{cell.label}}
+                </label>
+
+              </button>
+
+              <!-- Not visible -->
+              {% else %}
+              <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+
+                <label id="cell_label_{{cell.name}}" class="label">
+                  {{cell.label}}
+                </label>
+
+              </button>
+              {% endif %}
+
+
               {% endfor %}
             </div>
           </div>
+
 
           <!-- Admin mode -->
           <div class="col-md-6">
             <div id="grid" class="square">
               {% for cell in cells %}
                   <button id="" class="grid-item">
-                    <div id="" class="label_visible">
+                    <div id="" class="label_admin">
                       {{cell.value}}
                     </div>
                   </button>
@@ -159,43 +197,57 @@
       </div>
 
 
-      <div class="container_stats">
+      <div class="container_stats stats">
 
         <!-- Stats -->
+        <!--
         <div class="row">
           <div class="col-md-3">     
             <div id="nr_hidden" class="stats">Nr Hidden = {{ board.nr_hidden }}</div>
           </div>
-
           <div class="col-md-3">     
             <div id="nr_mines" class="stats">Nr mines = {{ board.nr_mines }}</div>
           </div>
-
           <div class="col-md-3">     
             <div id="nr_flags" class="stats">Nr flags = 0</div>
           </div>
         </div>
-
+        -->
         <div class="row">
           <div class="col-md-8">     
-            <div id="start" class="stats">Start: {{ board.start }}</div>
-          </div>
-          <div class="col-md-4">     
+            <div id="state" class="">State: {{ board.state }}</div>
           </div>
           <!--
-          <div class="col-md-4">     
-            <h3 id="end" class="">End:</h3>
-          </div>
           -->
         </div>
 
+
         <div class="row">
-          <div class="col-md-8">     
-            <!--
-            <div id="duration" class="stats">Duration: {{ board.duration }}</div>
-            -->
-            <!-- Display the countdown timer in an element -->
-            <div id="demo" class="stats">Duration: </div>
+
+          <div class="col-md-5">     
+            <div id="start" class="">Start: {{ board.start }}</div>
+          </div>
+
+          <div class="col-md-5">     
+            <div id="end" class="">End:</div>
+          </div>
+
+        </div>
+
+        <div class="row">
+          <!-- Display the countdown timer in an element -->
+          <div class="col-md-4">     
+            <div id="duration" class="">Duration: </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col-md-3">     
+            <div id="game_over" class="">Game over: {{ board.game_over }}</div>
+          </div>
+          <div class="col-md-3">     
+            <div id="game_win" class="">Game win: {{ board.game_win }}</div>
           </div>
         </div>
 
