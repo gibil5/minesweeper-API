@@ -20,8 +20,9 @@
 
     <ul>
       <li>
-        State: {{ board.state }}
+        State: {{ board.state_sm }}
       </li>
+
       <li>
         Start: {{ board.start }}
       </li>
@@ -61,19 +62,23 @@
       -->
     </ul>
 
-    <!-- Reset -->
-    <div>
-      <a href="{% url 'reset' board.id %}">
-        Reset
-      </a>  
-    </div>
-
     <!-- Play -->
+    {% if board.state_sm != 3 %}
     <div>
       <a href="{% url 'play' board.id %}">
         Play
       </a>  
     </div>
+    {% endif %}
+
+    <!-- Reset -->
+    {% if board.state_sm != 0 %}
+    <div>
+      <a href="{% url 'reset' board.id %}">
+        Reset
+      </a>  
+    </div>
+    {% endif %}
 
     <!-- Home -->
     <div>

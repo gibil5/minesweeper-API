@@ -8,7 +8,6 @@ from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellS
 from .models import Board, Cell
 from . import util
 
-
 #-------------------------------------------------------------------------------
 class BoardInit(generics.ListAPIView):
     serializer_class = BoardSerializer
@@ -21,7 +20,6 @@ class BoardInit(generics.ListAPIView):
             queryset = queryset.filter(id=board_id)
         return queryset
 
-
 class BoardUpdate(generics.ListAPIView):
     """
     Called by REST query:
@@ -30,7 +28,6 @@ class BoardUpdate(generics.ListAPIView):
     curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5
     """
     serializer_class = CellSerializer
-
     def get_queryset(self):
         """
         Sends the update message to the model
@@ -56,12 +53,12 @@ class BoardUpdate(generics.ListAPIView):
             board.update_game(cell_name, flag)
 
         # Update duration
-        if duration is not None:
-            board.update_duration(duration)
+        #if duration is not None:
+        #    board.update_duration(duration)
 
         # Update state 
-        if state is not None:
-            board.update_state(state)
+        #if state is not None:
+        #    board.update_state(state)
 
         return queryset
 
@@ -98,6 +95,7 @@ class BoardViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all().order_by('name')
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
+
 
 #-------------------------------------------------------------------------------
 # Create your views here.
@@ -152,6 +150,7 @@ def add_board(request):
     return HttpResponseRedirect(reverse("index"))
 
 
+#-------------------------------------------------------------------------------
 def play(request, board_id):
     """
     Play
@@ -160,16 +159,11 @@ def play(request, board_id):
     print('*** play')
     board = util.get_board(board_id)
 
-
-    if board.state in ['end']:
-        return HttpResponseRedirect(reverse('show', args=(board_id,)))
-
-    elif board.state in ['init']:
+    # FSM
+    if board.state_sm == 0:
         board.init_game()
-
-    elif board.state in ['pause']:
-        board.state = 'start'
-        board.save()
+    board.play_sm()
+    board.save()
 
     return render(request, "minesweeper/grid.html",
         {
@@ -178,27 +172,37 @@ def play(request, board_id):
         })
 
 
-def reset(request, board_id):
-    """
-    Reset
-    """
-    print('*** reset')
-    board = util.get_board(board_id)
-    board.reset_game()
-    return HttpResponseRedirect(reverse('show', args=(board_id,)))
-
-
 def pause(request, board_id):
     """
     pause
     """
     print('*** pause')
     board = util.get_board(board_id)
-    board.pause_game()
-    return HttpResponseRedirect(reverse('show', args=(board_id,)))
-    #return render(request, "minesweeper/grid.html",
-    #    {
-    #        "board": util.get_board(board_id),
-    #        "cells": util.get_cells(board_id),
-    #    })
 
+    # FSM
+    board.pause_sm()
+    board.save()
+    
+    return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
+
+def back(request, board_id):
+    """
+    back
+    """
+    print('*** back')
+    return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
+
+def reset(request, board_id):
+    """
+    Reset
+    """
+    print('*** reset')
+    board = util.get_board(board_id)
+
+    # FSM
+    board.reset_sm()
+    board.reset_game()
+
+    return HttpResponseRedirect(reverse('show', args=(board_id,)))

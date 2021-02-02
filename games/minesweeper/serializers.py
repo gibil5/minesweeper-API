@@ -15,7 +15,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 class BoardSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Board
-        fields = ['id', 'name', 'rows', 'cols', 'nr_hidden', 'nr_mines', 'mines', 'flags', 'start', 'end', 'duration', 'game_over', 'game_win', 'state']
+        fields = ['id', 'name', 'rows', 'cols', 'nr_hidden', 'nr_mines', 'mines', 'flags', 'start', 'end', 'duration', 'game_over', 'game_win', 'state_sm']
 
 class CellSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

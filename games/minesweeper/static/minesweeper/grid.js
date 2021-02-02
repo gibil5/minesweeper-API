@@ -81,7 +81,9 @@ document.addEventListener('DOMContentLoaded', function(){
       document.getElementById(label).style.visibility = 'visible';
       document.getElementById(label).style.display = 'block';
       document.querySelectorAll('button').forEach(button => {
+
           if ((button.id != 'pause_btn') && (button.id != 'return_btn') ){
+
             button.style.backgroundColor = color;
             let mined = button.dataset.mined;
             if (mined === 'True') {
@@ -94,6 +96,9 @@ document.addEventListener('DOMContentLoaded', function(){
       document.querySelectorAll(".label_visible").forEach(button => {
         button.style.backgroundColor = color;
       });
+
+      document.getElementById('return_btn').style.visibility = 'visible';
+      document.getElementById('pause_btn').style.visibility = 'hidden';
 
       // Stats 
       update_stats(board);

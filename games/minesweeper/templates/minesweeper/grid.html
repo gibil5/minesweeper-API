@@ -115,6 +115,16 @@
                 <button id="pause_btn" type="button">Pause</button>
               </a>              
             </div>
+            
+            <!-- Back -->
+            <div class="col-md-1">
+
+            <a href="{% url 'back' board.id %}">
+                <button id="return_btn" type="button" class="label">Back</button>
+            </a>
+            
+            </div>
+
 
 
             <!-- continue -->
@@ -123,19 +133,12 @@
               <button id="continue_btn" type="button">Start</button>
             </div>
             -->
-            
-            <!-- Return -->
-            <div class="col-md-1">
-              <a href="{% url 'show' board.id %}">
-                <button id="return_btn" type="button">Return</button>              
-              </a>
-            </div>
-
-
             <!-- Reset -->
+            <!--
             <div hidden class="col-md-3">
               <button id="reset_btn" type="button">Reset</button>
             </div>
+            -->
           </div>
 
 
@@ -215,7 +218,7 @@
         -->
         <div class="row">
           <div class="col-md-8">     
-            <div id="state" class="">State: {{ board.state }}</div>
+            <div id="state" class="">State: {{ board.state_sm }}</div>
           </div>
           <!--
           -->

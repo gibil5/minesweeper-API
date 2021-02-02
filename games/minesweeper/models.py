@@ -2,15 +2,21 @@
 from datetime import tzinfo, timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django_fsm import transition, FSMIntegerField
 from . import ms_engine as ms
 
-BOARD_CHOICES = (
-    ("init", "Init"),
-    ("start", "Start"),
-    ("pause", "Pause"),
-    ("end", "End"),
-)
-# init, start, pause, end 
+# FSM
+STATE_CREATED = 0
+STATE_STARTED = 1
+STATE_PAUSED = 2
+STATE_ENDED = 3
+
+STATE_CHOICES = (
+        (STATE_CREATED, 'created'),
+        (STATE_STARTED, 'started'),
+        (STATE_ENDED, 'ended'),
+        (STATE_PAUSED, 'paused'),
+) 
 
 
 # Create your models here.
@@ -20,17 +26,16 @@ class Board(models.Model):
     cols = models.IntegerField(default=1)
     nr_mines = models.IntegerField(default=1)
     nr_hidden = models.IntegerField(default=0)
-
     start = models.DateTimeField(blank=True, null=True)
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
-    state = models.CharField(max_length=16, choices=BOARD_CHOICES, blank=True, null=True)
+
+    state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED, protected=True)
 
     numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
-
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
 
@@ -41,32 +46,40 @@ class Board(models.Model):
         return f"{self.name}"
 
     
-    def update_state(self, state):
-        print('*** update_state')
-        print(state)
-        self.state = state
+#-------------------------------------------------------------------------------
+    # Play
+    @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
+    def play_sm(self):
+        print('** fsm - play_sm')
+        print(self.state_sm)
+        self.save()
+
+    # End
+    @transition(field=state_sm, source=STATE_STARTED, target=STATE_ENDED)
+    def end_sm(self):
+        print('** fsm - end_sm')
+        print(self.state_sm)
+        self.save()
+
+    # Pause
+    @transition(field=state_sm, source=STATE_STARTED, target=STATE_PAUSED)
+    def pause_sm(self):
+        print('** fsm - pause_sm')
+        print(self.state_sm)
         self.save()
 
 
-    def update_duration(self, duration):
-        print('*** update_duration')
-        print(duration)
-        self.duration = timedelta(milliseconds=int(duration))
+    # Reset
+    @transition(field=state_sm, source=[STATE_STARTED, STATE_PAUSED, STATE_CREATED, STATE_ENDED], target=STATE_CREATED)
+    def reset_sm(self):
+        print('** fsm - reset_sm')
+        print(self.state_sm)
         self.save()
 
 
-    def get_duration(self):
-        print(self.duration)
-        duration = str(self.duration).split('.')[0]
-        return duration
-
-    def get_state(self):
-        print(self.state)
-        return self.state.capitalize()
-
+#-------------------------------------------------------------------------------
     def reset_game(self):
         print('reset_game')
-        self.state = 'init'
         self.start = None
         self.end = None
         self.duration = timedelta(0)
@@ -74,12 +87,21 @@ class Board(models.Model):
         self.game_win = False
         self.save()
 
+#-------------------------------------------------------------------------------
+    def get_state(self):
+        print(self.state_sm)
+        return self.state_sm.capitalize()
 
-    def pause_game(self):
-        print('pause_game')
-        self.state = 'pause'
+    def update_duration(self, duration):
+        print('*** update_duration')
+        print(duration)
+        self.duration = timedelta(milliseconds=int(duration))
         self.save()
 
+    def get_duration(self):
+        print(self.duration)
+        duration = str(self.duration).split('.')[0]
+        return duration
 
 
 #-------------------------------------------------------------------------------
@@ -189,7 +211,6 @@ class Board(models.Model):
         self.nr_hidden = self.rows * self.cols
         self.start = datetime.now(timezone.utc)
         self.duration = timedelta(minutes=0)
-        self.state = 'start'
 
         # Only square boards, for the moment
         n = self.rows
@@ -217,7 +238,6 @@ class Board(models.Model):
                 value = self.numbers[x][y]
                 if value == -1:
                     self.mines.append([x, y])
-        print(self.mines)
 
         self.save()
 
@@ -314,9 +334,12 @@ class Board(models.Model):
             self.game_over = True
             self.game_win = False
 
+
+        # Game ends
         if self.game_over:
             self.end = datetime.now(timezone.utc)
-            self.state = 'end'
+            self.end_sm()
+
 
         # Stats
         self.nr_hidden = self.nr_cells_hidden()

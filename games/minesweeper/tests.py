@@ -7,6 +7,24 @@ from django.test import TestCase
 from django.test import Client
 from .models import Board, Cell
 
+# Const ------------------------------------------------------------------------
+#PREFIX = '\n\n***** '
+PREFIX = '\n\n------------------------ '
+
+# Tools ------------------------------------------------------------------------
+def get_test_board():
+    if Board.objects.filter(name='Test').count() == 0:
+        board = Board.objects.create(name='Test', rows=4, cols=4, nr_mines=1, numbers=[], apparent=[], flags=[], mines=[])
+    else:
+        board = Board.objects.get(name='Test')
+    return board
+
+def reset_game(board):
+    board.reset_sm()
+    board.play_sm()
+    board.init_game()
+
+
 # ------------------------------------------------------------------------------
 #                              Test REST API
 # ------------------------------------------------------------------------------
@@ -19,15 +37,16 @@ class RestApiTestCase(unittest.TestCase):
         """
         Setup
         """
-        self.prefix = '\n\n'
+        self.prefix = PREFIX
         self.client = Client()
-        name = 'Game 2'
-        self.board = Board.objects.get(name=name)
-        self.board_id = self.board.id 
         self.cell_name = '0_0'
         self.flag = '0'
         self.duration = '5555'
         self.state = 'pause'
+        self.board = get_test_board()
+
+    def tearDown(self):
+        pass
 
 
     #@unittest.skip
@@ -54,7 +73,14 @@ class RestApiTestCase(unittest.TestCase):
         """
         print(f"{self.prefix}test_url_board_update")
 
-        # board update
+        # Init
+        reset_game(self.board)
+
+        # State 
+        #url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&state={self.state}'
+        # Duration
+        #url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&duration={self.duration}'
+        # Cell
         url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}'
         response = self.client.get(url)
 
@@ -62,42 +88,8 @@ class RestApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-    #@unittest.skip
-    def test_url_board_update_duration(self):
-        """
-        Board update duration
-        GET request
-        """
-        print(f"{self.prefix}test_url_board_update_duration")
-
-        # board update duration
-        url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&duration={self.duration}'
-        response = self.client.get(url)
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
-
-    #@unittest.skip
-    def test_url_board_update_state(self):
-        """
-        Board update state
-        GET request
-
-        http://127.0.0.1:8000/update_state/?board_id=${board_id}&state=${state}
-        """
-        print(f"{self.prefix}test_url_board_update_state")
-
-        # board update state
-        url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&state={self.state}'
-        response = self.client.get(url)
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
-
 # ------------------------------------------------------------------------------
-#                              Test Transactions
+#                              Test Views
 # ------------------------------------------------------------------------------
 #@unittest.skip
 class TransactionsTestCase(unittest.TestCase):
@@ -108,10 +100,14 @@ class TransactionsTestCase(unittest.TestCase):
         """
         Setup
         """
-        self.prefix = '\n\n'
+        print('setUp')
+        self.prefix = PREFIX
         self.client = Client()
-        name = 'Game 2'
-        self.board = Board.objects.get(name=name)
+        self.board = get_test_board()
+
+    def tearDown(self):
+        pass
+
 
     #@unittest.skip
     def test_view_index(self):
@@ -120,6 +116,8 @@ class TransactionsTestCase(unittest.TestCase):
         GET request
         """
         print(f"{self.prefix}test_view_index")
+
+        # Index
         response = self.client.get('/index/')
 
         # Check that the response is 200 OK.
@@ -133,6 +131,8 @@ class TransactionsTestCase(unittest.TestCase):
         GET request
         """
         print(f"{self.prefix}test_view_show")
+
+        # Show
         response = self.client.get(f'/show/{self.board.id}/')
 
         # Check that the response is 200 OK.
@@ -145,11 +145,16 @@ class TransactionsTestCase(unittest.TestCase):
         GET request
         """
         print(f"{self.prefix}test_view_play")
+
+        # Init
+        self.board.reset_sm()
+        self.board.init_game()
+
+        # Play
         response = self.client.get(f'/play/{self.board.id}/')
 
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
-
 
 
 # ------------------------------------------------------------------------------
@@ -164,25 +169,20 @@ class GameEngineTestCase(unittest.TestCase):
         """
         Setup
         """
-        self.prefix = '\n\n'
+        self.prefix = PREFIX
         self.flag = 0
         self.cell_name = '0_0'
-        name = 'Game 3'
-        self.board = Board.objects.get(name=name)
+        self.board = get_test_board()
+
+    def tearDown(self):
+        pass
 
     #@unittest.skip
-    def test_init_game(self):
+    def test_init_and_update_game(self):
         """
-        Init game
+        Init and update game
         """
-        print(f"{self.prefix}test_init_game")
+        print(f"{self.prefix}test_init_and_update_game")
         self.board.init_game()
-        cells = Cell.objects.filter(board=self.board.id).order_by('name')
-        
-    #@unittest.skip
-    def test_update_game(self):
-        """
-        Update game
-        """
-        print(f"{self.prefix}test_update_game")
+        cells = Cell.objects.filter(board=self.board.id).order_by('name')        
         self.board.update_game(self.cell_name, self.flag)
