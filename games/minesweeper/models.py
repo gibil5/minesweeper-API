@@ -106,19 +106,33 @@ class Board(models.Model):
 
 #-------------------------------------------------------------------------------
     def get_nr_cells(self):
-        count = Cell.objects.filter(board=self.id).count()
+        #count = Cell.objects.filter(board=self.id).count()
+        count = self.rows * self.cols
         return count
 
     def get_cells(self):
         """
         Get cells
         """
-        if Cell.objects.filter(board=self.id).count() == 0:
+        print('get_cells')
+        count = Cell.objects.filter(board=self.id).count()
+        print(count)
+        print(self.get_nr_cells())
+
+        #if Cell.objects.filter(board=self.id).count() == 0:
+        if count != self.get_nr_cells():    
+
+            print('Cleaning cells')
+            cells = Cell.objects.filter(board=self.id).order_by('name')
+            for cell in cells:
+                cell.delete()
+
             print('\n\n***Creating cells !!!\n\n')
             for x in range(self.rows):
                 for y in range(self.cols):
                     c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
                     c.save()
+
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 

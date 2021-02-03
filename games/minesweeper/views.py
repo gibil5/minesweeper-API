@@ -3,10 +3,44 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User, Group
+from django import forms
 from rest_framework import viewsets, permissions, generics
 from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
 from .models import Board, Cell
 from . import util
+
+SUCCESS = '\nSUCCESS'
+ERROR = '\nERROR'
+PAGE_NOT_FOUND = 'The requested page was not found.'
+
+#-------------------------------------------------------------------------------
+class BoardForm(forms.ModelForm):
+    """
+    Board form
+    """
+    class Meta:
+        """
+        Meta
+        """
+        model = Board
+        #fields = ['id', 'name', 'rows', 'cols', 'nr_mines']
+        fields = ['id', 'name', 'rows', 'nr_mines']
+
+    id = forms.IntegerField()
+    name = forms.CharField(max_length=16)
+    rows = forms.IntegerField(min_value=0)
+    #cols = forms.IntegerField()
+    nr_mines = forms.IntegerField(min_value=0)
+
+class NewBoardForm(forms.Form):
+    """
+    New Board form
+    """
+    id = forms.IntegerField()
+    name = forms.CharField(max_length=16)
+    rows = forms.IntegerField()
+    #cols = forms.IntegerField()
+    nr_mines = forms.IntegerField()
 
 #-------------------------------------------------------------------------------
 class BoardInit(generics.ListAPIView):
@@ -96,7 +130,6 @@ class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
-
 #-------------------------------------------------------------------------------
 # Create your views here.
 def index(request):
@@ -120,16 +153,6 @@ def show(request, board_id):
             "cells": util.get_cells(board_id),
         })
 
-#def edit(request, board):
-#    """
-#    Edit
-#    """
-#    print('*** edit')
-#    return render(request, "minesweeper/edit.html",
-#        {
-            #"cells": util.list_cells()
-#        })
-
 def delete(request, board_id):
     """
     Delete
@@ -149,7 +172,6 @@ def add_board(request):
     util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
 
-
 #-------------------------------------------------------------------------------
 def play(request, board_id):
     """
@@ -158,19 +180,15 @@ def play(request, board_id):
     """
     print('*** play')
     board = util.get_board(board_id)
-
-    # FSM
     if board.state_sm == 0:
         board.init_game()
     board.play_sm()
     board.save()
-
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),
             "cells": util.get_cells(board_id),
         })
-
 
 def pause(request, board_id):
     """
@@ -178,13 +196,9 @@ def pause(request, board_id):
     """
     print('*** pause')
     board = util.get_board(board_id)
-
-    # FSM
     board.pause_sm()
-    board.save()
-    
+    board.save()    
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
-
 
 def back(request, board_id):
     """
@@ -193,16 +207,55 @@ def back(request, board_id):
     print('*** back')
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
 
-
 def reset(request, board_id):
     """
     Reset
     """
     print('*** reset')
     board = util.get_board(board_id)
-
-    # FSM
     board.reset_sm()
     board.reset_game()
-
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
+#-------------------------------------------------------------------------------
+def edit(request, board_id):
+    """
+    Edit
+    """
+    print('*** edit')
+    if request.method == 'GET':
+        print('get')
+        form = BoardForm(instance=util.get_board(board_id))
+        return render(request, "minesweeper/edit.html", {
+            "form": form,
+        })
+    elif request.method == 'POST':
+        print('Post - This should never happen !')
+
+def update(request):
+    """
+    update
+    """
+    print('*** update')
+    #print(request)
+    #print(request.POST)
+    if request.method == 'POST':
+        print('post')
+        form = NewBoardForm(request.POST)
+        if form.is_valid():
+            print('form is valid')
+            board_id = form.cleaned_data["id"]
+            name = form.cleaned_data["name"]
+            rows = form.cleaned_data["rows"]
+            #cols = form.cleaned_data["cols"]
+            cols = rows
+            nr_mines = form.cleaned_data["nr_mines"]
+            util.update_board(id=board_id, name=name, rows=rows, cols=cols, nr_mines=nr_mines)
+            return HttpResponseRedirect(reverse('show', args=(board_id,)))
+        else:
+            print('form not valid')
+            return render(request, "minesweeper/error.html", {
+                "message": 'Form is not valid !'
+            })
+    elif request.method == 'GET':
+        print('Get - This should not happen !')

@@ -38,11 +38,19 @@
       <li>
         Game win: {{ board.game_win }}
       </li>
-      <!--
+
       <li>
-        Mines: {{ board.mines }}
+        Rows: {{ board.rows }}
       </li>
       <li>
+        Cols: {{ board.cols }}
+      </li>
+      <li>
+        Mines: {{ board.nr_mines }}
+      </li>
+
+
+      <!--
       <li>
         Name: {{ board.id }}
       </li>
@@ -73,12 +81,19 @@
 
     <!-- Reset -->
     {% if board.state_sm != 0 %}
+    {% endif %}
     <div>
       <a href="{% url 'reset' board.id %}">
         Reset
       </a>  
     </div>
-    {% endif %}
+
+    <!-- Edit -->
+    <div>
+      <a href="{% url 'edit' board.id %}">
+        Edit
+      </a>  
+    </div>
 
     <!-- Home -->
     <div>

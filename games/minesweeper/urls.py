@@ -14,4 +14,6 @@ urlpatterns = [
     path('reset/<int:board_id>/', views.reset, name="reset"),
     path('pause/<int:board_id>/', views.pause, name="pause"),
     path('back/<int:board_id>/', views.back, name="back"),
+    path('edit/<int:board_id>/', views.edit, name="edit"),
+    path("update/", views.update, name="update"),
 ]
