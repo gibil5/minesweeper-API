@@ -1,3 +1,32 @@
+# Feb 5 2021
+
+# Models
+
+    def update_duration(self, duration):
+        print('*** update_duration')
+        print(duration)
+        self.duration = timedelta(milliseconds=int(duration))
+        self.save()
+
+    def get_duration(self):
+        print(self.duration)
+        duration = str(self.duration).split('.')[0]
+        return duration
+
+
+
+
+
+
+# Tests 
+# State 
+#url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&state={self.state}'
+# Duration
+#url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&duration={self.duration}'
+
+
+
+
 
 # ------------------------------------------------------------------------------
 # Models

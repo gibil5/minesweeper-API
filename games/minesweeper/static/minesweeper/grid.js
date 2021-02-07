@@ -47,13 +47,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Stats 
     function update_stats(board) {
-      //console.log('stats_change_state')
-
       // Globals
       game_over = true;
 
+      var state_msg = ["created", "started", "paused", "ended"];
+
       // Labels
-      document.getElementById('state').innerHTML = `State: ${board.state.capitalize()}`;
+      document.getElementById('state').innerHTML = `State: ${state_msg[board.state_sm].capitalize()}`;
       document.getElementById('game_over').innerHTML = `Game over: ${board.game_over.toString().capitalize()}`;
       document.getElementById('game_win').innerHTML = `Success: ${board.game_win.toString().capitalize()}`;
       const date_fmt = formatDate(board.end)
@@ -173,7 +173,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Fetch Chain - Game update
     function fetch_chain_update(board_id, cell_name, flag) {
-      //console.log('fetch_chain_update');
+      console.log('fetch_chain_update');
+      console.log(cell_name);
+      console.log(flag);
+
       const url_cells = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
 
       // First fetch
@@ -211,20 +214,6 @@ document.addEventListener('DOMContentLoaded', function(){
           end_game(board);
         }
       });
-    }
-
-    // Go fetch
-    function go_fetch(url) {      
-      var result = fetch(url, {
-          method: 'get',
-        }).then(function(response) {
-          return response.json();
-          }).then(function(data) {
-            //console.log(data)
-          })
-        .catch(function(error) {
-          console.log('Request failed', error)
-        })
     }
 
 

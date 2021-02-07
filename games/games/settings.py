@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'minesweeper',
+    'users',
     'corsheaders',
     'rest_framework',
     'django.contrib.admin',
@@ -80,9 +81,6 @@ WSGI_APPLICATION = 'games.wsgi.application'
 
 DATABASES = {
     'default': {
-        #'ENGINE': 'django.db.backends.sqlite3',
-        #'NAME': BASE_DIR / 'db.sqlite3',
-
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'games_minesweeper',
         'USER': 'postgres',
@@ -121,12 +119,13 @@ TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
-#USE_L10N = True
-USE_L10N = False
-
 USE_TZ = True
 
+
+# Custom date format
 DATETIME_FORMAT = "d N Y - P"
+#USE_L10N = True
+USE_L10N = False
 
 
 # Static files (CSS, JavaScript, Images)

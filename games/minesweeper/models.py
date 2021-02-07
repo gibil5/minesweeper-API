@@ -2,22 +2,23 @@
 from datetime import tzinfo, timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from django_fsm import transition, FSMIntegerField
+from django.contrib.auth.models import User
+from django_fsm import transition, FSMIntegerField, TransitionNotAllowed
 from . import ms_engine as ms
 
 # FSM
 STATE_CREATED = 0
 STATE_STARTED = 1
 STATE_PAUSED = 2
-STATE_ENDED = 3
-
+STATE_END_WIN = 3
+STATE_END_LOOSE = 4
 STATE_CHOICES = (
         (STATE_CREATED, 'created'),
         (STATE_STARTED, 'started'),
-        (STATE_ENDED, 'ended'),
         (STATE_PAUSED, 'paused'),
+        (STATE_END_WIN, 'end win'),
+        (STATE_END_LOOSE, 'end loose'),
 ) 
-
 
 # Create your models here.
 class Board(models.Model):
@@ -29,15 +30,14 @@ class Board(models.Model):
     start = models.DateTimeField(blank=True, null=True)
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
-
-    state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED, protected=True)
-
+    state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
     numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ('name', )
@@ -50,36 +50,37 @@ class Board(models.Model):
     # Play
     @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
     def play_sm(self):
-        print('** fsm - play_sm')
-        print(self.state_sm)
-        self.save()
+        print('*** fsm - play_sm')
 
-    # End
-    @transition(field=state_sm, source=STATE_STARTED, target=STATE_ENDED)
-    def end_sm(self):
-        print('** fsm - end_sm')
-        print(self.state_sm)
-        self.save()
+    # End win
+    @transition(field=state_sm, source=STATE_STARTED, target=STATE_END_WIN)
+    def end_win_sm(self):
+        print('*** fsm - end_win_sm')
+
+    # End loose
+    @transition(field=state_sm, source=STATE_STARTED, target=STATE_END_LOOSE)
+    def end_loose_sm(self):
+        print('*** fsm - end_loose_sm')
 
     # Pause
     @transition(field=state_sm, source=STATE_STARTED, target=STATE_PAUSED)
     def pause_sm(self):
-        print('** fsm - pause_sm')
-        print(self.state_sm)
-        self.save()
-
+        print('*** fsm - pause_sm')
 
     # Reset
-    @transition(field=state_sm, source=[STATE_STARTED, STATE_PAUSED, STATE_CREATED, STATE_ENDED], target=STATE_CREATED)
+    @transition(field=state_sm, source='*', target=STATE_CREATED)
     def reset_sm(self):
-        print('** fsm - reset_sm')
-        print(self.state_sm)
-        self.save()
+        print('*** fsm - reset_sm')
 
+    # Helpers
+    def can_end_win(self):
+        return not(self.state_sm == 3)
+
+    def can_end_loose(self):
+        return not(self.state_sm == 4)
 
 #-------------------------------------------------------------------------------
     def reset_game(self):
-        print('reset_game')
         self.start = None
         self.end = None
         self.duration = timedelta(0)
@@ -87,26 +88,39 @@ class Board(models.Model):
         self.game_win = False
         self.save()
 
-#-------------------------------------------------------------------------------
-    def get_state(self):
-        print(self.state_sm)
-        return self.state_sm.capitalize()
+    def reset_cells(self):
+        """
+        Reset cells
+        """
+        cells = self.get_cells()
+        for cell in cells:
+            cell.value = 0
+            cell.label = ''
+            cell.mined = False
+            cell.visible = False
+            cell.flagged = False       
+            cell.success = False
+            cell.save()
 
-    def update_duration(self, duration):
-        print('*** update_duration')
-        print(duration)
-        self.duration = timedelta(milliseconds=int(duration))
-        self.save()
+#-------------------------------------------------------------------------------
+    def get_rows(self):
+        #return enumerate([0, 1, 2, 3, 4])
+        return enumerate(list(range(self.rows)))
+
+    def get_cols(self):
+        #return enumerate([0, 1, 2, 3, 4])
+        return enumerate(list(range(self.cols)))
+
+
+    def get_state(self):
+        return STATE_CHOICES[self.state_sm][1].capitalize()
 
     def get_duration(self):
         print(self.duration)
         duration = str(self.duration).split('.')[0]
         return duration
 
-
-#-------------------------------------------------------------------------------
     def get_nr_cells(self):
-        #count = Cell.objects.filter(board=self.id).count()
         count = self.rows * self.cols
         return count
 
@@ -114,25 +128,17 @@ class Board(models.Model):
         """
         Get cells
         """
-        print('get_cells')
         count = Cell.objects.filter(board=self.id).count()
-        print(count)
-        print(self.get_nr_cells())
-
-        #if Cell.objects.filter(board=self.id).count() == 0:
         if count != self.get_nr_cells():    
-
             print('Cleaning cells')
             cells = Cell.objects.filter(board=self.id).order_by('name')
             for cell in cells:
                 cell.delete()
-
             print('\n\n***Creating cells !!!\n\n')
             for x in range(self.rows):
                 for y in range(self.cols):
                     c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
                     c.save()
-
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 
@@ -150,21 +156,6 @@ class Board(models.Model):
         cell = Cell.objects.get(board=self.id, name=name)
         return cell
 
-    def reset_cells(self):
-        """
-        Reset
-        """
-        cells = self.get_cells()
-        for cell in cells:
-            cell.value = 0
-            cell.label = ''
-            cell.mined = False
-            cell.visible = False
-            cell.flagged = False       
-            cell.success = False
-            cell.save()
-
-#-------------------------------------------------------------------------------
     def not_cell_flagged(self, x, y):
         return [x, y] not in self.flags
         
@@ -206,6 +197,7 @@ class Board(models.Model):
 
 
 #-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
     def init_game(self):
         """
         Called by views.py
@@ -213,6 +205,7 @@ class Board(models.Model):
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (shown to the player)
             flags - The positions that have been flagged
+            mines - The positions that have been mined
         """
         print('*** init_game')
 
@@ -271,6 +264,7 @@ class Board(models.Model):
 
 
 #-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
         Called by grid.js
@@ -279,10 +273,9 @@ class Board(models.Model):
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
         """
-        print('*** update_game')
-        #print(f'cell_name: {cell_name}')
-        #print(f'flag: {flag}')
-        #print()
+        print('\n*** update_game')
+        print(f'cell_name: {cell_name}')
+        print(f'flag: {flag}')
 
         # Init
         cell = self.get_cell_name(cell_name)
@@ -291,11 +284,9 @@ class Board(models.Model):
 
         # Flag cell
         if flag == '1':
-            print('*** Flag cell')
-            print(self.flags)
+            print('** Flag cell')
             # Check if flagging ok
             if self.flagging_ok(x, y):
-                print("Set Flag")
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
                 cell.flagged = True     # Set cell for flag display
@@ -333,27 +324,42 @@ class Board(models.Model):
                             cell.value = self.apparent[x][y]
                             cell.save()
 
-
         # Check win conditions
         cell = self.get_cell_name(cell_name)
 
-        if (self.short_win() or self.fast_win()) and not self.mined_defeat(cell):
-            self.game_over = True
-            self.game_win = True
-            cell.success = True
-        else:
-            cell.success = False
-
+        # Game over - loose
         if self.mined_defeat(cell):
             self.game_over = True
             self.game_win = False
+            cell.success = False
+            # FSM - loose
+            if self.can_end_loose():
+                print(self.state_sm)
+                self.end_loose_sm()
+                print(self.state_sm)
+                self.save()
 
+        # Game over - win
+        elif (self.short_win() or self.fast_win()):
+            self.game_over = True
+            self.game_win = True
+            cell.success = True
+            # FSM - win 
+            if self.can_end_win():
+                print(self.state_sm)
+                self.end_win_sm()
+                print(self.state_sm)
+                self.save()
+
+        # Not game over - continue
+        else:
+            self.game_over = False
+            self.game_win = False
+            cell.success = False
 
         # Game ends
         if self.game_over:
             self.end = datetime.now(timezone.utc)
-            self.end_sm()
-
 
         # Stats
         self.nr_hidden = self.nr_cells_hidden()
@@ -361,8 +367,8 @@ class Board(models.Model):
              self.start = datetime.now(timezone.utc)
         self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
 
-        self.save()
         cell.save()
+        self.save()
 
 
 #-------------------------------------------------------------------------------
@@ -382,4 +388,4 @@ class Cell(models.Model):
         ordering = ('name', )
 
     def __str__(self):
-        return f"Cell: {self.name}, {self.x}, {self.y}, {self.value}, {self.visible}, {self.mined}, {self.flagged}"
+        return f"Cell -> name: {self.name}, x: {self.x}, y: {self.y}, value: {self.value}, label: {self.label}, visible: {self.visible}, mined: {self.mined}, flagged: {self.flagged}"

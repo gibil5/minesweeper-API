@@ -15,14 +15,11 @@
 </style>
 
 <h2>{{ board.name }}</h2>
-
 <div class="my_container">
-
     <ul>
       <li>
-        State: {{ board.state_sm }}
+        State: {{ board.get_state }}
       </li>
-
       <li>
         Start: {{ board.start }}
       </li>
@@ -38,7 +35,6 @@
       <li>
         Game win: {{ board.game_win }}
       </li>
-
       <li>
         Rows: {{ board.rows }}
       </li>
@@ -48,45 +44,27 @@
       <li>
         Mines: {{ board.nr_mines }}
       </li>
-
-
-      <!--
-      <li>
-        Name: {{ board.id }}
-      </li>
-      <li>
-        Hidden cells: {{ board.nr_hidden_cells }}
-      </li>
-      <li>
-        State: {{ board.state }}
-      </li>
-      {% for x, value in board.get_rows %}
-        <li>
-          {% for y, value in board.get_cols %}
-            {{ x }}, {{ y }}
-          {% endfor %}
-        </li>
-      {% endfor %}
-      -->
     </ul>
 
     <!-- Play -->
     {% if board.state_sm != 3 %}
+    {% if board.state_sm != 4 %}
     <div>
       <a href="{% url 'play' board.id %}">
         Play
       </a>  
     </div>
     {% endif %}
+    {% endif %}
 
     <!-- Reset -->
     {% if board.state_sm != 0 %}
-    {% endif %}
     <div>
       <a href="{% url 'reset' board.id %}">
         Reset
       </a>  
     </div>
+    {% endif %}
 
     <!-- Edit -->
     <div>

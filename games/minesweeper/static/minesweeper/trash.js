@@ -1,3 +1,22 @@
+// 3 feb 2021
+// Go fetch
+function go_fetch(url) {      
+  var result = fetch(url, {
+      method: 'get',
+    }).then(function(response) {
+      return response.json();
+      }).then(function(data) {
+        //console.log(data)
+      })
+    .catch(function(error) {
+      console.log('Request failed', error)
+    })
+}
+
+
+
+
+
 // 1 Feb 2021
 
 

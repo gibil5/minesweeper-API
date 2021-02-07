@@ -1,65 +1,61 @@
 {% extends "minesweeper/layout.html" %}
 {% block title %}
-  Minesweeper
+    Minesweeper
 {% endblock %}
 {% block body %}
 
 <style media="screen">
-  .container_idx {
-    padding-top: 25px;    
-    padding-left: 25px;    
-    font-size: 18px;              
-    line-height: 200%;
-  }
+    .container_idx {
+        padding-top: 25px;    
+        padding-left: 25px;    
+        font-size: 18px;              
+        line-height: 200%;
+    }
 </style>
 
 <h1>All Games</h1>
 
 <div class="container_idx">      
-<!-- Titles -->
-<b>
-  <div class="row">
-    <div class="col-1">
-      Name
-    </div>
-    <div class="col-1">
-      Size
-    </div>
-
-    <div class="col-1">
-      Rows
-    </div>
-    <div class="col-1">
-      Cols
-    </div>
-    <div class="col-1">
-      Mines
-    </div>
-
-    <div class="col-1">
-      State FSM
-    </div>
-
-    <div class="col-1">
-      Start
-    </div>
-    <div class="col-1">
-      End
-    </div>
-    <div class="col-1">
-      Duration
-    </div>
-    <div class="col-1">
-      Game over
-    </div>
-    <div class="col-1">
-      Win
-    </div>
-    <div class="col-1">
-    </div>
-  </div>
-</b>
-
+    <!-- Titles -->
+    <b>
+      <div class="row">
+        <div class="col-1">
+          Name
+        </div>
+        <div class="col-1">
+          User
+        </div>
+        <div class="col-1">
+          Rows
+        </div>
+        <div class="col-1">
+          Cols
+        </div>
+        <div class="col-1">
+          Mines
+        </div>
+        <div class="col-1">
+          State FSM
+        </div>
+        <div class="col-1">
+          Start
+        </div>
+        <div class="col-1">
+          End
+        </div>
+        <div class="col-1">
+          Duration
+        </div>
+        <div class="col-1">
+          Game over
+        </div>
+        <div class="col-1">
+          Win
+        </div>
+        <div class="col-1">
+        </div>
+      </div>
+    </b>
 
   <!-- Lines -->
   {% for board in boards %}
@@ -70,9 +66,8 @@
       </a>
     </div>
     <div class="col-1">
-      {{ board.get_nr_cells }}
+      {{ board.user }}
     </div>
-
     <div class="col-1">
       {{ board.rows }}
     </div>
@@ -82,11 +77,9 @@
     <div class="col-1">
       {{ board.nr_mines }}
     </div>
-
     <div class="col-1">
-      {{ board.state_sm }}
+      {{ board.get_state }}
     </div>
-
     <div class="col-1">
       {{ board.start }}
     </div>
@@ -107,7 +100,6 @@
     </div>
   </div>
   {% endfor %}
-
   <br>
   <a href="{% url 'add_board' %}">Add game</a>
 </div>

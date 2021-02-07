@@ -9,6 +9,18 @@ def list_boards():
     boards = Board.objects.all()    
     return boards
 
+
+def list_boards_user(user):
+    """
+    Returns a list of boards.
+    """
+    #boards = Board.objects.all()    
+    boards = Board.objects.filter(user=user)    
+    return boards
+
+
+
+
 def get_board(board_id):
     board = Board.objects.get(id=board_id)
     return board

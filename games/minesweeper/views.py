@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User, Group
 from django import forms
+from django_fsm import TransitionNotAllowed
 from rest_framework import viewsets, permissions, generics
 from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
 from .models import Board, Cell
@@ -23,13 +24,11 @@ class BoardForm(forms.ModelForm):
         Meta
         """
         model = Board
-        #fields = ['id', 'name', 'rows', 'cols', 'nr_mines']
         fields = ['id', 'name', 'rows', 'nr_mines']
 
     id = forms.IntegerField()
     name = forms.CharField(max_length=16)
     rows = forms.IntegerField(min_value=0)
-    #cols = forms.IntegerField()
     nr_mines = forms.IntegerField(min_value=0)
 
 class NewBoardForm(forms.Form):
@@ -39,11 +38,51 @@ class NewBoardForm(forms.Form):
     id = forms.IntegerField()
     name = forms.CharField(max_length=16)
     rows = forms.IntegerField()
-    #cols = forms.IntegerField()
     nr_mines = forms.IntegerField()
 
+
 #-------------------------------------------------------------------------------
+class BoardUpdate(generics.ListAPIView):
+    """
+    Board update
+
+    Called by REST query:
+    http://127.0.0.1:8000/cells_from/?board_id=<board_id>&cmd=update&cell_name=<cell_name>
+    curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5
+    """
+    serializer_class = CellSerializer
+
+    def get_queryset(self):
+        """
+        Sends the update message to the model
+        Returns to caller a filtered list of Cells.
+        """
+        print('\n\nget_queryset')
+        queryset = Cell.objects.all()
+        board_id = self.request.query_params.get('board_id', None)
+        cell_name = self.request.query_params.get('cell_name', None)
+        flag = self.request.query_params.get('flag', None)
+
+        if board_id is not None:
+            board = Board.objects.get(id=board_id)
+            queryset = queryset.filter(board=board_id)
+
+        # Update game 
+        if (cell_name is not None) and (flag is not None):
+            try:
+                print('TRY UPDATE GAME')
+                board.update_game(cell_name, flag)
+            except TransitionNotAllowed:
+                print('ERROR')
+            else:
+                print('SUCCESS')
+
+        return queryset
+
 class BoardInit(generics.ListAPIView):
+    """
+    Board init
+    """
     serializer_class = BoardSerializer
     def get_queryset(self):
         queryset = Board.objects.all()
@@ -54,49 +93,6 @@ class BoardInit(generics.ListAPIView):
             queryset = queryset.filter(id=board_id)
         return queryset
 
-class BoardUpdate(generics.ListAPIView):
-    """
-    Called by REST query:
-    http://127.0.0.1:8000/cells_from/?board_id=<board_id>&cmd=update&cell_name=<cell_name>
-    Ex:
-    curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5
-    """
-    serializer_class = CellSerializer
-    def get_queryset(self):
-        """
-        Sends the update message to the model
-        Returns to caller a filtered list of Cells.
-        """
-        queryset = Cell.objects.all()
-        board_id = self.request.query_params.get('board_id', None)
-
-        cell_name = self.request.query_params.get('cell_name', None)
-        flag = self.request.query_params.get('flag', None)
-
-        duration = self.request.query_params.get('duration', None)
-
-        state = self.request.query_params.get('state', None)
-
-        if board_id is not None:
-            board = Board.objects.get(id=board_id)
-            print(board)
-            queryset = queryset.filter(board=board_id)
-
-        # Update game 
-        if (cell_name is not None) and (flag is not None):
-            board.update_game(cell_name, flag)
-
-        # Update duration
-        #if duration is not None:
-        #    board.update_duration(duration)
-
-        # Update state 
-        #if state is not None:
-        #    board.update_state(state)
-
-        return queryset
-
-
 #-------------------------------------------------------------------------------
 class CellViewSet(viewsets.ModelViewSet):
     """
@@ -106,22 +102,6 @@ class CellViewSet(viewsets.ModelViewSet):
     serializer_class = CellSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = User.objects.all().order_by('-date_joined')
-    serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAuthenticated]
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    #permission_classes = [permissions.IsAuthenticated]
-
 class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Boards to be viewed or edited.
@@ -129,6 +109,25 @@ class BoardViewSet(viewsets.ModelViewSet):
     queryset = Board.objects.all().order_by('name')
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
+
+
+#-------------------------------------------------------------------------------
+#class UserViewSet(viewsets.ModelViewSet):
+#    """
+#    API endpoint that allows users to be viewed or edited.
+#    """
+#    queryset = User.objects.all().order_by('-date_joined')
+#    serializer_class = UserSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+#class GroupViewSet(viewsets.ModelViewSet):
+#    """
+#    API endpoint that allows groups to be viewed or edited.
+#    """
+#    queryset = Group.objects.all()
+#    serializer_class = GroupSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
 
 #-------------------------------------------------------------------------------
 # Create your views here.
@@ -172,6 +171,7 @@ def add_board(request):
     util.add_board('Test')
     return HttpResponseRedirect(reverse("index"))
 
+
 #-------------------------------------------------------------------------------
 def play(request, board_id):
     """
@@ -180,9 +180,14 @@ def play(request, board_id):
     """
     print('*** play')
     board = util.get_board(board_id)
+
     if board.state_sm == 0:
         board.init_game()
-    board.play_sm()
+
+    #if board.state_sm not in [3]:
+    if board.state_sm in [0, 2]:
+        board.play_sm()
+
     board.save()
     return render(request, "minesweeper/grid.html",
         {
@@ -190,15 +195,26 @@ def play(request, board_id):
             "cells": util.get_cells(board_id),
         })
 
+
 def pause(request, board_id):
     """
     pause
     """
     print('*** pause')
     board = util.get_board(board_id)
-    board.pause_sm()
+
+    #jx TransitionNotAllowed
+    try:
+        board.pause_sm()
+    except TransitionNotAllowed:
+        print('\n\njx internal - ERROR: TransitionNotAllowed\n\n')
+        raise TransitionNotAllowed('\n\n\njx - Error caught - Pause - Transition not allowed.\n\n\n')
+    else:
+        print('SUCCESS')
+
     board.save()    
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
 
 def back(request, board_id):
     """
@@ -206,6 +222,7 @@ def back(request, board_id):
     """
     print('*** back')
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
 
 def reset(request, board_id):
     """
@@ -215,7 +232,10 @@ def reset(request, board_id):
     board = util.get_board(board_id)
     board.reset_sm()
     board.reset_game()
+    
+    board.save()
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
+
 
 #-------------------------------------------------------------------------------
 def edit(request, board_id):
@@ -231,6 +251,7 @@ def edit(request, board_id):
         })
     elif request.method == 'POST':
         print('Post - This should never happen !')
+
 
 def update(request):
     """

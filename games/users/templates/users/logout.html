@@ -1,0 +1,14 @@
+{% extends "users/layout.html" %}
+
+{% block body %}
+
+    <form class="" action="{% url 'login' %}" method="post">
+
+        <input type="text" name="username" value="" placeholder="UserName">
+
+        <input type="password" name="password" value="" placeholder="Password">
+
+        <input type="submit" name="" value="Login">
+    </form>
+
+{% endblock %}

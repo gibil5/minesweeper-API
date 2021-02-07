@@ -5,77 +5,52 @@
     <head>
         <title>Grid {{ board.rows }}</title>
         <style media="screen">
+            /* Grid */
             #grid {
                 display: grid;
                 padding: 10px;
             }
-            #grid_small {
-                display: grid;
-                padding: 50px;
-                grid-template-columns repeat(6,1fr)
-            }
             .grid-item {
                 background-color: gainsboro;
-                outline: 1px solid gray; /* The outline creates the border */
+                outline: 1px solid gray;    /* The outline creates the border */
                 text-align: center;
               	position: relative;
-              	z-index: 1; /* original z-index */
+              	z-index: 1;     /* original z-index */
             }
-
-            .label {
+            .label_hidden {
               display: block;
               visibility: hidden;
-              /*
-              font-size: 40px;
-              visibility: visible;              
-              */
             }
             .label_visible {       
               visibility: visible;              
               background-color: silver;
             }
-
-
             .label_admin {       
               visibility: visible;              
               font-size: 20px;
             }
             .square {
-                width: 30vw;
-                height: 30vw;
+                width: 40vw;
+                height: 40vw;
             }
-            .square_small {
-              width: 10vw;
-              height: 10vw;
-            }            
             .game_over_success {
               visibility: hidden;              
               display: none;
               color: lightgreen;
-              /*
-              text-align: center;
-              background-color: gray;
-              visibility: hidden;              
-              */
             }
             .game_over_defeat {
               visibility: hidden;              
               display: none;
               color: red;
-              /*
-              background-color: gray;
-              text-align: center;
-              visibility: hidden;              
-              */
             }
             .container_games {
-              padding: 25px;
+              padding-left: 25px;
             }
             .container_stats {
-              padding-left: 45px;
+              padding-left: 25px;
             }
             .stats {
-              font-size: 25px;              
+              font-size: 16px;
               line-height: 150%;
             }
         </style>
@@ -84,9 +59,9 @@
     </head>
     <body>
 
+      <!-- Grid -->
       <div class="container_games">
           <br>
-
           <!-- Title -->
           <div class="row">
             <div class="col-md-6">          
@@ -97,57 +72,35 @@
               <h3 id="game_over_defeat" class="game_over_defeat">Game over - You lost !</h3>
             </div>
           </div>
-
-          <!-- For flagging -->
+          <!-- First line -->
           <div class="row">
-
+            <!-- Flagging -->
             <div class="col-md-2 stats">
               <form class="" action="" method="">
                 <input id="flag_cell_chk" type="checkbox" name="flag_cell_chk" value="">
                 <label for="flag_cell_chk">Flag cell</label><br>
               </form>        
             </div>
-
-
             <!-- Pause -->
             <div class="col-md-1">
-              <a href="{% url 'pause' board.id %}">
-                <button id="pause_btn" type="button">Pause</button>
-              </a>              
+                <a href="{% url 'pause' board.id %}">
+                    <button id="pause_btn" type="button">Pause</button>
+                </a>              
             </div>
-            
             <!-- Back -->
             <div class="col-md-1">
-
-            <a href="{% url 'back' board.id %}">
-                <button id="return_btn" type="button" class="label">Back</button>
-            </a>
-            
+                <a href="{% url 'back' board.id %}">
+                    <button id="return_btn" type="button" class="label_hidden">Back</button>
+                </a>
             </div>
-
-
-
-            <!-- continue -->
-            <!--
-            <div class="col-md-1">
-              <button id="continue_btn" type="button">Start</button>
-            </div>
-            -->
-            <!-- Reset -->
-            <!--
-            <div hidden class="col-md-3">
-              <button id="reset_btn" type="button">Reset</button>
-            </div>
-            -->
           </div>
-
 
         <!-- Game -->
         <div class="row">
 
+          <!-- Board -->
+          <div class="col-sm-12 col-lg-5">
 
-          <!-- Game -->
-          <div class="col-md-6">
             <div id="grid" class="square">
 
               {% for cell in cells %}
@@ -155,31 +108,82 @@
               <!-- Visible -->
               {% if cell.visible %}
               <button id="{{cell.name}}" class="grid-item label_visible" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
-
                 <label id="cell_label_{{cell.name}}" class="label_visible">
                   {{cell.label}}
                 </label>
-
               </button>
 
               <!-- Not visible -->
               {% else %}
               <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
-
-                <label id="cell_label_{{cell.name}}" class="label">
+                <label id="cell_label_{{cell.name}}" class="label_hidden">
                   {{cell.label}}
                 </label>
-
               </button>
               {% endif %}
-
-
               {% endfor %}
             </div>
           </div>
 
 
+
+          <!-- Stats -->
+          <div class="col-sm-12 col-lg-7">
+
+            <div class="container_stats stats">
+
+              <div class="row">
+                <div class="col-md-4">     
+                  <div id="state" class="">State: {{ board.state_sm }}</div>
+                </div>
+              </div>
+
+
+              <div class="row">
+
+                <div class="col-md-4">     
+                  <div id="nr_mines" class="stats">Nr mines = {{ board.nr_mines }}</div>
+                </div>
+
+                <div class="col-md-4">     
+                  <div id="nr_flags" class="stats">Nr flags = 0</div>
+                </div>
+                <!--
+                <div class="col-md-3">     
+                  <div id="nr_hidden" class="stats">Nr Hidden = {{ board.nr_hidden }}</div>
+                </div>
+                -->
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">     
+                  <div id="game_over" class="">Game over: {{ board.game_over }}</div>
+                </div>
+                <div class="col-md-4">     
+                  <div id="game_win" class="">Game win: {{ board.game_win }}</div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">     
+                  <div id="start" class="">Start: {{ board.start }}</div>
+                </div>
+                <div class="col-md-4">     
+                  <div id="end" class="">End:</div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4">     
+                  <div id="duration" class="">Duration: </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
           <!-- Admin mode -->
+          <!--
           <div class="col-md-6">
             <div id="grid" class="square">
               {% for cell in cells %}
@@ -191,6 +195,8 @@
               {% endfor %}
             </div>
           </div>
+          -->
+
         </div>
         <!-- Info for styling -->
         <div hidden>
@@ -199,60 +205,6 @@
         </div>
       </div>
 
-
-      <div class="container_stats stats">
-
-        <!-- Stats -->
-        <!--
-        <div class="row">
-          <div class="col-md-3">     
-            <div id="nr_hidden" class="stats">Nr Hidden = {{ board.nr_hidden }}</div>
-          </div>
-          <div class="col-md-3">     
-            <div id="nr_mines" class="stats">Nr mines = {{ board.nr_mines }}</div>
-          </div>
-          <div class="col-md-3">     
-            <div id="nr_flags" class="stats">Nr flags = 0</div>
-          </div>
-        </div>
-        -->
-        <div class="row">
-          <div class="col-md-8">     
-            <div id="state" class="">State: {{ board.state_sm }}</div>
-          </div>
-          <!--
-          -->
-        </div>
-
-
-        <div class="row">
-
-          <div class="col-md-5">     
-            <div id="start" class="">Start: {{ board.start }}</div>
-          </div>
-
-          <div class="col-md-5">     
-            <div id="end" class="">End:</div>
-          </div>
-
-        </div>
-
-        <div class="row">
-          <!-- Display the countdown timer in an element -->
-          <div class="col-md-4">     
-            <div id="duration" class="">Duration: </div>
-          </div>
-        </div>
-
-
-        <div class="row">
-          <div class="col-md-3">     
-            <div id="game_over" class="">Game over: {{ board.game_over }}</div>
-          </div>
-          <div class="col-md-3">     
-            <div id="game_win" class="">Game win: {{ board.game_win }}</div>
-          </div>
-        </div>
 
         <!-- Tests -->
         <button hidden id="test_btn" type="button">Click Me !</button>
