@@ -1,83 +1,83 @@
 {% extends "minesweeper/layout.html" %}
 {% block title %}
-    Minesweeper - Show
+Minesweeper - Show
 {% endblock %}
 {% block body %}
 
-<style media="screen">
-  
-  .my_container {
-    padding-top: 25px;    
-    padding-left: 25px;    
-    font-size: 18px;              
-    line-height: 150%;
-  }
+<style media="screen">    
+    .my_container {
+        padding-top: 25px;    
+        padding-left: 25px;    
+        font-size: 18px;              
+        line-height: 150%;
+    }
 </style>
 
-<h2>{{ board.name }}</h2>
+<h2>{{ board.get_user }} - {{ board.name }}</h2>
+
 <div class="my_container">
     <ul>
-      <li>
-        State: {{ board.get_state }}
-      </li>
-      <li>
-        Start: {{ board.start }}
-      </li>
-      <li>
-        End: {{ board.end }}
-      </li>
-      <li>
-        Duration: {{ board.get_duration }}
-      </li>
-      <li>
-        Game over: {{ board.game_over }}
-      </li>
-      <li>
-        Game win: {{ board.game_win }}
-      </li>
-      <li>
-        Rows: {{ board.rows }}
-      </li>
-      <li>
-        Cols: {{ board.cols }}
-      </li>
-      <li>
-        Mines: {{ board.nr_mines }}
-      </li>
+        <li>
+            State: {{ board.get_state }}
+        </li>
+        <li>
+            Start: {{ board.start }}
+        </li>
+        <li>
+            End: {{ board.end }}
+        </li>
+        <li>
+            Duration: {{ board.get_duration }}
+        </li>
+        <li>
+            Game over: {{ board.game_over }}
+        </li>
+        <li>
+            Game win: {{ board.game_win }}
+        </li>
+        <li>
+            Rows: {{ board.rows }}
+        </li>
+        <li>
+            Cols: {{ board.cols }}
+        </li>
+        <li>
+            Mines: {{ board.nr_mines }}
+        </li>
     </ul>
-
+    
     <!-- Play -->
     {% if board.state_sm != 3 %}
     {% if board.state_sm != 4 %}
     <div>
-      <a href="{% url 'play' board.id %}">
-        Play
-      </a>  
+        <a href="{% url 'play' board.id %}">
+            Play
+        </a>  
     </div>
     {% endif %}
     {% endif %}
-
+    
     <!-- Reset -->
     {% if board.state_sm != 0 %}
     <div>
-      <a href="{% url 'reset' board.id %}">
-        Reset
-      </a>  
+        <a href="{% url 'reset' board.id %}">
+            Reset
+        </a>  
     </div>
     {% endif %}
-
+    
     <!-- Edit -->
     <div>
-      <a href="{% url 'edit' board.id %}">
-        Edit
-      </a>  
+        <a href="{% url 'edit' board.id %}">
+            Edit
+        </a>  
     </div>
-
+    
     <!-- Home -->
     <div>
-      <a href="{% url 'index' %}">
-        Home
-      </a>
+        <a href="{% url 'index' %}">
+            Home
+        </a>
     </div>
 </div>
 {% endblock %}

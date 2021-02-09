@@ -103,13 +103,16 @@ class Board(models.Model):
             cell.save()
 
 #-------------------------------------------------------------------------------
-    def get_rows(self):
-        #return enumerate([0, 1, 2, 3, 4])
-        return enumerate(list(range(self.rows)))
+    #def get_rows(self):
+    #    return enumerate(list(range(self.rows)))
 
-    def get_cols(self):
-        #return enumerate([0, 1, 2, 3, 4])
-        return enumerate(list(range(self.cols)))
+    #def get_cols(self):
+    #    return enumerate(list(range(self.cols)))
+
+
+    def get_user(self):
+        #return self.user.username.capitalize()
+        return self.user.username.capitalize() if self.user else None
 
 
     def get_state(self):
@@ -163,7 +166,8 @@ class Board(models.Model):
         return self.apparent[x][y] == None
 
     def nr_flags_ok(self, x, y):
-        return len(self.flags) < self.nr_mines
+        #return len(self.flags) < self.nr_mines
+        return True
 
     def flagging_ok(self, x, y):
         return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y) and self.nr_flags_ok(x, y)
@@ -287,6 +291,7 @@ class Board(models.Model):
             print('** Flag cell')
             # Check if flagging ok
             if self.flagging_ok(x, y):
+                print('** Flagging ok')
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
                 cell.flagged = True     # Set cell for flag display
@@ -358,14 +363,15 @@ class Board(models.Model):
             cell.success = False
 
         # Game ends
-        if self.game_over:
-            self.end = datetime.now(timezone.utc)
+        #if self.game_over:
+        #    self.end = datetime.now(timezone.utc)
 
         # Stats
         self.nr_hidden = self.nr_cells_hidden()
         if self.start == None:
              self.start = datetime.now(timezone.utc)
         self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
+        self.end = datetime.now(timezone.utc)
 
         cell.save()
         self.save()

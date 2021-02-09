@@ -3,9 +3,13 @@
 // Init from Dom - is called after the DOM has been loaded
 document.addEventListener('DOMContentLoaded', function(){
     
+
 /* Globals -------------------------------------------------------------------*/
     var game_over = false;
     var game_pause = false;
+    var state_msg = ["created", "started", "paused", "end win", "end loose"];
+    var month_msg = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
+    var board_glob = false;
 
 
 /* Tools ---------------------------------------------------------------------*/
@@ -43,43 +47,75 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-/* Game ----------------------------------------------------------------------*/
 
-    // Stats 
+/* Game funcs ----------------------------------------------------------------------*/
+
+    // Update Stats 
     function update_stats(board) {
-      // Globals
-      game_over = true;
+      console.log('update_stats');
+      console.log(board);
 
-      var state_msg = ["created", "started", "paused", "ended"];
+      // Game over
+      if (board.game_over) {
+
+        // Globals
+        game_over = true;
+
+        // Stats
+        let label = '';
+        let color = '';
+        if (board.game_win) { 
+          color = 'lightgreen';
+          label = 'Game over: You won !';
+        } else {        
+          color = 'red';
+          label = 'Game over: You lost !';
+        }        
+        // Game over
+        document.getElementById('game_over_banner').innerHTML = label;
+        document.getElementById('game_over_banner').style.color = color;
+
+        // Date end
+        //const date_fmt = formatDate(board.end)
+        const date_fmt = formatDateAmpm(board.end)
+        document.getElementById('end').innerHTML = `End: ${date_fmt}`;
+
+        // Buttons
+        document.getElementById('return_btn').style.visibility = 'visible';
+        document.getElementById('return_btn').style.display = 'block';
+        document.getElementById('pause_btn').style.visibility = 'hidden';
+        document.getElementById('pause_btn').style.display = 'none';
+
+        // Board
+        end_game(board.game_win);
+      }
+
 
       // Labels
       document.getElementById('state').innerHTML = `State: ${state_msg[board.state_sm].capitalize()}`;
       document.getElementById('game_over').innerHTML = `Game over: ${board.game_over.toString().capitalize()}`;
       document.getElementById('game_win').innerHTML = `Success: ${board.game_win.toString().capitalize()}`;
-      const date_fmt = formatDate(board.end)
-      document.getElementById('end').innerHTML = `End: ${date_fmt}`;
 
       // Nr ofs
       //document.getElementById('nr_mines').innerHTML = `Nr mines = ${board.nr_mines}`;
-      //document.getElementById('nr_flags').innerHTML = `Nr flags = ${board.flags.length}`;
       //document.getElementById('nr_hidden').innerHTML = `Nr hidden = ${board.nr_hidden}`;
+      document.getElementById('nr_flags').innerHTML = `Nr flags = ${board.flags.length}`;
     }
 
 
     // End the game - Board visuals
-    function end_game(board) {
+    //function end_game(board) {
+    function end_game(game_win) {
+
       // Init
       let color = '';
-      let label = '';
-      if (board.game_win) { 
+      //if (board.game_win) { 
+      if (game_win) { 
         color = 'lightgreen';
-        label = 'game_over_success';
       } else {        
         color = 'red';
-        label = 'game_over_defeat';
       }
-      document.getElementById(label).style.visibility = 'visible';
-      document.getElementById(label).style.display = 'block';
+
       document.querySelectorAll('button').forEach(button => {
 
           if ((button.id != 'pause_btn') && (button.id != 'return_btn') ){
@@ -96,12 +132,6 @@ document.addEventListener('DOMContentLoaded', function(){
       document.querySelectorAll(".label_visible").forEach(button => {
         button.style.backgroundColor = color;
       });
-
-      document.getElementById('return_btn').style.visibility = 'visible';
-      document.getElementById('pause_btn').style.visibility = 'hidden';
-
-      // Stats 
-      update_stats(board);
     }
 
 
@@ -120,6 +150,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Flag cell
     function flag_cell(item) {
+      console.log('flag_cell func');
+      console.log(item.name);
       document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';
       document.getElementById(`cell_label_${item.name}`).innerHTML = item.label;
     }
@@ -146,14 +178,39 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Add zero
     function add_zero(item) {      
+      //if (true) {        
+      //if (item.length < 3) {
       if (item.length < 2) {        
         item = '0' + item;
       }
       return item
     }
 
+
+
+    // Format date ampm
+    function formatDateAmpm(date) {
+      var d = new Date(date),
+        day = '' + d.getDate(),
+        month = '' + (d.getMonth() + 1),
+        year = d.getFullYear();
+      var hours = d.getHours();
+      var minutes = d.getMinutes();
+
+      day = add_zero(day);
+      minutes = add_zero(minutes);
+
+      var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+          hours = hours % 12;
+          hours = hours ? hours : 12; // the hour '0' should be '12'
+      var strTime = hours + ':' + minutes + ' ' + ampm;
+
+      return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
+    }
+
+    
     // Format date
-    function formatDate(date) {
+    function formatDate(date) {        
         var d = new Date(date),
             month = '' + (d.getMonth() + 1),
             day = '' + d.getDate(),
@@ -161,12 +218,17 @@ document.addEventListener('DOMContentLoaded', function(){
         var hour = '' + d.getHours(), 
             minutes = '' + d.getMinutes(), 
             seconds = '' + d.getSeconds();
-        month = add_zero(month);
+
+        //month = add_zero(month);
         day = add_zero(day);
         hour = add_zero(hour);
         minutes = add_zero(minutes);
         seconds = add_zero(seconds);
+
         return [day, month, year].join('-') + ' ' + [hour, minutes, seconds].join(':');
+        //return [day, month, year].join(' ') + '-' + [hour, minutes, seconds].join(':');
+        //return [day, month_msg[month-1], year].join(' ') + '-' + [hour, minutes, seconds].join(':');
+        //return [day, month_msg[month-1], year].join(' ') + '-' + [hour, minute, second].join(':');
     }
 
 /* Fetches -------------------------------------------------------------------*/
@@ -176,19 +238,15 @@ document.addEventListener('DOMContentLoaded', function(){
       console.log('fetch_chain_update');
       console.log(cell_name);
       console.log(flag);
-
-      const url_cells = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
-
       // First fetch
+      const url_cells = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
           method: 'get',
         }).then(function(response) {
           return response.json();
         }).then(function(data) {
-
           // Game loop
-          game_loop(data);          
-
+          game_loop(data);
           // Second fetch
           const url_board = `http://127.0.0.1:8000/boards/${board_id}/`;
           return fetch(url_board); 
@@ -199,20 +257,12 @@ document.addEventListener('DOMContentLoaded', function(){
         .catch(function(error) {
           console.log('Request failed', error)
         })
-
       // Use the last result
       result.then(function(board) {
-        console.log('Board');
-        console.log(board);
-
-        // Game over
-        if (board.game_over) {
-          console.log('Update stats !')
-          console.log(board.end);          
-
-          // End game
-          end_game(board);
-        }
+        // Globals 
+        board_glob = board;
+        // Stats 
+        update_stats(board);
       });
     }
 
@@ -253,6 +303,21 @@ document.addEventListener('DOMContentLoaded', function(){
     }, 1000);
 
 
+
+/* Testing -------------------------------------------------------------------*/
+
+    function testing() {
+      console.log('testing');
+
+      //end_game(true);
+      //end_game(false);
+
+      console.log(board_glob);
+      board_glob.game_over = true;
+      update_stats(board_glob);
+    }
+
+
 /* Buttons -------------------------------------------------------------------*/
 
     // All buttons - Add event listener
@@ -271,5 +336,11 @@ document.addEventListener('DOMContentLoaded', function(){
           }
         }
     })
+
+    // Testing
+    const button = document.getElementById('test_btn')
+    button.onclick = function() {
+      testing();
+    }
 
 });

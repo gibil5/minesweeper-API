@@ -8,6 +8,7 @@ import unittest
 from django.test import TestCase
 from django.test import Client
 from .models import Board, Cell
+from django.contrib.auth.models import User
 
 # Const ------------------------------------------------------------------------
 #PREFIX = '\n\n------------------------ '
@@ -15,8 +16,9 @@ PREFIX = '\n\n------------------------------------------------ '
 
 # Tools ------------------------------------------------------------------------
 def get_test_board():
+    user = User.objects.get(username='harry')
     if Board.objects.filter(name='Test').count() == 0:
-        board = Board.objects.create(name='Test', rows=4, cols=4, nr_mines=5, numbers=[], apparent=[], flags=[], mines=[])
+        board = Board.objects.create(name='Test', rows=4, cols=4, nr_mines=5, numbers=[], apparent=[], flags=[], mines=[], user=user)
     else:
         board = Board.objects.get(name='Test')
     return board
@@ -30,7 +32,7 @@ def reset_game(board):
 # ------------------------------------------------------------------------------
 #                              Test REST API
 # ------------------------------------------------------------------------------
-#@unittest.skip
+@unittest.skip
 class RestApiTestCase(unittest.TestCase):
     """
     Test REST API
@@ -187,10 +189,11 @@ class GameEngineTestCase(unittest.TestCase):
 # ------------------------------------------------------------------------------
 #                              Test Views
 # ------------------------------------------------------------------------------
-#@unittest.skip
-class TransactionsTestCase(unittest.TestCase):
+@unittest.skip
+#class TransactionsTestCase(unittest.TestCase):
+class ViewsTestCase(unittest.TestCase):
     """
-    Test Transactions
+    Test Views
     """
     def setUp(self):
         """

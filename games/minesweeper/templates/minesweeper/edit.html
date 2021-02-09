@@ -1,88 +1,80 @@
 {% extends "minesweeper/layout.html" %}
 
 {% block title %}
-    Minesweeper
+Minesweeper
 {% endblock %}
 
 {% block body %}
 
-    <h1>Edit</h1>
-    <form action="/update/" method="post">
-        {% csrf_token %}
-        <!--
-        <table>
-          {{ form.as_table }}
-        </table>
-        -->
-              
-        {{ form.non_field_errors }}
-        
-        <div class="row fieldWrapper">
-          <div class="col-2">
+<h1>Edit</h1>
+
+<form action="/update/" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    
+    <div class="row fieldWrapper">
+        <div class="col-2">
             {{ form.name.label_tag }}
-          </div>
-          <div class="col-7">
+        </div>
+        <div class="col-7">
             {{ form.name }}
-          </div>
-          <div class="col-3">
+        </div>
+        <div class="col-3">
             {{ form.name.errors }}
-          </div>
         </div>
-
-        <div class="row fieldWrapper">
-          <div class="col-2">
-            <!--
-            {{ form.rows.label_tag }}
-            -->
+    </div>
+    
+    <div class="row fieldWrapper">
+        <div class="col-2">
             Rows (= Cols):
-          </div>
-          <div class="col-7">
+        </div>
+        <div class="col-7">
             {{ form.rows }}
-          </div>
-          <div class="col-3">
+        </div>
+        <div class="col-3">
             {{ form.rows.errors }}
-          </div>
         </div>
-
-        <div class="row fieldWrapper">
-          <div class="col-2">
+    </div>
+    
+    <div class="row fieldWrapper">
+        <div class="col-2">
             {{ form.cols.label_tag }} 
-          </div>
-          <div class="col-7">
+        </div>
+        <div class="col-7">
             {{ form.cols }}
-          </div>
-          <div class="col-3">
+        </div>
+        <div class="col-3">
             {{ form.cols.errors }}
-          </div>
         </div>
-
-        <div class="row fieldWrapper">
-          <div class="col-2">
+    </div>
+    
+    <div class="row fieldWrapper">
+        <div class="col-2">
             {{ form.nr_mines.label_tag }}
-          </div>
-          <div class="col-7">
+        </div>
+        <div class="col-7">
             {{ form.nr_mines }}
-          </div>
-          <div class="col-3">
+        </div>
+        <div class="col-3">
             {{ form.nr_mines.errors }}
-          </div>
         </div>
-
-        <div hidden class="row fieldWrapper">
-          <div class="col-2">
+    </div>
+    
+    <div hidden class="row fieldWrapper">
+        <div class="col-2">
             {{ form.id.label_tag }}
-          </div>
-          <div class="col-7">
+        </div>
+        <div class="col-7">
             {{ form.id }}
-          </div>
-          <div class="col-3">
+        </div>
+        <div class="col-3">
             {{ form.id.errors }}
-          </div>
         </div>
-
-        <div class="">
-          <input type="submit" value="Save">
-        </div>
-    </form>
+    </div>
+    
+    <div class="">
+        <input type="submit" value="Save">
+    </div>
+</form>
 
 {% endblock %}

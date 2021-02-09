@@ -123,7 +123,9 @@ USE_TZ = True
 
 
 # Custom date format
+#DATETIME_FORMAT = "d N Y - P"
 DATETIME_FORMAT = "d N Y - P"
+
 #USE_L10N = True
 USE_L10N = False
 

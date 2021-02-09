@@ -62,7 +62,6 @@ class BoardUpdate(generics.ListAPIView):
         board_id = self.request.query_params.get('board_id', None)
         cell_name = self.request.query_params.get('cell_name', None)
         flag = self.request.query_params.get('flag', None)
-
         if board_id is not None:
             board = Board.objects.get(id=board_id)
             queryset = queryset.filter(board=board_id)
@@ -203,7 +202,6 @@ def pause(request, board_id):
     print('*** pause')
     board = util.get_board(board_id)
 
-    #jx TransitionNotAllowed
     try:
         board.pause_sm()
     except TransitionNotAllowed:
