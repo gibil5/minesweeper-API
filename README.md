@@ -1,4 +1,4 @@
-# minesweeper-API
+# minesweeper-API - Prod Heroku
 API test
 
 We ask that you complete the following challenge to evaluate your development skills. Please use the programming language and framework discussed during your interview to accomplish the following task.
