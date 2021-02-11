@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import django_heroku
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -84,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'games_minesweeper',
         'USER': 'postgres',
-        #'PASSWORD': 'DB_PASSWORD',
+        'PASSWORD': 'DB_PASSWORD',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -144,3 +145,6 @@ REST_FRAMEWORK = {
     #    'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     #]
 }
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())

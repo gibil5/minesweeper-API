@@ -11,7 +11,6 @@ from .models import Board, Cell
 from django.contrib.auth.models import User
 
 # Const ------------------------------------------------------------------------
-#PREFIX = '\n\n------------------------ '
 PREFIX = '\n\n------------------------------------------------ '
 
 # Tools ------------------------------------------------------------------------
@@ -107,7 +106,7 @@ class RestApiTestCase(unittest.TestCase):
 # ------------------------------------------------------------------------------
 #                              Test Models
 # ------------------------------------------------------------------------------
-#@unittest.skip
+@unittest.skip
 class GameEngineTestCase(unittest.TestCase):
     """
     Test Models
@@ -189,8 +188,7 @@ class GameEngineTestCase(unittest.TestCase):
 # ------------------------------------------------------------------------------
 #                              Test Views
 # ------------------------------------------------------------------------------
-@unittest.skip
-#class TransactionsTestCase(unittest.TestCase):
+#@unittest.skip
 class ViewsTestCase(unittest.TestCase):
     """
     Test Views
@@ -208,7 +206,7 @@ class ViewsTestCase(unittest.TestCase):
         pass
 
 
-    #@unittest.skip
+    @unittest.skip
     def test_view_index(self):
         """
         Index view
@@ -221,6 +219,7 @@ class ViewsTestCase(unittest.TestCase):
 
         # Check that the response is 200 OK.
         self.assertEqual(response.status_code, 200)
+
 
 
     #@unittest.skip
@@ -238,7 +237,8 @@ class ViewsTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-    #@unittest.skip
+
+    @unittest.skip
     def test_view_play(self):
         """
         Play view
