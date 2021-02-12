@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import os
 import django_heroku
 from pathlib import Path
 
@@ -20,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ')w_7c9h-c5*(o2^-4!=s8y$9$p-m2^x91a6k*6@7n-o=99hejq'
+#SECRET_KEY = ')w_7c9h-c5*(o2^-4!=s8y$9$p-m2^x91a6k*6@7n-o=99hejq'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -124,17 +126,12 @@ USE_TZ = True
 
 
 # Custom date format
-#DATETIME_FORMAT = "d N Y - P"
 DATETIME_FORMAT = "d N Y - P"
-
 #USE_L10N = True
 USE_L10N = False
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-#STATIC_ROOT = "/Users/gibil/python/deviget/minesweeper-API/static"
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATIC_URL = '/static/'
 
