@@ -4,3 +4,4 @@ django-heroku
 requests
 django-cors-headers
 djangorestframework
+django-fsm
