@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 from datetime import timedelta
 from .models import Board, Cell
+from django.contrib.auth.models import User
+
+
+def list_boards_user(user):
+    boards = Board.objects.filter(user=user)    
+    return boards
+
+def get_users():
+    return User.objects.all() 
+
+
 
 def list_boards():
     """
@@ -8,18 +19,6 @@ def list_boards():
     """
     boards = Board.objects.all()    
     return boards
-
-
-def list_boards_user(user):
-    """
-    Returns a list of boards.
-    """
-    #boards = Board.objects.all()    
-    boards = Board.objects.filter(user=user)    
-    return boards
-
-
-
 
 def get_board(board_id):
     board = Board.objects.get(id=board_id)

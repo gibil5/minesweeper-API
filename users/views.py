@@ -1,5 +1,4 @@
 from django.contrib.auth import authenticate, login, logout
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse 
@@ -11,7 +10,6 @@ def index(request):
     if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse("login"))
     return render(request, "users/user.html")
-
 
 def login_view(request):
     print('*** login')
@@ -28,24 +26,36 @@ def login_view(request):
             })
     return render(request, "users/login.html")
 
-
 def logout_view(request):
+    print('*** logout')
     logout(request)
     return render(request, "users/login.html", {
         "message":  "Logged out.",        
     })
 
-
 def games(request):
     print('*** games')
-
     user = request.user
-
-    print(request)
-    print(user)
-
     return render(request, "minesweeper/index.html",
         {
             "boards": util.list_boards_user(user)
         })
-    #return render(request, "minesweeper/index.html")
+
+
+def add_user(request):
+    print('*** add_user')
+    #util.add_user('Test')
+    return HttpResponseRedirect(reverse("index"))
+
+def users(request):
+    print('*** users')
+    return render(request, "users/users.html", {
+        "users":  util.get_users(),
+    })
+
+def show(request, user_id):
+    print('*** show user')
+    return render(request, "users/user.html",
+        {
+        })
+

@@ -1,0 +1,34 @@
+{% extends "users/layout.html" %}
+
+{% block body %}
+
+<div class="container_users">
+    <h1>
+        Users
+    </h1>
+</div>
+
+<div class="container_users">
+    {% for user in users %}
+
+    <div class="row">
+        <div class="col-1">
+            {{ user.username }}
+        </div>
+
+        <div class="col-1">
+            {{ user.password }}
+        </div>
+    </div>
+
+    {% endfor %}
+</div>
+
+
+<div class="container_users">    
+    <div>
+        <a href="{% url 'index' %}">Home</a>
+    </div>
+</div>
+
+{% endblock %}

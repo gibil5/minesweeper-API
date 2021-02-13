@@ -2,23 +2,29 @@
 
 {% block body %}
 
+<div class="container_users">
     <h1>
         Welcome, {{ request.user.first_name }}
     </h1>
+</div>
 
-
+<div class="container_users">
     <ul>
-      <li>Username: {{ request.user.username }}</li>
-      <li>Email: {{ request.user.email }}</li>
+        <li>Username: {{ request.user.username }}</li>
+        <li>Email: {{ request.user.email }}</li>
     </ul>
+</div>
 
+<div class="container_users">    
     <div class="">
-      <a href="{% url 'games' %}">Games</a>
+        <a href="{% url 'games' %}">Games</a>
     </div>
-    <br>
-    
     <div class="">
-      <a href="{% url 'logout' %}">Log out</a>      
+        <a href="{% url 'users' %}">Users</a>
     </div>
+    <div class="">
+        <a href="{% url 'logout' %}">Log out</a>      
+    </div>
+</div>
 
 {% endblock %}

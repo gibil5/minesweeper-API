@@ -100,8 +100,12 @@ Minesweeper
         </div>
     </div>
     {% endfor %}
-    <br>
-    <a href="{% url 'add_board' %}">Add game</a>
+    <div>
+        <a href="{% url 'add_board' %}">Add game</a>
+    </div>
+    <div>
+        <a href="{% url 'index' %}">Home</a>
+    </div>
 </div>
 
 {% endblock %}

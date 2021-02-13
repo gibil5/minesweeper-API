@@ -2,20 +2,30 @@
 
 {% block body %}
 
+<div class="container_users">    
+    <h1>
+        Please login
+    </h1>
     {% if message %}
-        <div class="">
-          {{ message }}
-        </div>        
+    <div class="">
+        {{ message }}
+    </div>        
     {% endif %}
+</div>
 
+<div class="container_users">
     <form class="" action="{% url 'login' %}" method="post">
         {% csrf_token %}
-
         <input type="text" name="username" value="" placeholder="UserName">
-
         <input type="password" name="password" value="" placeholder="Password">
-
         <input type="submit" value="Login">
-    </form>
+    </form>    
+</div>
+
+<div class="container_users">
+    <div>
+        <a href="{% url 'add_user' %}">Add user</a>
+    </div>
+</div>
 
 {% endblock %}

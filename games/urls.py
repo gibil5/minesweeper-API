@@ -29,9 +29,10 @@ router.register(r'cells', views.CellViewSet)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("minesweeper.urls")),
-    path('', include(router.urls)),
+    #path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('board_init/', views.BoardInit.as_view()),    
     path('board_update/', views.BoardUpdate.as_view()),
-    path('users/', include("users.urls")),
+    #path('users/', include("users.urls")),
+    path('', include("users.urls")),
 ]

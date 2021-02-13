@@ -6,7 +6,8 @@ from . import views
 
 # Routing
 urlpatterns = [
-    path("index/", views.index, name="index"),    
+    #path("index/", views.index, name="index"),
+    #path("", views.index, name="index"),    
     path("add_board/", views.add_board, name="add_board"),
     path('show/<int:board_id>/', views.show, name="show"),
     path("delete/<int:board_id>/", views.delete, name="delete"),
