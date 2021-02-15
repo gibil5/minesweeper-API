@@ -72,7 +72,6 @@ class ViewsTestCase(unittest.TestCase):
 
             # Users
             '/',
-            '/users/add_users/',
             '/users/games/',
             '/users/index/',
             '/users/login/',
@@ -98,7 +97,7 @@ class ViewsTestCase(unittest.TestCase):
         for req in requests:
             request = req
             if self.verbose:
-                print(request)
+                print(f'{request}\n')
             # Get request
             response = self.client.get(request)
             if self.verbose:

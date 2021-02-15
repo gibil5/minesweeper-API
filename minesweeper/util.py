@@ -49,7 +49,7 @@ def delete_board(board_id):
 
 def add_board(username):
     user = User.objects.get(username=username)
-    b = Board.objects.create(name='Test', rows=3, cols=3, nr_mines=3, nr_hidden=9, state_sm=0, numbers=[[0]], apparent=[[0]], flags=[[0]], mines=[[0]], user=user)
+    b = Board.objects.create(name='New game', rows=3, cols=3, nr_mines=3, nr_hidden=9, state_sm=0, numbers=[[0]], apparent=[[0]], flags=[[0]], mines=[[0]], user=user)
     b.save()
     return b
 

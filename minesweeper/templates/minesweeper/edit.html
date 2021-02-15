@@ -4,7 +4,7 @@ Minesweeper
 {% endblock %}
 {% block body %}
 <h1>Edit</h1>
-<form action="/update/" method="post">
+<form action="/boards/update/" method="post">
     {% csrf_token %}
     {{ form.non_field_errors }}
     <div class="row fieldWrapper">

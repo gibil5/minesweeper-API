@@ -34,7 +34,6 @@ def logout_view(request):
         "message":  "Logged out.",        
     })
 
-
 @login_required(login_url='/login')
 def games(request):
     print('*** games')
@@ -45,7 +44,6 @@ def games(request):
         {
             "boards": util.list_boards_user(user)
         })
-
 
 def users(request):
     print('*** users')
@@ -58,26 +56,3 @@ def show(request, user_id):
     return render(request, "users/user.html",
         {
         })
-
-# Add users
-def add_users(request):
-    print('*** add_users')
-
-    # 3d$uN4SD
-    # Y6t@UKsW
-    # yb3N+KVV
-    datax = [
-                ('admin_prod',    'Adminus',    'Adminex',    'admin@gmail.com',  "65uznC=m",    True),
-                ('harry',    'Harry',    'Potter',    'hpotter@gmail.com',  "nyctal6+",     False),
-                ('ron',      'Ron',      'Weasly',    'rweasly@gmail.com',  "@2wHGS#B+",    False),
-                ('hermione', 'Hermione', 'Granger',   'hgranger@gmail.com', "Tz9+8ndB",     False),
-            ]
-    
-    for data in datax:
-        user = util.add_user(data)
-    
-    return HttpResponseRedirect(reverse("index"))
-
-
-
-
