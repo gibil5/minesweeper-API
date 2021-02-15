@@ -5,3 +5,4 @@ requests
 django-cors-headers
 djangorestframework
 django-fsm
+django-extensions

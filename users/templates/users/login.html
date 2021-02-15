@@ -1,7 +1,5 @@
 {% extends "users/layout.html" %}
-
 {% block body %}
-
 <div class="container_users">    
     <h1>
         Please login
@@ -12,7 +10,6 @@
     </div>        
     {% endif %}
 </div>
-
 <div class="container_users">
     <form class="" action="{% url 'login' %}" method="post">
         {% csrf_token %}
@@ -21,11 +18,9 @@
         <input type="submit" value="Login">
     </form>    
 </div>
-
 <div class="container_users">
     <div>
-        <a href="{% url 'add_user' %}">Add user</a>
+        <a href="{% url 'add_users' %}">Add all users</a>
     </div>
 </div>
-
 {% endblock %}

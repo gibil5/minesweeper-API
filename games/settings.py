@@ -33,10 +33,13 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Custom
     'minesweeper',
     'users',
     'corsheaders',
     'rest_framework',
+    'django_extensions',
+    # Standard
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

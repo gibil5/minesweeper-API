@@ -4,15 +4,29 @@ from .models import Board, Cell
 from django.contrib.auth.models import User
 
 
+# ---------------------------------- Users -------------------------------------
+def add_user(data):
+    username = data[0]
+    first_name = data[1]
+    last_name = data[2]
+    email = data[3]
+    password = data[4]
+    is_superuser = data[5]
+    user, created = User.objects.get_or_create(username=username, first_name=first_name, last_name=last_name, email=email, is_active=True, is_staff=True, is_superuser=is_superuser)
+    user.set_password(password)
+    user.save()
+    return user
+
+def get_users():
+    return User.objects.order_by('username')
+
 def list_boards_user(user):
+    print('list_boards_user')
     boards = Board.objects.filter(user=user)    
     return boards
 
-def get_users():
-    return User.objects.all() 
 
-
-
+# ---------------------------------- Boards ------------------------------------
 def list_boards():
     """
     Returns a list of boards.
@@ -33,8 +47,9 @@ def delete_board(board_id):
     board = Board.objects.get(id=board_id)
     board.delete()
 
-def add_board(name):
-    b = Board(name='Test', rows=3, cols=3, nr_mines=3, nr_hidden=9, state='created', numbers=[[0]], apparent=[[0]], flags=[[0]], mines=[[0]])
+def add_board(username):
+    user = User.objects.get(username=username)
+    b = Board.objects.create(name='Test', rows=3, cols=3, nr_mines=3, nr_hidden=9, state_sm=0, numbers=[[0]], apparent=[[0]], flags=[[0]], mines=[[0]], user=user)
     b.save()
     return b
 
@@ -48,7 +63,7 @@ def add_cells(board_id):
     return board
 
 def update_board(id, name, rows, cols, nr_mines):
-    print('update_board')
+    #print('update_board')
     boards = Board.objects.filter(id=id)
     ret = boards.update(
         #id = id, 
@@ -60,7 +75,6 @@ def update_board(id, name, rows, cols, nr_mines):
         apparent = [],
         flags = [],
         mines = [],
-
         state_sm = 0, 
         start=None,
         end=None,

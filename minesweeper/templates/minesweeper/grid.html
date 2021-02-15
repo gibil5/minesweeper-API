@@ -9,9 +9,6 @@
     #grid {
         display: grid;
         text-align: center;
-        /*
-        padding: 10px;
-        */
     }
     .grid-item {
         background-color: gainsboro;
@@ -42,6 +39,7 @@
         height: 40vmax;
     }    
     .square_small {
+        padding-right: 20px;
         width: 20vmax;
         height: 20vmax;
     }
@@ -51,6 +49,7 @@
     }    
     .container_stats {
         padding-bottom: 25px;
+        padding-left: 25px;
     }    
     .stats {
         font-size: 16px;
@@ -71,25 +70,25 @@
         <!-- Header -->
         <div class="row">
             <div class="col-md-3">
+                <h4 id="game_over_banner" class="game_over_banner"></h4>
             </div>
             <div class="col-md-6">
                 {% include 'minesweeper/partials/_header.html' %}
             </div>
             <div class="col-md-3">
-                <h4 id="game_over_banner" class="game_over_banner"></h4>
             </div>
         </div>
         
         <!-- Board -->
         <div class="row">
             <div class="col-md-3">
-                <button id="test_btn" type="button">Test</button>
+                {% include 'minesweeper/partials/_stats.html' %}
+                <button hidden id="test_btn" type="button">Test javascript</button>
             </div>
             <div class="col-md-6">
                 {% include 'minesweeper/partials/_board.html' %}
             </div>
             <div class="col-md-3">
-                {% include 'minesweeper/partials/_stats.html' %}
                 {% include 'minesweeper/partials/_admin.html' %}
             </div>
         </div>

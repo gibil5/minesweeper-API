@@ -277,9 +277,9 @@ class Board(models.Model):
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
         """
-        print('\n*** update_game')
-        print(f'cell_name: {cell_name}')
-        print(f'flag: {flag}')
+        print('*** update_game')
+        #print(f'cell_name: {cell_name}')
+        #print(f'flag: {flag}')
 
         # Init
         cell = self.get_cell_name(cell_name)

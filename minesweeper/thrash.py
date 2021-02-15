@@ -1,3 +1,167 @@
+# 15 feb 
+
+
+def add_user(request, user_name):
+    print('*** add_user')
+
+    if user_name == 'harry':
+        first_name = 'Harry'
+        last_name = 'Potter'
+        email = 'hpotter@gmail.com'
+        password = 'nyctal6+'
+
+    elif user_name == 'ron':
+        first_name = 'Ron'
+        last_name = 'Weasly'
+        email = 'rweasly@gmail.com'
+        password = "@2wHGS#B"
+
+    elif user_name == 'hermione':
+        first_name = 'Hermione'
+        last_name = 'Granger'
+        email = 'hgranger@gmail.com'
+        password = "Tz9+8ndB"
+
+    else:
+        # This should not happen
+        1/0
+
+    user = util.add_user(user_name, first_name, last_name, email, password)
+    return HttpResponseRedirect(reverse("index"))
+
+
+
+
+
+
+
+
+# 14 feb 
+
+    @unittest.skip
+    def test_url_update(self):
+        """
+        Board update
+        GET request
+        """
+        print(f"{self.prefix}test_url_update")
+
+        # Init
+        reset_game(self.board)
+
+        # Cell
+        url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}'
+        response = self.client.get(url)
+
+        count = len(response.json())
+        
+        # Assert dimension
+        self.assertEqual(count, self.board.rows * self.board.cols)
+        
+        for i in range(count):
+            cell = response.json()[i]
+            if cell['name'] == self.cell_name:
+                print(cell)
+
+                # Assert visible
+                self.assertEqual(cell['visible'], True)
+                self.assertIn(cell['value'], [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
+                self.assertIn(cell['label'], ['-1', '.', '1', '2', '3', '4', '5', '6', '7', '8'])
+
+        # Check that the response is 200 OK.
+        self.assertEqual(response.status_code, 200)
+
+
+
+
+
+
+
+def index(request):
+    """
+    Index
+    """
+    print('*** index')
+    return render(request, "minesweeper/index.html",
+        {
+            "boards": util.list_boards()
+        })
+
+
+#-------------------------------------------------------------------------------
+#class UserViewSet(viewsets.ModelViewSet):
+#    """
+#    API endpoint that allows users to be viewed or edited.
+#    """
+#    queryset = User.objects.all().order_by('-date_joined')
+#    serializer_class = UserSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+#class GroupViewSet(viewsets.ModelViewSet):
+#    """
+#    API endpoint that allows groups to be viewed or edited.
+#    """
+#    queryset = Group.objects.all()
+#    serializer_class = GroupSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+
+
+
+    @unittest.skip
+    def test_view_index(self):
+        """
+        Index view
+        GET request
+        """
+        print(f"{self.prefix}test_view_index")
+        # Login because login required
+        User = get_user_model()
+        self.client.login(username='temporary', password='temporary')
+        # Index
+        response = self.client.get('/games/')
+        # Check that the response is 200 OK.
+        self.assertEqual(response.status_code, 200)
+
+
+    @unittest.skip
+    def test_view_show(self):
+        """
+        Show view
+        GET request
+        """
+        print(f"{self.prefix}test_view_show")
+        # Show
+        response = self.client.get(f'/show/{self.board.id}/')
+        # Check that the response is 200 OK.
+        self.assertEqual(response.status_code, 200)
+
+
+    @unittest.skip
+    def test_view_play(self):
+        """
+        Play view
+        GET request
+        """
+        print(f"{self.prefix}test_view_play")
+
+        # Init
+        self.board.reset_sm()
+        self.board.init_game()
+
+        # Play
+        response = self.client.get(f'/play/{self.board.id}/')
+
+        # Check that the response is 200 OK.
+        self.assertEqual(response.status_code, 200)
+
+
+
+
+
+
+
+
 # Feb 5 2021
 
 # Models

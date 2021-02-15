@@ -3,19 +3,15 @@
 Minesweeper - Show
 {% endblock %}
 {% block body %}
-
-<style media="screen">    
-    .my_container {
-        padding-top: 25px;    
-        padding-left: 25px;    
-        font-size: 18px;              
-        line-height: 150%;
-    }
-</style>
-
-<h2>{{ board.get_user }} - {{ board.name }}</h2>
-
-<div class="my_container">
+<div class="container_show">
+    <div class="row">
+        <div class="col-11">
+            <h2>{{ board.name }}</h2>
+        </div>
+        <div class="col-1 container_user">
+            {{ request.user }}
+        </div>
+    </div>
     <ul>
         <li>
             State: {{ board.get_state }}
@@ -44,8 +40,7 @@ Minesweeper - Show
         <li>
             Mines: {{ board.nr_mines }}
         </li>
-    </ul>
-    
+    </ul>    
     <!-- Play -->
     {% if board.state_sm != 3 %}
     {% if board.state_sm != 4 %}
@@ -56,7 +51,6 @@ Minesweeper - Show
     </div>
     {% endif %}
     {% endif %}
-    
     <!-- Reset -->
     {% if board.state_sm != 0 %}
     <div>
@@ -64,22 +58,19 @@ Minesweeper - Show
             Reset
         </a>  
     </div>
-    {% endif %}
-    
+    {% endif %}    
     <!-- Edit -->
     <div>
         <a href="{% url 'edit' board.id %}">
             Edit
         </a>  
     </div>
-    
     <!-- Games -->
     <div>
         <a href="{% url 'games' %}">
             Games
         </a>
     </div>
-
     <!-- Home -->
     <div>
         <a href="{% url 'index' %}">

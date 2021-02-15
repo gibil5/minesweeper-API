@@ -28,11 +28,13 @@ router.register(r'cells', views.CellViewSet)
 # Routing
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include("minesweeper.urls")),
-    #path('', include(router.urls)),
+    # Game
+    path('boards/', include("minesweeper.urls")),
+    # Rest
+    path('rest/', include(router.urls)),
+    path('rest/board_init/', views.BoardInit.as_view()),
+    path('rest/board_update/', views.BoardUpdate.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('board_init/', views.BoardInit.as_view()),    
-    path('board_update/', views.BoardUpdate.as_view()),
-    #path('users/', include("users.urls")),
+    # Users
     path('', include("users.urls")),
 ]

@@ -66,10 +66,10 @@ document.addEventListener('DOMContentLoaded', function(){
         let color = '';
         if (board.game_win) { 
           color = 'lightgreen';
-          label = 'Game over: You won !';
+          label = 'Game over - You won !';
         } else {        
           color = 'red';
-          label = 'Game over: You lost !';
+          label = 'Game over - You lost !';
         }        
         // Game over
         document.getElementById('game_over_banner').innerHTML = label;
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function(){
       console.log(cell_name);
       console.log(flag);
       // First fetch
-      const url_cells = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      const url_cells = `http://127.0.0.1:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
           method: 'get',
         }).then(function(response) {
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', function(){
           // Game loop
           game_loop(data);
           // Second fetch
-          const url_board = `http://127.0.0.1:8000/boards/${board_id}/`;
+          const url_board = `http://127.0.0.1:8000/rest/boards/${board_id}/`;
           return fetch(url_board); 
         })
         .then(function(response) {

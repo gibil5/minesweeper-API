@@ -6,12 +6,12 @@ body {
 code {
     white-space: pre;
 }
-
+/*
 h1 {
     margin-top: 0px;
     padding-top: 20px;
 }
-
+*/
 textarea {
     height: 90vh;
     width: 80%;

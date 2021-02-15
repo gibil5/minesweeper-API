@@ -9,17 +9,21 @@ from django.test import TestCase
 from django.test import Client
 from .models import Board, Cell
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 
 # Const ------------------------------------------------------------------------
 PREFIX = '\n\n------------------------------------------------ '
 
 # Tools ------------------------------------------------------------------------
+def get_test_user():
+    return User.objects.get(username='harry')
+
 def get_test_board():
     user = User.objects.get(username='harry')
     if Board.objects.filter(name='Test').count() == 0:
         board = Board.objects.create(name='Test', rows=4, cols=4, nr_mines=5, numbers=[], apparent=[], flags=[], mines=[], user=user)
     else:
-        board = Board.objects.get(name='Test')
+        board = Board.objects.filter(name='Test')[0]
     return board
 
 def reset_game(board):
@@ -29,9 +33,117 @@ def reset_game(board):
 
 
 # ------------------------------------------------------------------------------
+#                              Test Requests
+# ------------------------------------------------------------------------------
+#@unittest.skip
+class ViewsTestCase(unittest.TestCase):
+    """
+    Test Requests
+    All urls
+    """
+    def setUp(self):
+        """
+        Setup
+        """
+        print('setUp')
+        self.prefix = PREFIX
+        self.client = Client()
+        self.board = get_test_board()
+        self.user = get_test_user()
+
+        self.verbose = True 
+        #self.verbose = False
+        
+        # Create temp user
+        #User = get_user_model()
+        #name = 'temporary'
+        #if User.objects.filter(username=name).count() == 0:
+        #    user = User.objects.create_user(name, 'temporary@gmail.com', 'temporary')
+        
+
+    #@unittest.skip
+    def test_view_get_all(self):
+        """
+        All GET requests
+        """
+        print(f"{self.prefix}test_view_get_all")
+
+        requests = [
+
+            # Users
+            '/',
+            '/users/add_users/',
+            '/users/games/',
+            '/users/index/',
+            '/users/login/',
+            '/users/logout/',
+            f'/users/show/{self.user.id}/',
+
+            # Boards
+            f'/boards/reset/{self.board.id}/',
+            f'/boards/play/{self.board.id}/',
+            f'/boards/pause/{self.board.id}/',
+            f'/boards/back/{self.board.id}/',
+            f'/boards/',
+            f'/boards/show/{self.board.id}/',
+            f'/boards/edit/{self.board.id}/',
+            '/boards/add_board/',
+            f'/boards/delete/{self.board.id}/',
+        ]
+
+        # Login 
+        User = get_user_model()
+        self.client.login(username='harry', password='nyctal6+')
+
+        for req in requests:
+            request = req
+            if self.verbose:
+                print(request)
+            # Get request
+            response = self.client.get(request)
+            if self.verbose:
+                print(response)
+            # Check that the response is either 200 or 302
+            self.assertIn(response.status_code, [200, 302])
+            print()
+
+
+    @unittest.skip
+    def test_view_post_all(self):
+        """
+        All POST requests
+        """
+        print(f"{self.prefix}test_view_post_all")
+
+        requests = [
+            # Board
+            '/boards/update/',
+        ]
+
+        id = self.board.id
+        name = 'Test'
+        rows = '7'
+        cols = '7'
+        nr_mines = '7'
+
+        for req in requests:
+            request = req
+            if self.verbose:
+                print(request)     
+            # Post request
+            response = self.client.post(req, { 'id': {id}, 'name': {name}, 'rows': {rows}, 'cols': {cols}, 'nr_mines': {nr_mines} })
+            if self.verbose:            
+                print(response)
+            # Check that the response is either 200 or 302
+            self.assertIn(response.status_code, [200, 302])
+            print()
+
+
+
+# ------------------------------------------------------------------------------
 #                              Test REST API
 # ------------------------------------------------------------------------------
-@unittest.skip
+#@unittest.skip
 class RestApiTestCase(unittest.TestCase):
     """
     Test REST API
@@ -47,43 +159,8 @@ class RestApiTestCase(unittest.TestCase):
         self.duration = '5555'
         self.state = 'pause'
         self.board = get_test_board()
-
-    def tearDown(self):
-        pass
-
-
-    #@unittest.skip
-    def test_url_update(self):
-        """
-        Board update
-        GET request
-        """
-        print(f"{self.prefix}test_url_update")
-
-        # Init
-        reset_game(self.board)
-
-        # Cell
-        url = f'http://127.0.0.1:8000/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}'
-        response = self.client.get(url)
-
-        count = len(response.json())
-        
-        # Assert dimension
-        self.assertEqual(count, self.board.rows * self.board.cols)
-        
-        for i in range(count):
-            cell = response.json()[i]
-            if cell['name'] == self.cell_name:
-                print(cell)
-
-                # Assert visible
-                self.assertEqual(cell['visible'], True)
-                self.assertIn(cell['value'], [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8])
-                self.assertIn(cell['label'], ['-1', '.', '1', '2', '3', '4', '5', '6', '7', '8'])
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
+        self.verbose = True 
+        #self.verbose = False
 
 
     #@unittest.skip
@@ -94,19 +171,33 @@ class RestApiTestCase(unittest.TestCase):
         """
         print(f"{self.prefix}test_url_init")
 
-        # board init
-        url = f'http://127.0.0.1:8000/board_init/?board_id={self.board.id}'
-        response = self.client.get(url)
+        requests = [
+            # Board - Game
+            f'http://127.0.0.1:8000/rest/boards/',
+            f'http://127.0.0.1:8000/rest/boards/{self.board.id}/',
+            f'http://127.0.0.1:8000/rest/board_init/?board_id={self.board.id}',
+            f'http://127.0.0.1:8000/rest/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}',
+        ]
 
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
+        for url in requests:
+            if self.verbose:            
+                print(url)            
+
+            # Get request
+            response = self.client.get(url)
+            if self.verbose:            
+                print(response)
+                print()
+
+            # Check that the response is 200 OK.
+            self.assertEqual(response.status_code, 200)
 
 
 
 # ------------------------------------------------------------------------------
 #                              Test Models
 # ------------------------------------------------------------------------------
-@unittest.skip
+#@unittest.skip
 class GameEngineTestCase(unittest.TestCase):
     """
     Test Models
@@ -116,13 +207,10 @@ class GameEngineTestCase(unittest.TestCase):
         Setup
         """
         self.prefix = PREFIX
-        #self.flag = 0
-        #self.cell_name = '0_0'
         self.board = get_test_board()
 
     def tearDown(self):
         pass
-
 
     #@unittest.skip
     def test_board_update(self):
@@ -184,76 +272,4 @@ class GameEngineTestCase(unittest.TestCase):
         print(f'Was mined: {count_mined} times.')
         print(f'Was flagged: {count_flagged} times.')
             
-
-# ------------------------------------------------------------------------------
-#                              Test Views
-# ------------------------------------------------------------------------------
-#@unittest.skip
-class ViewsTestCase(unittest.TestCase):
-    """
-    Test Views
-    """
-    def setUp(self):
-        """
-        Setup
-        """
-        print('setUp')
-        self.prefix = PREFIX
-        self.client = Client()
-        self.board = get_test_board()
-
-    def tearDown(self):
-        pass
-
-
-    @unittest.skip
-    def test_view_index(self):
-        """
-        Index view
-        GET request
-        """
-        print(f"{self.prefix}test_view_index")
-
-        # Index
-        response = self.client.get('/index/')
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
-
-
-    #@unittest.skip
-    def test_view_show(self):
-        """
-        Show view
-        GET request
-        """
-        print(f"{self.prefix}test_view_show")
-
-        # Show
-        response = self.client.get(f'/show/{self.board.id}/')
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
-
-
-    @unittest.skip
-    def test_view_play(self):
-        """
-        Play view
-        GET request
-        """
-        print(f"{self.prefix}test_view_play")
-
-        # Init
-        self.board.reset_sm()
-        self.board.init_game()
-
-        # Play
-        response = self.client.get(f'/play/{self.board.id}/')
-
-        # Check that the response is 200 OK.
-        self.assertEqual(response.status_code, 200)
-
 
