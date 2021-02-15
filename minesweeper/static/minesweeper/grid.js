@@ -224,7 +224,8 @@ document.addEventListener('DOMContentLoaded', function(){
       console.log(cell_name);
       console.log(flag);
       // First fetch
-      const url_cells = `http://localhost:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      //const url_cells = `http://localhost:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      const url_cells = `https://minesweeper-api-jr.herokuapp.com:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
           method: 'get',
         }).then(function(response) {
@@ -233,7 +234,8 @@ document.addEventListener('DOMContentLoaded', function(){
           // Game loop
           game_loop(data);
           // Second fetch
-          const url_board = `http://localhost:8000/rest/boards/${board_id}/`;
+          //const url_board = `http://localhost:8000/rest/boards/${board_id}/`;
+          const url_board = `https://minesweeper-api-jr.herokuapp.com:8000/rest/boards/${board_id}/`;
           return fetch(url_board); 
         })
         .then(function(response) {
