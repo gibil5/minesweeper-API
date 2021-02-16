@@ -3,6 +3,7 @@
 Minesweeper - Show
 {% endblock %}
 {% block body %}
+
 <div class="container_show">
     <div class="row">
         <div class="col-12">
@@ -43,41 +44,45 @@ Minesweeper - Show
             Mines: {{ board.nr_mines }}
         </li>
     </ul>    
-    <!-- Play -->
-    {% if board.state_sm != 3 %}
-    {% if board.state_sm != 4 %}
-    <div>
-        <a href="{% url 'play' board.id %}">
-            Play
-        </a>  
-    </div>
-    {% endif %}
-    {% endif %}
-    <!-- Reset -->
-    {% if board.state_sm != 0 %}
-    <div>
-        <a href="{% url 'reset' board.id %}">
-            Reset
-        </a>  
-    </div>
-    {% endif %}    
-    <!-- Edit -->
-    <div>
-        <a href="{% url 'edit' board.id %}">
-            Edit
-        </a>  
-    </div>
-    <!-- Games -->
-    <div>
-        <a href="{% url 'games' %}">
-            Games
-        </a>
-    </div>
-    <!-- Home -->
-    <div>
-        <a href="{% url 'index' %}">
-            Home
-        </a>
+
+    <div class="container_users">    
+        <!-- Play -->
+        {% if board.state_sm != 3 %}
+        {% if board.state_sm != 4 %}
+        <div class="button_users">
+            <a href="{% url 'play' board.id %}">
+                Play
+            </a>  
+        </div>
+        {% endif %}
+        {% endif %}
+        <!-- Reset -->
+        {% if board.state_sm != 0 %}
+        <div class="button_users">
+            <a href="{% url 'reset' board.id %}">
+                Reset
+            </a>  
+        </div>
+        {% endif %}    
+
+        <!-- Edit -->
+        <div class="button_users">
+            <a href="{% url 'edit' board.id %}">
+                Edit
+            </a>  
+        </div>
+        <!-- Games -->
+        <div class="button_users">
+            <a href="{% url 'games' %}">
+                Games
+            </a>
+        </div>
+        <!-- Home -->
+        <div class="button_users">
+            <a href="{% url 'index' %}">
+                Home
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

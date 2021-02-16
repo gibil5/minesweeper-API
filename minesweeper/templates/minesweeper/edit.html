@@ -3,67 +3,77 @@
 Minesweeper
 {% endblock %}
 {% block body %}
+
+<div class="container_show">
 <h1>Edit</h1>
+
 <form action="/boards/update/" method="post">
     {% csrf_token %}
     {{ form.non_field_errors }}
+    <br>
     <div class="row fieldWrapper">
-        <div class="col-2">
+        <div class="col-3">
             {{ form.name.label_tag }}
         </div>
         <div class="col-7">
             {{ form.name }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
             {{ form.name.errors }}
         </div>
     </div>
+    <br>
     <div class="row fieldWrapper">
-        <div class="col-2">
-            Rows (= Cols):
+        <div class="col-3">
+            Rows Cols:
         </div>
         <div class="col-7">
             {{ form.rows }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
             {{ form.rows.errors }}
         </div>
     </div>
+    <br>
     <div class="row fieldWrapper">
-        <div class="col-2">
+        <div class="col-3">
             {{ form.cols.label_tag }} 
         </div>
         <div class="col-7">
             {{ form.cols }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
             {{ form.cols.errors }}
         </div>
     </div>
     <div class="row fieldWrapper">
-        <div class="col-2">
+        <div class="col-3">
             {{ form.nr_mines.label_tag }}
         </div>
         <div class="col-7">
             {{ form.nr_mines }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
             {{ form.nr_mines.errors }}
         </div>
     </div>
     <div hidden class="row fieldWrapper">
-        <div class="col-2">
+        <div class="col-3">
             {{ form.id.label_tag }}
         </div>
         <div class="col-7">
             {{ form.id }}
         </div>
-        <div class="col-3">
+        <div class="col-2">
             {{ form.id.errors }}
         </div>
     </div>
+    <br>
+
     <div class="">
-        <input type="submit" value="Save">
+        <input type="submit" value="Save" class="btn-primary button_users">
     </div>
+
 </form>
+</div>
 {% endblock %}

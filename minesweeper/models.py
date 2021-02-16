@@ -13,11 +13,15 @@ STATE_PAUSED = 2
 STATE_END_WIN = 3
 STATE_END_LOOSE = 4
 STATE_CHOICES = (
-        (STATE_CREATED, 'created'),
-        (STATE_STARTED, 'started'),
-        (STATE_PAUSED, 'paused'),
+        #(STATE_CREATED, 'created'),
+        (STATE_CREATED, 'init'),
+        #(STATE_STARTED, 'started'),
+        (STATE_STARTED, 'start'),
+        #(STATE_PAUSED, 'paused'),
+        (STATE_PAUSED, 'pause'),
         (STATE_END_WIN, 'end win'),
-        (STATE_END_LOOSE, 'end loose'),
+        #(STATE_END_LOOSE, 'end loose'),
+        (STATE_END_LOOSE, 'end lose'),
 ) 
 
 # Create your models here.

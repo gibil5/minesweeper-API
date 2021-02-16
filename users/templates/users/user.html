@@ -9,6 +9,7 @@
         <li>Email: {{ request.user.email }}</li>
     </ul>
 </div>
+
 <div class="container_users">    
 
     <div class="button_users">
@@ -21,24 +22,22 @@
         <a href="{% url 'logout' %}">Log out</a>      
     </div>
 
-
+    <!--
     <div class="">    
         <a href="{% url 'games' %}">
             <button type="button" name="button" class="btn button_users">Games</button>
         </a>
     </div>
-
     <div class="">    
         <a href="{% url 'users' %}">
             <button type="button" name="button" class="btn button_users">Users</button>
         </a>
     </div>
-    
     <div class="">    
         <a href="{% url 'logout' %}">
             <button type="button" name="button" class="btn-primary button_users">Log out</button>
         </a>
     </div>
-
+    -->
 </div>
 {% endblock %}
