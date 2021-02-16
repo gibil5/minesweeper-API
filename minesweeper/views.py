@@ -120,9 +120,11 @@ def index(request):
     Index
     """
     print('*** index')
+    #return render(request, "minesweeper/index_flex.html",
     return render(request, "minesweeper/index.html",
         {
-            "boards": util.list_boards()
+            "userx": request.user,
+            "boards": util.list_boards(),
         })
 
 def show(request, board_id):

@@ -34,10 +34,28 @@
         display: block;
         background-color: gainsboro;
     }    
+    
     .square {
+        width: 50vmax;
+        height: 50vmax;
+        /*
+        margin-left: 50px;
+        width: 80vw;
+        height: 80vw;
         width: 40vmax;
         height: 40vmax;
+        */
     }    
+    .game_element {        
+        margin-left: 50px;
+        margin-top: 50px;
+        font-size: 40px;
+        /*
+        margin-left: 10%;
+        margin-top: 10%;
+        */
+    }
+
     .square_small {
         padding-right: 20px;
         width: 20vmax;
@@ -69,28 +87,40 @@
         
         <!-- Header -->
         <div class="row">
+            <!--
             <div class="col-md-3">
                 <h4 id="game_over_banner" class="game_over_banner"></h4>
             </div>
-            <div class="col-md-6">
-                {% include 'minesweeper/partials/_header.html' %}
-            </div>
             <div class="col-md-3">
+            </div>
+            -->
+            <div class="col-9 col-md-9 game_element">
+                {% include 'minesweeper/partials/_header.html' %}
             </div>
         </div>
         
         <!-- Board -->
         <div class="row">
-            <div class="col-md-3">
+            <!--
+            <div class="col-1 col-md-3">
                 {% include 'minesweeper/partials/_stats.html' %}
                 <button hidden id="test_btn" type="button">Test javascript</button>
             </div>
-            <div class="col-md-6">
+            <div class="col-1 col-md-3">
+                x
+            </div>
+            <div class="col-1 col-md-3">
+                x
+            </div>
+            -->
+            <div class="col-12 col-md-6 game_element">
                 {% include 'minesweeper/partials/_board.html' %}
             </div>
-            <div class="col-md-3">
+            <!--
+            <div class="col-1 col-md-3">
                 {% include 'minesweeper/partials/_admin.html' %}
             </div>
+            -->
         </div>
         
         <!-- Info for styling -->

@@ -4,8 +4,9 @@
     <h1>
         Please login
     </h1>
+    <br>
     {% if message %}
-    <div class="">
+    <div class="input_users">
         {{ message }}
     </div>        
     {% endif %}
@@ -13,9 +14,15 @@
 <div class="container_users">
     <form class="" action="{% url 'login' %}" method="post">
         {% csrf_token %}
-        <input type="text" name="username" value="" placeholder="UserName">
-        <input type="password" name="password" value="" placeholder="Password">
-        <input type="submit" value="Login">
+        <div class="input_users">
+            <input type="text" name="username" value="" placeholder="UserName">            
+        </div>
+        <div class="input_users">
+            <input type="password" name="password" value="" placeholder="Password">
+        </div>
+        <div class="input_users">
+            <input type="submit" value="Login">
+        </div>
     </form>    
 </div>
 {% endblock %}

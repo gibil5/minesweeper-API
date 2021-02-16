@@ -5,12 +5,14 @@ Minesweeper - Show
 {% block body %}
 <div class="container_show">
     <div class="row">
-        <div class="col-11">
-            <h2>{{ board.name }}</h2>
+        <div class="col-12">
+            <h2>{{ request.user|title }} - {{ board.name }}</h2>
         </div>
+        <!--
         <div class="col-1 container_user">
             {{ request.user }}
         </div>
+        -->
     </div>
     <ul>
         <li>

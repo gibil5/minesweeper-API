@@ -109,7 +109,9 @@ class Board(models.Model):
     #def get_cols(self):
     #    return enumerate(list(range(self.cols)))
 
-
+    def get_user_req(self, request):
+        return request.user.capitalize()
+        
     def get_user(self):
         #return self.user.username.capitalize()
         return self.user.username.capitalize() if self.user else None
