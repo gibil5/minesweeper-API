@@ -66,10 +66,10 @@ document.addEventListener('DOMContentLoaded', function(){
         let color = '';
         if (board.game_win) { 
           color = 'lightgreen';
-          label = 'Game over: You won !';
+          label = 'Game over - You won !';
         } else {        
           color = 'red';
-          label = 'Game over: You lost !';
+          label = 'Game over - You lost !';
         }        
         // Game over
         document.getElementById('game_over_banner').innerHTML = label;
@@ -175,18 +175,13 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-
     // Add zero
     function add_zero(item) {      
-      //if (true) {        
-      //if (item.length < 3) {
       if (item.length < 2) {        
         item = '0' + item;
       }
       return item
     }
-
-
 
     // Format date ampm
     function formatDateAmpm(date) {
@@ -196,19 +191,15 @@ document.addEventListener('DOMContentLoaded', function(){
         year = d.getFullYear();
       var hours = d.getHours();
       var minutes = d.getMinutes();
-
       day = add_zero(day);
       minutes = add_zero(minutes);
-
       var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
           hours = hours % 12;
           hours = hours ? hours : 12; // the hour '0' should be '12'
       var strTime = hours + ':' + minutes + ' ' + ampm;
-
       return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
     }
 
-    
     // Format date
     function formatDate(date) {        
         var d = new Date(date),
@@ -218,17 +209,11 @@ document.addEventListener('DOMContentLoaded', function(){
         var hour = '' + d.getHours(), 
             minutes = '' + d.getMinutes(), 
             seconds = '' + d.getSeconds();
-
-        //month = add_zero(month);
         day = add_zero(day);
         hour = add_zero(hour);
         minutes = add_zero(minutes);
         seconds = add_zero(seconds);
-
         return [day, month, year].join('-') + ' ' + [hour, minutes, seconds].join(':');
-        //return [day, month, year].join(' ') + '-' + [hour, minutes, seconds].join(':');
-        //return [day, month_msg[month-1], year].join(' ') + '-' + [hour, minutes, seconds].join(':');
-        //return [day, month_msg[month-1], year].join(' ') + '-' + [hour, minute, second].join(':');
     }
 
 /* Fetches -------------------------------------------------------------------*/
@@ -239,7 +224,9 @@ document.addEventListener('DOMContentLoaded', function(){
       console.log(cell_name);
       console.log(flag);
       // First fetch
-      const url_cells = `http://127.0.0.1:8000/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      //const url_cells = `https://minesweeper-api-jr.herokuapp.com:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      //const url_cells = `http://localhost:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+      const url_cells = `/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
           method: 'get',
         }).then(function(response) {
@@ -248,7 +235,9 @@ document.addEventListener('DOMContentLoaded', function(){
           // Game loop
           game_loop(data);
           // Second fetch
-          const url_board = `http://127.0.0.1:8000/boards/${board_id}/`;
+          //const url_board = `https://minesweeper-api-jr.herokuapp.com:8000/rest/boards/${board_id}/`;
+          //const url_board = `http://localhost:8000/rest/boards/${board_id}/`;
+          const url_board = `/rest/boards/${board_id}/`;
           return fetch(url_board); 
         })
         .then(function(response) {
@@ -265,7 +254,6 @@ document.addEventListener('DOMContentLoaded', function(){
         update_stats(board);
       });
     }
-
 
 /* Time -------------------------------------------------------------------*/
 

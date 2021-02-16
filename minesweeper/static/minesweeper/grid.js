@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function(){
           color = 'red';
           label = 'Game over - You lost !';
         }        
+
         // Game over
         document.getElementById('game_over_banner').innerHTML = label;
         document.getElementById('game_over_banner').style.color = color;
