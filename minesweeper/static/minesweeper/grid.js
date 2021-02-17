@@ -47,6 +47,49 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
+    // Datetime tools 
+
+    // Add zero
+    function add_zero(item) {      
+      if (item.length < 2) {        
+        item = '0' + item;
+      }
+      return item
+    }
+
+    // Format date ampm
+    function formatDateAmpm(date) {
+      var d = new Date(date),
+        day = '' + d.getDate(),
+        month = '' + (d.getMonth() + 1),
+        year = d.getFullYear();
+      var hours = d.getHours();
+      var minutes = d.getMinutes();
+      day = add_zero(day);
+      minutes = add_zero(minutes);
+      var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+          hours = hours % 12;
+          hours = hours ? hours : 12; // the hour '0' should be '12'
+      var strTime = hours + ':' + minutes + ' ' + ampm;
+      return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
+    }
+
+    // Format date
+    function formatDate(date) {        
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+        var hour = '' + d.getHours(), 
+            minutes = '' + d.getMinutes(), 
+            seconds = '' + d.getSeconds();
+        day = add_zero(day);
+        hour = add_zero(hour);
+        minutes = add_zero(minutes);
+        seconds = add_zero(seconds);
+        return [day, month, year].join('-') + ' ' + [hour, minutes, seconds].join(':');
+    }
+
 
 /* Game funcs ----------------------------------------------------------------------*/
 
@@ -64,22 +107,22 @@ document.addEventListener('DOMContentLoaded', function(){
         // Stats
         let label = '';
         let color = '';
+        let background_color = '';
         if (board.game_win) { 
+          background_color = 'black';
           color = 'lightgreen';
-          label = 'Game over - You won !';
-        } else {        
+          label = 'Win ';
+        } else {
+          //background_color = 'gainsboro';
+          background_color = 'black';
+          //color = 'crimson';
           color = 'red';
-          label = 'Game over - You lost !';
+          label = 'Lost !';
         }        
 
-        // Game over
-        document.getElementById('game_over_banner').innerHTML = label;
-        document.getElementById('game_over_banner').style.color = color;
-
         // Date end
-        //const date_fmt = formatDate(board.end)
         const date_fmt = formatDateAmpm(board.end)
-        document.getElementById('end').innerHTML = `End: ${date_fmt}`;
+        document.getElementById('end').innerHTML = `${date_fmt}`;
 
         // Buttons
         document.getElementById('return_btn').style.visibility = 'visible';
@@ -89,23 +132,28 @@ document.addEventListener('DOMContentLoaded', function(){
 
         // Board
         end_game(board.game_win);
+
+        // Game over button
+        document.getElementById('game_over_banner').style.background = background_color;
+        document.getElementById('game_over_banner').style.color = color;
+        document.getElementById('game_over_banner').innerHTML = label;
+        document.getElementById('game_over_banner').style.display = 'block';
       }
 
 
       // Labels
-      document.getElementById('state').innerHTML = `State: ${state_msg[board.state_sm].capitalize()}`;
-      document.getElementById('game_over').innerHTML = `Game over: ${board.game_over.toString().capitalize()}`;
-      document.getElementById('game_win').innerHTML = `Success: ${board.game_win.toString().capitalize()}`;
+      document.getElementById('state').innerHTML = `${state_msg[board.state_sm].capitalize()}`;
+      document.getElementById('game_over').innerHTML = `${board.game_over.toString().capitalize()}`;
+      document.getElementById('game_win').innerHTML = `${board.game_win.toString().capitalize()}`;
 
       // Nr ofs
       //document.getElementById('nr_mines').innerHTML = `Nr mines = ${board.nr_mines}`;
       //document.getElementById('nr_hidden').innerHTML = `Nr hidden = ${board.nr_hidden}`;
-      document.getElementById('nr_flags').innerHTML = `Nr flags = ${board.flags.length}`;
+      document.getElementById('nr_flags').innerHTML = `${board.flags.length}`;
     }
 
 
     // End the game - Board visuals
-    //function end_game(board) {
     function end_game(game_win) {
 
       // Init
@@ -176,46 +224,6 @@ document.addEventListener('DOMContentLoaded', function(){
       });
     }
 
-    // Add zero
-    function add_zero(item) {      
-      if (item.length < 2) {        
-        item = '0' + item;
-      }
-      return item
-    }
-
-    // Format date ampm
-    function formatDateAmpm(date) {
-      var d = new Date(date),
-        day = '' + d.getDate(),
-        month = '' + (d.getMonth() + 1),
-        year = d.getFullYear();
-      var hours = d.getHours();
-      var minutes = d.getMinutes();
-      day = add_zero(day);
-      minutes = add_zero(minutes);
-      var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
-          hours = hours % 12;
-          hours = hours ? hours : 12; // the hour '0' should be '12'
-      var strTime = hours + ':' + minutes + ' ' + ampm;
-      return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
-    }
-
-    // Format date
-    function formatDate(date) {        
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-        var hour = '' + d.getHours(), 
-            minutes = '' + d.getMinutes(), 
-            seconds = '' + d.getSeconds();
-        day = add_zero(day);
-        hour = add_zero(hour);
-        minutes = add_zero(minutes);
-        seconds = add_zero(seconds);
-        return [day, month, year].join('-') + ' ' + [hour, minutes, seconds].join(':');
-    }
 
 /* Fetches -------------------------------------------------------------------*/
 
@@ -281,7 +289,8 @@ document.addEventListener('DOMContentLoaded', function(){
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         // Display the result in the element with id="duration"
-        document.getElementById("duration").innerHTML = 'Duration: ' + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+        //document.getElementById("duration").innerHTML = 'Duration: ' + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
+        document.getElementById("duration").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
 
         // If the count down is finished, write some text
         if (distance < 0) {

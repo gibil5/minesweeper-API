@@ -4,12 +4,13 @@ Minesweeper - Show
 {% endblock %}
 {% block body %}
 
-<div class="container_show">
+<div class="container_idx">
     <div class="row">
         <div class="col-12">
-            <h2>{{ request.user|title }} - {{ board.name }}</h2>
+            <h2>{{ board.name }} - {{ request.user|title }}</h2>
         </div>
         <!--
+        <h2>{{ request.user|title }} - {{ board.name }}</h2>
         <div class="col-1 container_user">
             {{ request.user }}
         </div>
@@ -18,6 +19,15 @@ Minesweeper - Show
     <ul>
         <li>
             State: {{ board.get_state }}
+        </li>
+        <li>
+            Rows: {{ board.rows }}
+        </li>
+        <li>
+            Cols: {{ board.cols }}
+        </li>
+        <li>
+            Mines: {{ board.nr_mines }}
         </li>
         <li>
             Start: {{ board.start }}
@@ -33,15 +43,6 @@ Minesweeper - Show
         </li>
         <li>
             Game win: {{ board.game_win }}
-        </li>
-        <li>
-            Rows: {{ board.rows }}
-        </li>
-        <li>
-            Cols: {{ board.cols }}
-        </li>
-        <li>
-            Mines: {{ board.nr_mines }}
         </li>
     </ul>    
 
@@ -63,8 +64,7 @@ Minesweeper - Show
                 Reset
             </a>  
         </div>
-        {% endif %}    
-
+        {% endif %}
         <!-- Edit -->
         <div class="button_users">
             <a href="{% url 'edit' board.id %}">

@@ -1,10 +1,59 @@
+
 <div class="container_stats">
-    <div id="state" class="">State: {{ board.get_state }}</div>
-    <div id="duration" class="">Duration: </div>
-    <div id="nr_mines" class="">Nr mines = {{ board.nr_mines }}</div>
-    <div id="nr_flags" class="">Nr flags = 0</div>
-    <div id="game_over" class="">Game over: {{ board.game_over }}</div>
-    <div id="game_win" class="">Game win: {{ board.game_win }}</div>
-    <div id="start" class="">Start: {{ board.start }}</div>
-    <div id="end" class="">End:</div>
+
+    <div class="row">
+        <div class="col-4">
+            State
+        </div>
+        <div id="state" class="col-8">{{ board.get_state }}</div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Duration
+        </div>
+        <div id="duration" class="col-8"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Nr mines
+        </div>
+        <div id="nr_mines" class="col-8">{{ board.nr_mines }}</div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Nr flags
+        </div>
+        <div id="nr_flags" class="col-8"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Game over
+        </div>
+        <div id="game_over" class="col-8">{{ board.game_over }}</div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Game win
+        </div>
+        <div id="game_win" class="col-8">{{ board.game_win }}</div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            Start
+        </div>
+        <div id="start" class="col-8">{{ board.start }}</div>
+    </div>
+
+    <div class="row">
+        <div class="col-4">
+            End
+        </div>
+        <div id="end" class="col-8"></div>
+    </div>
 </div>

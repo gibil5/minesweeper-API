@@ -1,157 +1,200 @@
-<!-- <html> -->
+{% extends "minesweeper/layout.html" %}
+
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Grid {{ board.rows }}</title>
-    <style media="screen">
-    /* Grid */
-    #grid {
-        display: grid;
-        text-align: center;
-    }
-    .grid-item {
-        background-color: gainsboro;
-        outline: 1px solid gray;    /* The outline creates the border */
-        text-align: center;
-        position: relative;
-        z-index: 1;     /* original z-index */
-    }
-    .back_button {
-        visibility: hidden;
-        display: none;
-    }
-    .label_hidden {
-        visibility: hidden;
-        display: block;
-    }
-    .label_visible {       
-        visibility: visible;              
-        background-color: silver;
-    }    
-    .label_flagged {       
-        visibility: visible;              
-        display: block;
-        background-color: gainsboro;
-    }    
+
+{% block title %}
+Minesweeper
+{% endblock %}
+
+{% block nav %}
+Minesweeper
+{% endblock %}
+
+{% block body %}
+
+<script src="{% static 'minesweeper/grid.js' %}" type="text/javascript"></script> 
+
+<style>
+/* Grid */
+#grid {
+    display: grid;
+    text-align: center;
+}
+.grid-item {
+    background-color: gainsboro;
+    outline: 1px solid gray;    /* The outline creates the border */
+    text-align: center;
+    position: relative;
+    z-index: 1;     /* original z-index */
+
+    font-size: 23px;
+}
+.back_button {
+    visibility: hidden;
+    display: none;
+}
+.label_hidden {
+    visibility: hidden;
+    display: block;
+}
+
+.label_visible {       
+    visibility: visible;              
+    background-color: silver;
+}    
+
+.label_flagged {       
+    visibility: visible;              
+    display: block;
+    background-color: gainsboro;
+}    
+
+.square {
+    width: 50vmax;
+    height: 50vmax;
+    /*
+    margin-left: 50px;
+    width: 80vw;
+    height: 80vw;
+    width: 40vmax;
+    height: 40vmax;
+    */
+}    
+.game_element {        
+    margin-left: 37px;
+    margin-top: 17px;
+    /*
+    margin-left: 55px;
+    margin-top: 35px;
+    font-size: 40px;
+
+    margin-left: 10%;
+    margin-top: 10%;
+    */
+}
+
+.square_small {
+    padding-right: 20px;
+    width: 20vmax;
+    height: 20vmax;
+}
+.container_games {
+    padding-left: 25px;
+    padding-top: 25px;
+}    
+
+.container_stats {
+    margin-bottom: 25px;
+    margin-left: 15px;
+    font-size: 17px;
+    line-height: 150%;
+}    
+/*
+.stats {
+    font-size: 13px;
+    line-height: 150%;
+}
+.first_line {
+    padding: 20px;
+}
+*/
+
+.game_over {        
+    font-size: 19px;
+    display: none;
+    /*
+    background-color: white;
+    */
+}
+
+.game_over_lost {        
+    font-size: 19px;
+    background-color: gainsboro;
+    color: red;
+}
+
+.game_over_win {        
+    font-size: 19px;
+    background-color: black;
+    color: lightgreen;
+}
+
+</style>
+
+<!-- Grid -->
+<div>
     
-    .square {
-        width: 50vmax;
-        height: 50vmax;
-        /*
-        margin-left: 50px;
-        width: 80vw;
-        height: 80vw;
-        width: 40vmax;
-        height: 40vmax;
-        */
-    }    
-    .game_element {        
-        margin-left: 55px;
-        margin-top: 35px;
-        font-size: 40px;
-        /*
-        margin-left: 10%;
-        margin-top: 10%;
-        */
-    }
-
-    .game_over {        
-        margin-left: 55px;
-        margin-top: 100px;
-        font-size: 40px;
-        /*
-        margin-left: 10%;
-        margin-top: 10%;
-        */
-    }
-
-    .square_small {
-        padding-right: 20px;
-        width: 20vmax;
-        height: 20vmax;
-    }
-    .container_games {
-        padding-left: 25px;
-        padding-top: 25px;
-    }    
-    .container_stats {
-        padding-bottom: 25px;
-        padding-left: 25px;
-    }    
-    .stats {
-        font-size: 16px;
-        line-height: 150%;
-    }
-    .first_line {
-        padding: 20px;
-    }
-    </style>
-    <script src="{% static 'minesweeper/grid.js' %}" type="text/javascript"></script> 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-</head>
-
-<body>
-    <!-- Grid -->
-    <div class="container_games">
-        
-        <!-- Header -->
-        <div class="row">
-            <!--
-            <div class="col-md-3">
-                <h4 id="game_over_banner" class="game_over_banner"></h4>
-            </div>
-            <div class="col-md-3">
-            </div>
-            -->
-            <div class="col-9 col-md-9 game_element">
-                {% include 'minesweeper/partials/_header.html' %}
-            </div>
-        </div>
-        
-        <!-- Board -->
-        <div class="row">
-            <!--
-            <div class="col-1 col-md-3">
-                {% include 'minesweeper/partials/_stats.html' %}
-                <button hidden id="test_btn" type="button">Test javascript</button>
-            </div>
-            <div class="col-1 col-md-3">
-                x
-            </div>
-            <div class="col-1 col-md-3">
-                x
-            </div>
-            -->
-            <div class="col-12 col-md-6 game_element">
-                {% include 'minesweeper/partials/_board.html' %}
-            </div>
-            <!--
-            <div class="col-1 col-md-3">
-                {% include 'minesweeper/partials/_admin.html' %}
-            </div>
-            -->
-        </div>
-        
-        <!-- Info for styling -->
-        <div hidden>
-            <h3  id='board_id'>{{ board.id }}</h3>
-            <h3 id='rows'>{{ board.rows }}</h3>      
+    <!-- Title -->
+    <div class="row game_element">
+        <div class="col-8">
+            <h3 id="play">Play - {{ board.name }}</h3>
         </div>
 
-
+        <!--
+        <div id="game_over_banner" class="game_over"></div>
+        <button id="game_over_banner" type="button" name="button" class="game_over_lost">Lost !</button>
+        -->
 
         <!-- Game over -->
-        <div class="row">
-            <div class="col-md-5 game_element">
-                {% include 'minesweeper/partials/_stats.html' %}
-                <button hidden id="test_btn" type="button">Test javascript</button>
-            </div>
+        <div class="col-4">
+            <button id="game_over_banner" type="button" name="button" class="game_over">x</button>
+        </div>
+        
+    </div>
 
-            <div id="game_over_banner" class="col-md-5 game_over">
-            </div>
+    <!-- First line -->
+    <div class="row game_element">
+
+        <!-- Flagging -->
+        <div class="col-7 col-md-5">
+            <input id="flag_cell_chk" type="checkbox" name="flag_cell_chk" value="">
+            <label for="flag_cell_chk"><h5>Flag</h5></label>
         </div>
 
-    </div>    
-</body>
-</html>
+        <!-- Buttons -->
+        <div class="col-5 col-md-7">
+            <a href="{% url 'pause' board.id %}">
+                <button id="pause_btn" type="button" class="btn-primary button_users">Pause</button>
+            </a>              
+            <a href="{% url 'back' board.id %}">
+                <button id="return_btn" type="button" class="back_button btn-primary button_users">Return</button>
+            </a>
+        </div>
+    </div>
+
+
+    <!-- Board -->
+    <div class="row">
+        <div class="col-12 col-md-6 game_element">
+            {% include 'minesweeper/partials/_board.html' %}
+        </div>
+        <!--
+        <div class="col-1 col-md-3">
+            {% include 'minesweeper/partials/_stats.html' %}
+            <button hidden id="test_btn" type="button">Test javascript</button>
+        </div>
+        <div class="col-1 col-md-3">
+            {% include 'minesweeper/partials/_admin.html' %}
+        </div>
+        -->
+    </div>
+    
+    <!-- Info for styling -->
+    <div hidden>
+        <h3  id='board_id'>{{ board.id }}</h3>
+        <h3 id='rows'>{{ board.rows }}</h3>      
+    </div>
+
+
+
+    <!-- Stats -->
+    <div class="row game_element">
+        <div class="col-md-12">
+            {% include 'minesweeper/partials/_stats.html' %}
+            <button hidden id="test_btn" type="button">Test javascript</button>
+        </div>
+    </div>
+
+
+</div>    
+{% endblock %}
