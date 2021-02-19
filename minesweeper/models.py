@@ -96,6 +96,7 @@ class Board(models.Model):
         """
         Reset cells
         """
+        #print('reset_cells')
         cells = self.get_cells()
         for cell in cells:
             cell.value = 0
@@ -103,23 +104,13 @@ class Board(models.Model):
             cell.mined = False
             cell.visible = False
             cell.flagged = False       
+            cell.game_over = False
             cell.success = False
             cell.save()
 
 #-------------------------------------------------------------------------------
-    #def get_rows(self):
-    #    return enumerate(list(range(self.rows)))
-
-    #def get_cols(self):
-    #    return enumerate(list(range(self.cols)))
-
-    def get_user_req(self, request):
-        return request.user.capitalize()
-        
     def get_user(self):
-        #return self.user.username.capitalize()
         return self.user.username.capitalize() if self.user else None
-
 
     def get_state(self):
         return STATE_CHOICES[self.state_sm][1].capitalize()
@@ -129,6 +120,7 @@ class Board(models.Model):
         duration = str(self.duration).split('.')[0]
         return duration
 
+#-------------------------------------------------------------------------------
     def get_nr_cells(self):
         count = self.rows * self.cols
         return count
@@ -171,6 +163,14 @@ class Board(models.Model):
     def not_cell_displayed(self, x, y):
         return self.apparent[x][y] == None
 
+    def cells_update(self, game_over, game_win):
+        cells = Cell.objects.filter(board=self.id).order_by('name')
+        for cell in cells:
+            cell.game_over = game_over
+            cell.success = game_win
+            cell.save()
+
+#-------------------------------------------------------------------------------
     def nr_flags_ok(self, x, y):
         #return len(self.flags) < self.nr_mines
         return True
@@ -220,7 +220,7 @@ class Board(models.Model):
         print('*** init_game')
 
         # Reset
-        self.reset_cells()
+        #self.reset_cells()
 
         # Init 
         self.game_over = False
@@ -258,6 +258,10 @@ class Board(models.Model):
 
         self.save()
 
+
+        # Reset
+        self.reset_cells()
+
         # Initialize the board
         cells = self.get_cells()
         for cell in cells:
@@ -265,14 +269,24 @@ class Board(models.Model):
             y = cell.y
             value = self.numbers[x][y]
             cell.value = value
+
             cell.label = str(value)
+            #cell.label = 'jx'
+            cell.visible = False 
+
             if self.numbers[x][y] == -1:
                 cell.mined = True
+
             cell.flagged = False
+
+            cell.game_over = False
             cell.success = False
             cell.save()
 
+        #print('Mines')
+        #print(self.mines)
 
+        
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
@@ -292,21 +306,35 @@ class Board(models.Model):
         x = cell.x
         y = cell.y
 
+
         # Flag cell
         if flag == '1':
             print('** Flag cell')
+
             # Check if flagging ok
             if self.flagging_ok(x, y):
                 print('** Flagging ok')
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
                 cell.flagged = True     # Set cell for flag display
-                cell.label = '?'
+                #cell.label = '?'
                 cell.save()
                 self.save()
 
-        # Cell not flagged
-        else:
+            elif not cell.visible:
+                print('** Unflag')
+                cell = self.get_cell(x, y)
+                self.flags.remove([x, y])
+                cell.flagged = False
+                cell.visible = False
+                #cell.label = 'u'
+                cell.save()
+                self.save()
+
+
+        # Analyse cell
+        elif not cell.flagged:
+
             # Render the cell visible
             cell.visible = True
             self.apparent[x][y] = self.numbers[x][y]
@@ -335,14 +363,17 @@ class Board(models.Model):
                             cell.value = self.apparent[x][y]
                             cell.save()
 
+
+
         # Check win conditions
         cell = self.get_cell_name(cell_name)
+
 
         # Game over - loose
         if self.mined_defeat(cell):
             self.game_over = True
             self.game_win = False
-            cell.success = False
+
             # FSM - loose
             if self.can_end_loose():
                 print(self.state_sm)
@@ -354,7 +385,7 @@ class Board(models.Model):
         elif (self.short_win() or self.fast_win()):
             self.game_over = True
             self.game_win = True
-            cell.success = True
+
             # FSM - win 
             if self.can_end_win():
                 print(self.state_sm)
@@ -382,6 +413,9 @@ class Board(models.Model):
         cell.save()
         self.save()
 
+        # Update all cells
+        self.cells_update(self.game_over, self.game_win)
+
 
 #-------------------------------------------------------------------------------
 class Cell(models.Model):
@@ -394,6 +428,7 @@ class Cell(models.Model):
     mined = models.BooleanField(default=False)
     flagged = models.BooleanField(default=False)
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    game_over = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
 
     class Meta:

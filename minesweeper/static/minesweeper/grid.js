@@ -2,14 +2,14 @@
 
 // Init from Dom - is called after the DOM has been loaded
 document.addEventListener('DOMContentLoaded', function(){
-    
 
 /* Globals -------------------------------------------------------------------*/
     var game_over = false;
     var game_pause = false;
     var state_msg = ["created", "started", "paused", "end win", "end loose"];
     var month_msg = ["Jan.", "Feb.", "Mar.", "Apr.", "May.", "Jun.", "Jul.", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."];
-    var board_glob = false;
+    var first_time = true;
+    var flag_clicked = false;
 
 
 /* Tools ---------------------------------------------------------------------*/
@@ -18,14 +18,11 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
     function get_flag() {
-      const flag_cell = document.getElementById('flag_cell_chk');
-      var flag = 0;
-      if (flag_cell.checked) {
+      let flag = 0;
+      if (flag_clicked) {
         flag = 1;
-        flag_cell.checked = false;
-      } else {
-        flag = 0;
       }
+      flag_clicked = false;
       return flag;
     }
 
@@ -33,8 +30,12 @@ document.addEventListener('DOMContentLoaded', function(){
       return document.getElementById("state").innerHTML;      
     }
 
+    function get_rows() {
+      return document.getElementById("rows_id").innerHTML;      
+    }
+
     // Change the style of the grid, in function of the nr of columns
-    var rows = document.getElementById("rows").innerHTML;
+    var rows = get_rows();
     var style_value = `repeat(${rows},1fr)`
     console.log(style_value);
     document.querySelectorAll('[id=grid]').forEach(element=> {
@@ -47,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-    // Datetime tools 
+/* Datetime ------------------------------------------------------------------*/
 
     // Add zero
     function add_zero(item) {      
@@ -59,19 +60,27 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Format date ampm
     function formatDateAmpm(date) {
+      console.log('formatDateAmpm');
       var d = new Date(date),
         day = '' + d.getDate(),
         month = '' + (d.getMonth() + 1),
         year = d.getFullYear();
       var hours = d.getHours();
       var minutes = d.getMinutes();
+
+      console.log(month);
+      month = add_zero(month);
+      console.log(month);
+
       day = add_zero(day);
       minutes = add_zero(minutes);
       var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
           hours = hours % 12;
           hours = hours ? hours : 12; // the hour '0' should be '12'
       var strTime = hours + ':' + minutes + ' ' + ampm;
-      return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
+      //return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
+      console.log([day, month, year].join('/') + ' - ' + strTime);
+      return [day, month, year].join('/') + ' - ' + strTime;
     }
 
     // Format date
@@ -95,8 +104,8 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Update Stats 
     function update_stats(board) {
-      console.log('update_stats');
-      console.log(board);
+      //console.log('update_stats');
+      //console.log(board);
 
       // Game over
       if (board.game_over) {
@@ -113,15 +122,13 @@ document.addEventListener('DOMContentLoaded', function(){
           color = 'lightgreen';
           label = 'Win ';
         } else {
-          //background_color = 'gainsboro';
           background_color = 'black';
-          //color = 'crimson';
           color = 'red';
           label = 'Lost !';
-        }        
-
+        }
+        
         // Date end
-        const date_fmt = formatDateAmpm(board.end)
+        const date_fmt = formatDateAmpm(board.end);
         document.getElementById('end').innerHTML = `${date_fmt}`;
 
         // Buttons
@@ -130,9 +137,6 @@ document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('pause_btn').style.visibility = 'hidden';
         document.getElementById('pause_btn').style.display = 'none';
 
-        // Board
-        end_game(board.game_win);
-
         // Game over button
         document.getElementById('game_over_banner').style.background = background_color;
         document.getElementById('game_over_banner').style.color = color;
@@ -140,85 +144,72 @@ document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('game_over_banner').style.display = 'block';
       }
 
-
-      // Labels
       document.getElementById('state').innerHTML = `${state_msg[board.state_sm].capitalize()}`;
       document.getElementById('game_over').innerHTML = `${board.game_over.toString().capitalize()}`;
       document.getElementById('game_win').innerHTML = `${board.game_win.toString().capitalize()}`;
-
-      // Nr ofs
-      //document.getElementById('nr_mines').innerHTML = `Nr mines = ${board.nr_mines}`;
-      //document.getElementById('nr_hidden').innerHTML = `Nr hidden = ${board.nr_hidden}`;
       document.getElementById('nr_flags').innerHTML = `${board.flags.length}`;
     }
 
 
-    // End the game - Board visuals
-    function end_game(game_win) {
-
-      // Init
-      let color = '';
-      //if (board.game_win) { 
-      if (game_win) { 
-        color = 'lightgreen';
-      } else {        
-        color = 'red';
-      }
-
-      document.querySelectorAll('button').forEach(button => {
-
-          if ((button.id != 'pause_btn') && (button.id != 'return_btn') ){
-
-            button.style.backgroundColor = color;
-            let mined = button.dataset.mined;
-            if (mined === 'True') {
-              button.style.size = '40px';
-              button.innerHTML = 'M';
-              console.log(mined);
-            }
-          }
-      });
-      document.querySelectorAll(".label_visible").forEach(button => {
-        button.style.backgroundColor = color;
-      });
-    }
-
-
-    // update cell
-    function update_cell(item) {
-      document.getElementById(item.name).style.backgroundColor = "silver";
-      document.getElementById(item.name).style.visibility = "visible";
-      document.getElementById(item.name).display = "block";
-      document.getElementById(`cell_label_${item.name}`).innerHTML = `${item.label}`;
-      document.getElementById(`cell_label_${item.name}`).style.visibility = "visible";
-      document.getElementById(`cell_label_${item.name}`).style.display = "block"; 
-      if (item.label === '.') {
-        document.getElementById(`cell_label_${item.name}`).style.color = "silver";
-      }
-    }
-
     // Flag cell
     function flag_cell(item) {
-      console.log('flag_cell func');
-      console.log(item.name);
-      document.getElementById(`cell_label_${item.name}`).style.visibility = 'visible';
-      document.getElementById(`cell_label_${item.name}`).innerHTML = item.label;
+      console.log('flag_cell');
+      console.log(item);
+      const lab = document.getElementById(`cell_label_${item.name}`);
+      lab.style.visibility = "visible";
+      lab.innerHTML = '?';
     }
 
+    // Render
+    function render(i, item, color, visibility) {
+      //console.log('render');      
+      //console.log(i);
+      //console.log(item);
+      
+      const btn = document.getElementById(item.name);
+      const lab = document.getElementById(`cell_label_${item.name}`);
+
+      let txt = '';
+      if (item.label === '-1') {
+        txt = 'M';
+      } else {
+        txt = item.label;
+      }
+
+      btn.style.backgroundColor = color;
+      btn.style.visibility = "visible";
+      btn.display = "block";
+
+      lab.innerHTML = txt;
+      lab.style.visibility = visibility;
+      lab.display = "block"; 
+
+      if (item.label === '.') {
+        lab.style.color = color;
+      }
+    }
 
     // Game loop
     function game_loop(data) {
-      let hit_mine = false;
-      let game_success = false;
-      let end = '';
-      data.forEach((item, i) => {        
-        if (! item.success) {                
+      //console.log('game_loop');
+
+      // render
+      data.forEach((item, i) => {
+        // Game over
+        if (item.game_over) {
+          if (item.success) {
+            render(i, item, "lightgreen", "visible");    // success
+          } else {
+            render(i, item, "red", "visible");           // lose
+          }
+        // Play
+        } else {
           if (item.visible) {
-            if (!item.mined) {
-              update_cell(item);
-            } 
+            render(i, item, "silver", "visible");        // normal
           } else if (item.flagged) {
-              flag_cell(item);
+            flag_cell(item);                             // flagged
+          } else {
+            render(i, item, "gainsboro", "hidden");      // hidden
           }
         }
       });
@@ -230,22 +221,20 @@ document.addEventListener('DOMContentLoaded', function(){
     // Fetch Chain - Game update
     function fetch_chain_update(board_id, cell_name, flag) {
       console.log('fetch_chain_update');
-      console.log(cell_name);
-      console.log(flag);
+      //console.log(cell_name);
+      //console.log(flag);
       // First fetch
-      //const url_cells = `https://minesweeper-api-jr.herokuapp.com:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
-      //const url_cells = `http://localhost:8000/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       const url_cells = `/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
           method: 'get',
         }).then(function(response) {
           return response.json();
         }).then(function(data) {
+
           // Game loop
           game_loop(data);
+
           // Second fetch
-          //const url_board = `https://minesweeper-api-jr.herokuapp.com:8000/rest/boards/${board_id}/`;
-          //const url_board = `http://localhost:8000/rest/boards/${board_id}/`;
           const url_board = `/rest/boards/${board_id}/`;
           return fetch(url_board); 
         })
@@ -253,16 +242,16 @@ document.addEventListener('DOMContentLoaded', function(){
           return response.json();
         })
         .catch(function(error) {
-          console.log('Request failed', error)
+          console.log('Request failed', error);
         })
+
       // Use the last result
       result.then(function(board) {
-        // Globals 
-        board_glob = board;
         // Stats 
         update_stats(board);
       });
     }
+
 
 /* Time -------------------------------------------------------------------*/
 
@@ -289,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function(){
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
         // Display the result in the element with id="duration"
-        //document.getElementById("duration").innerHTML = 'Duration: ' + days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
         document.getElementById("duration").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
 
         // If the count down is finished, write some text
@@ -301,44 +289,61 @@ document.addEventListener('DOMContentLoaded', function(){
     }, 1000);
 
 
-
-/* Testing -------------------------------------------------------------------*/
-
-    function testing() {
-      console.log('testing');
-
-      //end_game(true);
-      //end_game(false);
-
-      console.log(board_glob);
-      board_glob.game_over = true;
-      update_stats(board_glob);
-    }
-
-
 /* Buttons -------------------------------------------------------------------*/
 
     // All buttons - Add event listener
     document.querySelectorAll('button').forEach(button => {
         button.onclick = function() {
+          console.log('on click');
+
           let cell = button.dataset.cell;
-          // If board cell
+
+          // Cell
           if (cell) {
-            const is_visible = document.getElementById(`cell_label_${cell}`).style.visibility;
-            if (!is_visible) {
-              // Update board
-              board_id = get_board_id();
-              flag = get_flag();
-              fetch_chain_update(board_id, cell, flag);
-            }
+            let board_id = get_board_id();
+            let flag =  get_flag();
+            // Update board
+            fetch_chain_update(board_id, cell, flag);
           }
         }
     })
 
-    // Testing
-    const button = document.getElementById('test_btn')
-    button.onclick = function() {
-      testing();
+    // Flag
+    const btn_flag = document.getElementById('btn_flag')
+    btn_flag.onclick = function() {
+      console.log('flag');
+      flag_clicked = true;
+    }
+
+
+/* Test -------------------------------------------------------------------*/
+
+    // Test
+    const btn_test = document.getElementById('btn_test')
+    btn_test.onclick = async function() {
+      console.log('test');
+
+      let nr_rows = get_rows();
+      let cell = '';
+      let board_id = get_board_id();
+      let flag = 0;
+      let i = 0;
+      let x = 0;
+      let y = 0;
+
+      for (x = 0; x < nr_rows; x++) {
+        for (y = 0; y < nr_rows; y++) {
+          cell = `${x}_${y}`;
+          console.log(cell);  
+          if (!game_over) {            
+            fetch_chain_update(board_id, cell, flag);
+          } else {
+            break;            
+          }
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+      console.log('break !');
     }
 
 });

@@ -94,6 +94,25 @@ class BoardInit(generics.ListAPIView):
             queryset = queryset.filter(id=board_id)
         return queryset
 
+class BoardCheck(generics.ListAPIView):
+    """
+    Board check
+    """
+    serializer_class = BoardSerializer
+    def get_queryset(self):
+        queryset = Board.objects.all()
+
+        board_id = self.request.query_params.get('board_id', None)
+        cell_name = self.request.query_params.get('cell_name', None)
+
+        if board_id is not None:
+            board = Board.objects.get(id=board_id)
+            queryset = queryset.filter(id=board_id)
+        
+        board.check_game(cell_name)
+
+        return queryset
+
 #-------------------------------------------------------------------------------
 class CellViewSet(viewsets.ModelViewSet):
     """
@@ -111,6 +130,22 @@ class BoardViewSet(viewsets.ModelViewSet):
     serializer_class = BoardSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
+
+class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows users to be viewed or edited.
+    """
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+#class GroupViewSet(viewsets.ModelViewSet):
+#    """
+#    API endpoint that allows groups to be viewed or edited.
+#    """
+#    queryset = Group.objects.all()
+#    serializer_class = GroupSerializer
+    #permission_classes = [permissions.IsAuthenticated]
 
 #------------------------------------- CRUD ------------------------------------
 # Create your views here.
@@ -195,7 +230,6 @@ def update(request):
                 "message": 'Form is not valid !'
             })
 
-
 #------------------------------------- Game ------------------------------------
 def play(request, board_id):
     """
@@ -204,11 +238,15 @@ def play(request, board_id):
     """
     print('*** play')
     board = util.get_board(board_id)
+
     if board.state_sm == 0:
         board.init_game()
+
     if board.state_sm in [0, 2]:
         board.play_sm()
+
     board.save()
+
     return render(request, "minesweeper/grid.html",
         {
             "board": util.get_board(board_id),

@@ -1,3 +1,20 @@
+# 19 feb 
+    #def check_game(self, cell_name):
+    #    """
+    #    If mined re-initialize.
+    #    """
+    #    print('*** check_game')
+    #    print(cell_name)
+    #    cell = self.get_cell_name(cell_name)
+    #    if cell.mined:
+    #        print('*** gotcha !!!')                
+            # Init the game
+    #        self.init_game()
+    #        self.save()
+
+
+
+
 # 15 feb 
 
 

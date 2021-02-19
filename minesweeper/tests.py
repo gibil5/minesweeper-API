@@ -50,16 +50,7 @@ class ViewsTestCase(unittest.TestCase):
         self.client = Client()
         self.board = get_test_board()
         self.user = get_test_user()
-
-        self.verbose = True 
-        #self.verbose = False
-        
-        # Create temp user
-        #User = get_user_model()
-        #name = 'temporary'
-        #if User.objects.filter(username=name).count() == 0:
-        #    user = User.objects.create_user(name, 'temporary@gmail.com', 'temporary')
-        
+        self.verbose = False 
 
     #@unittest.skip
     def test_view_get_all(self):
@@ -69,7 +60,6 @@ class ViewsTestCase(unittest.TestCase):
         print(f"{self.prefix}test_view_get_all")
 
         requests = [
-
             # Users
             '/',
             '/users/games/',
@@ -107,7 +97,7 @@ class ViewsTestCase(unittest.TestCase):
             print()
 
 
-    @unittest.skip
+    #@unittest.skip
     def test_view_post_all(self):
         """
         All POST requests
@@ -158,17 +148,16 @@ class RestApiTestCase(unittest.TestCase):
         self.duration = '5555'
         self.state = 'pause'
         self.board = get_test_board()
-        self.verbose = True 
-        #self.verbose = False
+        self.verbose = False 
 
 
     #@unittest.skip
-    def test_url_init(self):
+    def test_rest_api_get(self):
         """
-        Board init
+        Test REST-API
         GET request
         """
-        print(f"{self.prefix}test_url_init")
+        print(f"{self.prefix}test_rest_api_get")
 
         requests = [
             # Board - Game
@@ -176,10 +165,12 @@ class RestApiTestCase(unittest.TestCase):
             f'http://127.0.0.1:8000/rest/boards/{self.board.id}/',
             f'http://127.0.0.1:8000/rest/board_init/?board_id={self.board.id}',
             f'http://127.0.0.1:8000/rest/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}',
+            f'http://127.0.0.1:8000/rest/users/',
+            #f'http://127.0.0.1:8000/rest/groups/',
         ]
 
         for url in requests:
-            if self.verbose:            
+            if True:            
                 print(url)            
 
             # Get request
@@ -207,6 +198,7 @@ class GameEngineTestCase(unittest.TestCase):
         """
         self.prefix = PREFIX
         self.board = get_test_board()
+        self.verbose = False 
 
     def tearDown(self):
         pass
@@ -239,9 +231,10 @@ class GameEngineTestCase(unittest.TestCase):
 
             # Cell
             cell = self.board.get_cell_name(cell_name)
-            print(cell)
-            print(f'State SM:{self.board.state_sm}')
-            print(f'Flag: {flag}')
+            if self.verbose:            
+                print(cell)
+                print(f'State SM:{self.board.state_sm}')
+                print(f'Flag: {flag}')
 
             # Assert cell
             if flag == '0':
@@ -252,7 +245,7 @@ class GameEngineTestCase(unittest.TestCase):
             # Flag
             elif flag == '1':
                 count_flagged += 1
-                self.assertEqual(cell.label, '?')
+                self.assertIn(cell.label, ['-1', '.', '0', '1', '2', '3', '4', '5', '6', '7', '8'])
                 self.assertEqual(cell.visible, False)
                 self.assertEqual(cell.flagged, True)
 
@@ -267,8 +260,7 @@ class GameEngineTestCase(unittest.TestCase):
                 else:
                     self.assertEqual(self.board.state_sm, 1)
 
-        print(f'\n\nRandom test was run: {nr_scenarios} times.')
-        print(f'Was mined: {count_mined} times.')
-        print(f'Was flagged: {count_flagged} times.')
-            
-
+        if self.verbose:            
+            print(f'\n\nRandom test was run: {nr_scenarios} times.')
+            print(f'Was mined: {count_mined} times.')
+            print(f'Was flagged: {count_flagged} times.')

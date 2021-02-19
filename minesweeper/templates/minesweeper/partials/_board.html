@@ -1,5 +1,8 @@
 <div id="grid" class="square">
-    {% for cell in cells %}    
+    {% for cell in cells %}
+    <!--
+    <button id="btn_bomb_{{cell.name}}" class="btn button_hidden"><div class="fa fa-bomb"></div></button>
+    -->
     <!-- Visible -->
     {% if cell.visible %}
     <button id="{{cell.name}}" class="label_visible grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
@@ -7,13 +10,15 @@
             {{cell.label}}
         </label>
     </button>
+
     <!-- Flagged -->
     {% elif cell.flagged %}
     <button id="{{cell.name}}" class="label_flagged grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
         <label id="cell_label_{{cell.name}}" class="label_flagged">
-            {{cell.label}}
+            ?
         </label>
     </button>
+
     <!-- Not visible -->
     {% else %}
     <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">

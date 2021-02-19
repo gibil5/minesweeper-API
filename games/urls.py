@@ -20,8 +20,8 @@ from minesweeper import views
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-#router.register(r'users', views.UserViewSet)
 #router.register(r'groups', views.GroupViewSet)
+router.register(r'users', views.UserViewSet)
 router.register(r'boards', views.BoardViewSet)
 router.register(r'cells', views.CellViewSet)
 
@@ -34,6 +34,8 @@ urlpatterns = [
     path('rest/', include(router.urls)),
     path('rest/board_init/', views.BoardInit.as_view()),
     path('rest/board_update/', views.BoardUpdate.as_view()),
+    path('rest/board_check/', views.BoardCheck.as_view()),
+
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Users
     path('', include("users.urls")),

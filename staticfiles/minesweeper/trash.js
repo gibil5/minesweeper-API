@@ -1,3 +1,158 @@
+// 18 feb 2021
+
+//import { get_board_id } from './tools.js'
+
+
+
+//document.getElementById('nr_mines').innerHTML = `Nr mines = ${board.nr_mines}`;
+//document.getElementById('nr_hidden').innerHTML = `Nr hidden = ${board.nr_hidden}`;
+
+
+function testing() {
+  console.log('testing');
+
+  //end_game(true);
+  //end_game(false);
+
+  console.log(board_glob);
+  board_glob.game_over = true;
+  update_stats(board_glob);
+}
+
+
+function get_flag() {
+  const flag_cell = document.getElementById('flag_cell_chk');
+  var flag = 0;
+  if (flag_cell.checked) {
+    flag = 1;
+    flag_cell.checked = false;
+  } else {
+    flag = 0;
+  }
+  return flag;
+}
+
+
+
+const btn_bomb = document.getElementById(`btn_bomb_${item.name}`);
+//btn.style.visibility = "hidden";
+//btn.style.display = "none";
+//btn_bomb.style.visibility = "visible";
+//btn_bomb.display = "inline-block";
+
+
+
+
+// End the game - Board visuals
+function end_game(game_win) {
+  console.log('end_game');
+  // Init
+  let color = '';
+  if (game_win) { 
+    color = 'lightgreen';
+  } else {        
+    color = 'red';
+  }
+  document.querySelectorAll('button').forEach(button => {
+      if ((button.id != 'pause_btn') && (button.id != 'return_btn') ){
+        button.style.backgroundColor = color;
+        let mined = button.dataset.mined;
+        if (mined === 'True') {
+          button.style.size = '40px';
+          button.innerHTML = 'M';
+          console.log(mined);
+        }
+      }
+    });
+  document.querySelectorAll(".label_visible").forEach(button => {
+    button.style.backgroundColor = color;
+  });
+}
+
+
+
+
+
+// update cell
+function update_cell(item) {
+  console.log('update_cell');
+
+  document.getElementById(item.name).style.backgroundColor = "silver";
+  document.getElementById(item.name).style.visibility = "visible";
+  document.getElementById(item.name).display = "block";
+
+  document.getElementById(`cell_label_${item.name}`).innerHTML = `${item.label}`;
+  document.getElementById(`cell_label_${item.name}`).style.visibility = "visible";
+  document.getElementById(`cell_label_${item.name}`).style.display = "block"; 
+
+  if (item.label === '.') {
+    document.getElementById(`cell_label_${item.name}`).style.color = "silver";
+  }
+}
+
+
+
+
+// Fetch - Game init
+function init_board(board_id) {
+  console.log('init_board');
+  console.log(board_id);
+  const url=  `/rest/board_init/?board_id=${board_id}`;
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+      //console.log(data);
+      data.forEach((item, i) => {
+        console.log(i, item);
+      });          
+  })
+  .catch(error => {
+      console.log('Error', error);
+  })      
+}
+
+// Fetch - Game check
+function check_board(board_id, cell_name) {
+  console.log('check_board');
+  console.log(board_id);
+  console.log(cell_name);
+  const url = `/rest/board_check/?board_id=${board_id}&cell_name=${cell_name}`;
+  fetch(url)
+  .then(response => response.json())
+  .then(data => {
+      //console.log(data);
+      data.forEach((item, i) => {
+        console.log(i, item);
+      });        
+    
+      //window.location.reload();    
+      //document.getElementById('grid').reload(); 
+      //document.getElementById('grid').location.reload(); 
+  })
+  .catch(error => {
+      console.log('Error', error);
+  })      
+}
+
+
+
+
+
+
+// 17 feb 2021
+
+// Testing
+const button = document.getElementById('test_btn')
+button.onclick = function() {
+  testing();
+}
+
+
+
+
+
+
+
 // 3 feb 2021
 // Go fetch
 function go_fetch(url) {      

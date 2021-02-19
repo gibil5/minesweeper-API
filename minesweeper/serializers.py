@@ -20,4 +20,4 @@ class BoardSerializer(serializers.HyperlinkedModelSerializer):
 class CellSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Cell
-        fields = ['name', 'value', 'label', 'visible', 'mined', 'flagged', 'success']
+        fields = ['name', 'value', 'label', 'visible', 'mined', 'flagged', 'game_over', 'success']
