@@ -276,7 +276,10 @@ def reset(request, board_id):
     print('*** reset')
     board = util.get_board(board_id)
     board.reset_sm()
-    board.reset_game()    
+
+    #board.reset_game()
+    board.init_game()
+    
     board.save()
     return HttpResponseRedirect(reverse('show', args=(board_id,)))
 

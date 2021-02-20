@@ -1,11 +1,17 @@
 <div id="grid" class="square">
     {% for cell in cells %}
-    <!--
-    <button id="btn_bomb_{{cell.name}}" class="btn button_hidden"><div class="fa fa-bomb"></div></button>
-    -->
+
+    <!-- Empty and visible -->
+    {% if cell.empty and cell.visible %}
+    <button id="{{cell.name}}" class="label_empty grid-item" data-cell="{{cell.name}}">
+        <label id="cell_label_{{cell.name}}" class="label_visible">
+            e
+        </label>
+    </button>
+
     <!-- Visible -->
-    {% if cell.visible %}
-    <button id="{{cell.name}}" class="label_visible grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+    {% elif cell.visible %}
+    <button id="{{cell.name}}" class="label_visible grid-item" data-cell="{{cell.name}}">
         <label id="cell_label_{{cell.name}}" class="label_visible">
             {{cell.label}}
         </label>
@@ -13,19 +19,20 @@
 
     <!-- Flagged -->
     {% elif cell.flagged %}
-    <button id="{{cell.name}}" class="label_flagged grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+    <button id="{{cell.name}}" class="label_flagged grid-item" data-cell="{{cell.name}}">
         <label id="cell_label_{{cell.name}}" class="label_flagged">
             ?
         </label>
     </button>
 
-    <!-- Not visible -->
+    <!-- Invisible -->
     {% else %}
-    <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}" data-mined="{{cell.mined}}">
+    <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}">
         <label id="cell_label_{{cell.name}}" class="label_hidden">
             {{cell.label}}
         </label>
     </button>
+
     {% endif %}
     {% endfor %}
 </div>

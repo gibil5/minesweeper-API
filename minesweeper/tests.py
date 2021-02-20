@@ -238,7 +238,7 @@ class GameEngineTestCase(unittest.TestCase):
 
             # Assert cell
             if flag == '0':
-                self.assertIn(cell.label, ['-1', '.', '1', '2', '3', '4', '5', '6', '7', '8'])
+                self.assertIn(cell.label, ['-1', '0', '1', '2', '3', '4', '5', '6', '7', '8'])
                 self.assertEqual(cell.visible, True)
                 self.assertEqual(cell.flagged, False)
 

@@ -34,6 +34,11 @@ document.addEventListener('DOMContentLoaded', function(){
       return document.getElementById("rows_id").innerHTML;      
     }
 
+    // Capitalize
+    String.prototype.capitalize = function() {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+    }
+
     // Change the style of the grid, in function of the nr of columns
     var rows = get_rows();
     var style_value = `repeat(${rows},1fr)`
@@ -41,11 +46,6 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('[id=grid]').forEach(element=> {
         element.style.setProperty('grid-template-columns', style_value);
     });
-
-    // Capitalize
-    String.prototype.capitalize = function() {
-        return this.charAt(0).toUpperCase() + this.slice(1);
-    }
 
 
 /* Datetime ------------------------------------------------------------------*/
@@ -60,18 +60,13 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Format date ampm
     function formatDateAmpm(date) {
-      console.log('formatDateAmpm');
       var d = new Date(date),
         day = '' + d.getDate(),
         month = '' + (d.getMonth() + 1),
         year = d.getFullYear();
       var hours = d.getHours();
       var minutes = d.getMinutes();
-
-      console.log(month);
       month = add_zero(month);
-      console.log(month);
-
       day = add_zero(day);
       minutes = add_zero(minutes);
       var ampm = hours >= 12 ? 'p.m.' : 'a.m.';
@@ -79,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function(){
           hours = hours ? hours : 12; // the hour '0' should be '12'
       var strTime = hours + ':' + minutes + ' ' + ampm;
       //return [day, month_msg[month-1], year].join(' ') + ' - ' + strTime;
-      console.log([day, month, year].join('/') + ' - ' + strTime);
       return [day, month, year].join('/') + ' - ' + strTime;
     }
 
@@ -100,19 +94,14 @@ document.addEventListener('DOMContentLoaded', function(){
     }
 
 
-/* Game funcs ----------------------------------------------------------------------*/
+/* Game funcs ----------------------------------------------------------------*/
 
     // Update Stats 
     function update_stats(board) {
-      //console.log('update_stats');
-      //console.log(board);
-
       // Game over
       if (board.game_over) {
-
         // Globals
         game_over = true;
-
         // Stats
         let label = '';
         let color = '';
@@ -126,64 +115,49 @@ document.addEventListener('DOMContentLoaded', function(){
           color = 'red';
           label = 'Lost !';
         }
-        
         // Date end
         const date_fmt = formatDateAmpm(board.end);
         document.getElementById('end').innerHTML = `${date_fmt}`;
-
         // Buttons
         document.getElementById('return_btn').style.visibility = 'visible';
         document.getElementById('return_btn').style.display = 'block';
         document.getElementById('pause_btn').style.visibility = 'hidden';
         document.getElementById('pause_btn').style.display = 'none';
-
         // Game over button
         document.getElementById('game_over_banner').style.background = background_color;
         document.getElementById('game_over_banner').style.color = color;
         document.getElementById('game_over_banner').innerHTML = label;
         document.getElementById('game_over_banner').style.display = 'block';
       }
-
       document.getElementById('state').innerHTML = `${state_msg[board.state_sm].capitalize()}`;
       document.getElementById('game_over').innerHTML = `${board.game_over.toString().capitalize()}`;
       document.getElementById('game_win').innerHTML = `${board.game_win.toString().capitalize()}`;
       document.getElementById('nr_flags').innerHTML = `${board.flags.length}`;
     }
 
-
     // Flag cell
     function flag_cell(item) {
-      console.log('flag_cell');
-      console.log(item);
       const lab = document.getElementById(`cell_label_${item.name}`);
       lab.style.visibility = "visible";
       lab.innerHTML = '?';
     }
 
     // Render
-    function render(i, item, color, visibility) {
-      //console.log('render');      
-      //console.log(i);
-      //console.log(item);
-      
+    function render(i, item, color, visibility) {  
       const btn = document.getElementById(item.name);
       const lab = document.getElementById(`cell_label_${item.name}`);
-
       let txt = '';
       if (item.label === '-1') {
         txt = 'M';
       } else {
         txt = item.label;
       }
-
       btn.style.backgroundColor = color;
       btn.style.visibility = "visible";
       btn.display = "block";
-
       lab.innerHTML = txt;
       lab.style.visibility = visibility;
-      lab.display = "block"; 
-
+      lab.display = "block";
       if (item.label === '.') {
         lab.style.color = color;
       }
@@ -191,9 +165,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Game loop
     function game_loop(data) {
-      //console.log('game_loop');
-
-      // render
+      // Render
       data.forEach((item, i) => {
         // Game over
         if (item.game_over) {
@@ -218,11 +190,63 @@ document.addEventListener('DOMContentLoaded', function(){
 
 /* Fetches -------------------------------------------------------------------*/
 
+    // Fetch - Check, update and get board
+    function fetch_check_and_update(board_id, cell_name, flag) {
+      console.log('fetch_check_and_update');
+      console.log(board_id);
+      console.log(cell_name);
+      console.log(flag);
+      
+      console.log('First fetch - Check');
+      const url_check = `/rest/board_check/?board_id=${board_id}&cell_name=${cell_name}`;
+
+      // First fetch
+      var result = fetch(url_check, {
+          method: 'get',
+        }).then(function(response) {
+          return response.json();
+
+        // Second fetch
+        }).then(function(data) {
+          console.log(data);
+          console.log('Second fetch - Update');          
+          const url_cells = `/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
+          return fetch(url_cells); 
+        }).then(function(response) {
+          return response.json();
+
+        // Third fetch
+        }).then(function(data) {
+          console.log(data);
+          // Game loop
+          game_loop(data);
+          console.log('Third fetch - Get board');          
+          const url_board = `/rest/boards/${board_id}/`;
+          return fetch(url_board); 
+        }).then(function(response) {
+          return response.json();
+
+        // Analyse data
+        }).then(function(data) {
+            console.log(data);
+            // Stats 
+            update_stats(data);
+        }).catch(function(error) {
+          console.log('Request failed', error);
+        })
+
+      // The last result - Not used
+      result.then(function(data) {
+        console.log(data);
+      });
+    }
+
+
     // Fetch Chain - Game update
-    function fetch_chain_update(board_id, cell_name, flag) {
-      console.log('fetch_chain_update');
-      //console.log(cell_name);
-      //console.log(flag);
+    function fetch_update(board_id, cell_name, flag) {
+      console.log('fetch_update');
+      console.log(cell_name);
+      console.log(flag);
       // First fetch
       const url_cells = `/rest/board_update/?board_id=${board_id}&cell_name=${cell_name}&flag=${flag}`;
       var result = fetch(url_cells, {
@@ -237,11 +261,10 @@ document.addEventListener('DOMContentLoaded', function(){
           // Second fetch
           const url_board = `/rest/boards/${board_id}/`;
           return fetch(url_board); 
-        })
-        .then(function(response) {
+
+        }).then(function(response) {
           return response.json();
-        })
-        .catch(function(error) {
+        }).catch(function(error) {
           console.log('Request failed', error);
         })
 
@@ -257,29 +280,20 @@ document.addEventListener('DOMContentLoaded', function(){
 
     // Time tracking
     var startDate = new Date().getTime();
-
     // Update the count down every 1 second
     var x = setInterval(function() {
-
-      //console.log(game_over);
-      //if (! game_over && !game_pause) {
       if (!game_over && !(get_state() === 'State: pause')) {
-
         // Get today's date and time
         var now = new Date().getTime();
-
         // Find the distance between now and the count down date
         var distance = now - startDate;
-
         // Time calculations for days, hours, minutes and seconds
         var days = Math.floor(distance / (1000 * 60 * 60 * 24));
         var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
         var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
         // Display the result in the element with id="duration"
         document.getElementById("duration").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s ";
-
         // If the count down is finished, write some text
         if (distance < 0) {
           clearInterval(x);
@@ -295,15 +309,18 @@ document.addEventListener('DOMContentLoaded', function(){
     document.querySelectorAll('button').forEach(button => {
         button.onclick = function() {
           console.log('on click');
-
           let cell = button.dataset.cell;
-
-          // Cell
           if (cell) {
             let board_id = get_board_id();
             let flag =  get_flag();
-            // Update board
-            fetch_chain_update(board_id, cell, flag);
+            if (first_time) {
+              // Check and update
+              fetch_check_and_update(board_id, cell, flag);
+              first_time = false;                
+            } else {
+              // Update
+              fetch_update(board_id, cell, flag);              
+            }
           }
         }
     })
@@ -318,11 +335,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
 /* Test -------------------------------------------------------------------*/
 
-    // Test
     const btn_test = document.getElementById('btn_test')
     btn_test.onclick = async function() {
       console.log('test');
-
       let nr_rows = get_rows();
       let cell = '';
       let board_id = get_board_id();
@@ -330,13 +345,12 @@ document.addEventListener('DOMContentLoaded', function(){
       let i = 0;
       let x = 0;
       let y = 0;
-
       for (x = 0; x < nr_rows; x++) {
         for (y = 0; y < nr_rows; y++) {
           cell = `${x}_${y}`;
           console.log(cell);  
           if (!game_over) {            
-            fetch_chain_update(board_id, cell, flag);
+            fetch_update(board_id, cell, flag);
           } else {
             break;            
           }

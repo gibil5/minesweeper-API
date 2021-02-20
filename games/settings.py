@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'django_extensions',
+    'bootstrap',
+    'fontawesome',
     # Standard
     'django.contrib.admin',
     'django.contrib.auth',

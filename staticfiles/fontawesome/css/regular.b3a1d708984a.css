@@ -1,0 +1,10 @@
+@font-face {
+  font-family: 'Font Awesome 5 Free';
+  font-style: normal;
+  font-weight: 400;
+  src: url("../webfonts/fa-regular-400.8c1f07807053.eot");
+  src: url("../webfonts/fa-regular-400.8c1f07807053.eot?#iefix") format("embedded-opentype"), url("../webfonts/fa-regular-400.4b218302f905.woff2") format("woff2"), url("../webfonts/fa-regular-400.e32cb360659f.woff") format("woff"), url("../webfonts/fa-regular-400.f1994ecd58b5.ttf") format("truetype"), url("../webfonts/fa-regular-400.734248d027cb.svg#fontawesome") format("svg"); }
+
+.far {
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 400; }
