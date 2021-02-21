@@ -196,16 +196,13 @@ document.addEventListener('DOMContentLoaded', function(){
       console.log(board_id);
       console.log(cell_name);
       console.log(flag);
-      
       console.log('First fetch - Check');
       const url_check = `/rest/board_check/?board_id=${board_id}&cell_name=${cell_name}`;
-
       // First fetch
       var result = fetch(url_check, {
           method: 'get',
         }).then(function(response) {
           return response.json();
-
         // Second fetch
         }).then(function(data) {
           console.log(data);
@@ -214,7 +211,6 @@ document.addEventListener('DOMContentLoaded', function(){
           return fetch(url_cells); 
         }).then(function(response) {
           return response.json();
-
         // Third fetch
         }).then(function(data) {
           console.log(data);
@@ -225,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function(){
           return fetch(url_board); 
         }).then(function(response) {
           return response.json();
-
         // Analyse data
         }).then(function(data) {
             console.log(data);
@@ -234,7 +229,6 @@ document.addEventListener('DOMContentLoaded', function(){
         }).catch(function(error) {
           console.log('Request failed', error);
         })
-
       // The last result - Not used
       result.then(function(data) {
         console.log(data);
@@ -254,20 +248,16 @@ document.addEventListener('DOMContentLoaded', function(){
         }).then(function(response) {
           return response.json();
         }).then(function(data) {
-
           // Game loop
           game_loop(data);
-
           // Second fetch
           const url_board = `/rest/boards/${board_id}/`;
           return fetch(url_board); 
-
         }).then(function(response) {
           return response.json();
         }).catch(function(error) {
           console.log('Request failed', error);
         })
-
       // Use the last result
       result.then(function(board) {
         // Stats 

@@ -16,14 +16,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers, serializers, viewsets
-from minesweeper import views
+from minesweeper import views, api_views
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
 #router.register(r'groups', views.GroupViewSet)
-router.register(r'users', views.UserViewSet)
-router.register(r'boards', views.BoardViewSet)
-router.register(r'cells', views.CellViewSet)
+router.register(r'users', api_views.UserViewSet)
+router.register(r'boards', api_views.BoardViewSet)
+router.register(r'cells', api_views.CellViewSet)
 
 # Routing
 urlpatterns = [
@@ -32,10 +32,9 @@ urlpatterns = [
     path('boards/', include("minesweeper.urls")),
     # Rest
     path('rest/', include(router.urls)),
-    path('rest/board_init/', views.BoardInit.as_view()),
-    path('rest/board_update/', views.BoardUpdate.as_view()),
-    path('rest/board_check/', views.BoardCheck.as_view()),
-
+    path('rest/board_init/', api_views.BoardInit.as_view()),
+    path('rest/board_update/', api_views.BoardUpdate.as_view()),
+    path('rest/board_check/', api_views.BoardCheck.as_view()),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # Users
     path('', include("users.urls")),

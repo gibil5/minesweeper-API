@@ -6,40 +6,38 @@ Minesweeper
 Minesweeper
 {% endblock %}
 {% block body %}
-
 <!-- Title -->
 <div class="container_idx">
     <div class="row">
         <div class="col-12 col-md-9">
-            <!--
-            <h2>{{ request.user|title }} - All Games ({{ boards.count }})</h2>
-            -->
             <h2>All Games ({{ boards.count }}) - {{ request.user|title }}</h2>
         </div>
     </div>
 </div>
-
 <!-- Lines - Small -->
 <div class="container_idx small_screen">      
     {% for board in boards %}
     <div class="row">
-        <div class="col-3 col-md-1">
+        <div class="col-2">
             <a href="{% url 'show' board.id %}">
                 {{ board.name }}
             </a>
         </div>
-        <div class="col-2 col-md-1">
+        <div class="col-2">
             <a href="{% url 'edit' board.id %}">
                 Edit
             </a>  
         </div>
-        <div class="col-2 col-md-1">
+        <div class="col-1">
             <a href="{% url 'delete' board.id %}" onclick="return confirm('Are you sure you want to delete this?')">Del</a>
         </div>
-        <div class="col-2 col-md-1">
-            {{ board.get_nr_cells }}
+        <div class="col-2">
+            size: {{ board.rows }}
         </div>
-        <div class="col-2 col-md-1">
+        <div class="col-2">
+            mines: {{ board.nr_mines }}
+        </div>
+        <div class="col-2">
             {{ board.get_state }}
         </div>
     </div>
@@ -52,14 +50,8 @@ Minesweeper
         <a href="{% url 'index' %}">Home</a>
     </div>
 </div>
-
-
 <!-- Lines - Medium -->
-<!--
-<div class="container_idx hidden medium_screen">      
--->
-<div class="container_idx medium_screen">      
-
+<div class="container_idx medium_screen">
     <!-- Titles -->
     <b>
         <div class="row">
@@ -70,7 +62,7 @@ Minesweeper
             </div>
             <div class="col-3 col-md-1">
             </div>
-
+            
             <div class="col-3 col-md-1">
                 User
             </div>
@@ -101,7 +93,6 @@ Minesweeper
         </div>
     </b>
     <br>
-
     <!-- Lines -->
     {% for board in boards %}
     <div class="row">
@@ -118,7 +109,6 @@ Minesweeper
         <div class="col-3 col-md-1">
             <a href="{% url 'delete' board.id %}" onclick="return confirm('Are you sure you want to delete this?')">Del</a>
         </div>
-
         <div class="col-3 col-md-1">
             {{ board.get_user }}
         </div>
@@ -149,7 +139,6 @@ Minesweeper
     </div>
     <br>
     {% endfor %}
-
     <div class="button_users">
         <a href="{% url 'add_board' %}">Add game</a>
     </div>
@@ -157,5 +146,4 @@ Minesweeper
         <a href="{% url 'index' %}">Home</a>
     </div>
 </div>
-
 {% endblock %}

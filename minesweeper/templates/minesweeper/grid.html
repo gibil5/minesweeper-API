@@ -7,224 +7,140 @@ Minesweeper
 Minesweeper
 {% endblock %}
 {% block body %}
-<script src="{% static 'minesweeper/grid.js' %}" type="module"></script> 
-
+<script src="{% static 'minesweeper/grid.js' %}" type="module"></script>
 <style>
-/* Grid */
-#grid {
-    display: grid;
-    text-align: center;
-}
-.grid-item {
-    background-color: gainsboro;
-    outline: 1px solid gray;    /* The outline creates the border */
-    text-align: center;
-    position: relative;
-    z-index: 1;     /* original z-index */
-}
-.back_button {
-    visibility: hidden;
-    display: none;
-}
-.label_hidden {
-    visibility: hidden;
-    display: block;
-}
-.label_visible {
-    visibility: visible;              
-    background-color: silver;
-}    
-.label_empty {
-    visibility: visible;              
-    background-color: silver;
-    color: silver;
-}    
-.label_flagged {       
-    visibility: visible;              
-    display: block;
-    background-color: gainsboro;
-}
-
-.square {
-    width: 50vh;
-    height: 50vh;
-    /*
-    width: 50ch;
-    height: 50ch;
-
-    width: 50vh;
-    height: 50vh;
-
-    width: 50vh;
-    height: 50vh;
-
-    width: 50vw;
-    height: 50vw;
-
-    width: 50vmin;
-    height: 50vmin;
-
-    width: 50vmax;
-    height: 50vmax;
-    */
-}    
-
-.game_header {        
-    margin-top: 17px;
-    margin-left: 0em;
-    /*
-    margin-left: 1vmin;
-    margin-left: 40px;
-    */
-}
-
-.game_element {        
-    margin-top: 17px;
-    margin-left: 3em;
-    /*
-    margin-left: 12vmin;
-    */
-}
-
-.container_stats {
-    font-size: 17px;
-    line-height: 150%;
-    /*
-    */
-}    
-
-.game_over {        
-    font-size: 19px;
-    display: none;
-}
-/*
-.button_hidden {
-    visibility: hidden;
-    display: none;
-}
-*/
-
+    #grid {
+        display: grid;
+        text-align: center;
+    }
+    .grid-item {
+        background-color: gainsboro;
+        outline: 1px solid gray;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+    .back_button {
+        visibility: hidden;
+        display: none;
+    }
+    .label_hidden {
+        visibility: hidden;
+        display: block;
+    }
+    .label_visible {
+        visibility: visible;              
+        background-color: silver;
+    }    
+    .label_empty {
+        visibility: visible;              
+        background-color: silver;
+        color: silver;
+    }    
+    .label_flagged {       
+        visibility: visible;              
+        display: block;
+        background-color: gainsboro;
+    }
+    .square {
+        width: 50vh;
+        height: 50vh;
+    }
+    .game_header {        
+        margin-top: 17px;
+        margin-left: 0em;
+    }
+    .game_element {        
+        margin-top: 17px;
+        margin-left: 3em;
+    }
+    .container_stats {
+        font-size: 17px;
+        line-height: 150%;
+    }
+    .game_over {        
+        font-size: 19px;
+        display: none;
+    }
 .btn {
-  background-color: blue;  
-  color: white; 
-  /*
-  cursor: pointer; 
-  font-size: 16px; 
-  padding: 12px 16px; 
-  border: none; 
-  */
+    background-color: blue;  
+    color: white; 
 }
 .btn:hover {
-  background-color: RoyalBlue;
+    background-color: RoyalBlue;
 }
-
 .btn-test {
-  background-color: mediumseagreen;  
+    background-color: mediumseagreen;  
 }
-
-
 </style>
-
-
 <!-- Grid -->
 <div class="row">
-
-<div class="medium_screen col-md-1">
-</div>
-
-<div class="col-12 col-md-6">
-
-    <!-- Title -->
-    <div class="row game_header">
-
-        <div class="col-1">
-        </div>
-
+    <div class="medium_screen col-md-1"></div>
+    <div class="col-12 col-md-6">
         <!-- Title -->
-        <div class="col-7 col-md-5">
-            <h3 id="play">Play - {{ board.name }}</h3>
+        <div class="row game_header">
+            <div class="col-1"></div>
+            <!-- Title -->
+            <div class="col-7 col-md-5">
+                <h3 id="play">Play - {{ board.name }}</h3>
+            </div>
+            <!-- Game over -->
+            <div class="col-4 col-md-4">
+                <button id="game_over_banner" type="button" name="button" class="game_over">x</button>
+            </div>
         </div>
-
-        <!-- Game over -->
-        <div class="col-4 col-md-4">
-            <button id="game_over_banner" type="button" name="button" class="game_over">x</button>
+        <!-- First line -->
+        <div class="row game_header">
+            <div class="col-1"></div>
+            <!-- Flagging -->
+            <div class="col-7 col-md-5">
+                <button id="btn_flag" class="btn"><div class="fa fa-flag"></div></button>
+            </div>
+            <!-- Buttons -->
+            <div class="col-4">
+                <a href="{% url 'pause' board.id %}">
+                    <button id="pause_btn" type="button" class="btn-primary button_users">Pause</button>
+                </a>              
+                <a href="{% url 'back' board.id %}">
+                    <button id="return_btn" type="button" class="back_button btn-primary button_users">Return</button>
+                </a>
+            </div>
         </div>
-    </div>
-
-
-    <!-- First line -->
-    <div class="row game_header">
-
-        <div class="col-1">
+        <!-- Board -->
+        <div class="row">
+            <div class="col-12 col-md-6 game_element">
+                {% include 'minesweeper/partials/_board.html' %}
+            </div>
         </div>
-
-        <!-- Flagging -->
-        <div class="col-7 col-md-5">
-            <button id="btn_flag" class="btn"><div class="fa fa-flag"></div></button>
+        <!-- Info for styling - hidden -->
+        <div hidden>
+            <h3  id='board_id'>{{ board.id }}</h3>
+            <h3 id='rows_id'>{{ board.rows }}</h3>      
         </div>
-
+        <!-- Stats -->
+        <div class="row game_element">
+            <div class="col-md-12">
+                {% include 'minesweeper/partials/_stats.html' %}
+                <button hidden id="test_btn" type="button">Test javascript</button>
+            </div>
+        </div>
+        <br>
         <!-- Test -->
-        <!--
-        <div class="col-3">
-            <button class="btn"><i class="fa fa-home"></i></button>
-            <button id="btn_flag" class="btn"><div class="fa fa-space-shuttle"></div></button>
-            <button id="btn_flag" class="btn"><div class="fa fa-check"></div></button>
-            <button id="btn_flag" class="btn"><div class="fal fa-badge"></div></button>
-            <button hidden id="btn_test" class="btn btn-test"><div class="fa fa-cog"></div></button>
+        <div class="row game_element">
+            <h3>For testing purposes</h3>
         </div>
-        -->
-
-        <!-- Buttons -->
-        <div class="col-4">
-            <a href="{% url 'pause' board.id %}">
-                <button id="pause_btn" type="button" class="btn-primary button_users">Pause</button>
-            </a>              
-            <a href="{% url 'back' board.id %}">
-                <button id="return_btn" type="button" class="back_button btn-primary button_users">Return</button>
-            </a>
+        <div class="row">
+            <div class="col-12 game_element">
+                <button id="btn_test" class="btn btn-test"><div class="fa fa-cog"></div></button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 game_element">
+                {% include 'minesweeper/partials/_admin.html' %}
+            </div>
         </div>
     </div>
-
-
-    <!-- Board -->
-    <div class="row">
-        <div class="col-12 col-md-6 game_element">
-            {% include 'minesweeper/partials/_board.html' %}
-        </div>
+    <div class="medium_screen col-md-5">
     </div>
-
-
-    <!-- Info for styling -->
-    <div hidden>
-        <h3  id='board_id'>{{ board.id }}</h3>
-        <h3 id='rows_id'>{{ board.rows }}</h3>      
-    </div>
-
-    <!-- Stats -->
-    <div class="row game_element">
-        <div class="col-md-12">
-            {% include 'minesweeper/partials/_stats.html' %}
-            <button hidden id="test_btn" type="button">Test javascript</button>
-        </div>
-    </div>
-
-    <!-- Admin -->
-    <div class="row game_element">
-        <h3>For testing purposes</h3>
-    </div>
-        
-    <div class="row">
-        <div class="col-12 col-md-6 game_element">
-            {% include 'minesweeper/partials/_admin.html' %}
-        </div>
-    </div>
-
-
-</div>    
-
-<div class="medium_screen col-md-5">
 </div>
-</div>    
-
-
 {% endblock %}

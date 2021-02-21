@@ -3,18 +3,11 @@
 Minesweeper - Show
 {% endblock %}
 {% block body %}
-
 <div class="container_idx">
     <div class="row">
         <div class="col-12">
             <h2>{{ board.name }} - {{ request.user|title }}</h2>
         </div>
-        <!--
-        <h2>{{ request.user|title }} - {{ board.name }}</h2>
-        <div class="col-1 container_user">
-            {{ request.user }}
-        </div>
-        -->
     </div>
     <ul>
         <li>
@@ -45,7 +38,6 @@ Minesweeper - Show
             Game win: {{ board.game_win }}
         </li>
     </ul>    
-
     <div class="container_users">    
         <!-- Play -->
         {% if board.state_sm != 3 %}

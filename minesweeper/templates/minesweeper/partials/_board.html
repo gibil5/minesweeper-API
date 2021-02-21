@@ -1,6 +1,5 @@
 <div id="grid" class="square">
     {% for cell in cells %}
-
     <!-- Empty and visible -->
     {% if cell.empty and cell.visible %}
     <button id="{{cell.name}}" class="label_empty grid-item" data-cell="{{cell.name}}">
@@ -8,7 +7,6 @@
             e
         </label>
     </button>
-
     <!-- Visible -->
     {% elif cell.visible %}
     <button id="{{cell.name}}" class="label_visible grid-item" data-cell="{{cell.name}}">
@@ -16,7 +14,6 @@
             {{cell.label}}
         </label>
     </button>
-
     <!-- Flagged -->
     {% elif cell.flagged %}
     <button id="{{cell.name}}" class="label_flagged grid-item" data-cell="{{cell.name}}">
@@ -24,7 +21,6 @@
             ?
         </label>
     </button>
-
     <!-- Invisible -->
     {% else %}
     <button id="{{cell.name}}" class="grid-item" data-cell="{{cell.name}}">
@@ -32,7 +28,6 @@
             {{cell.label}}
         </label>
     </button>
-
     {% endif %}
     {% endfor %}
 </div>

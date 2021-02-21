@@ -3,59 +3,10 @@
 
     From the article:
     Ask Python
-    Create Minesweeper using Python From the Basic to Advanced
+    "Create Minesweeper using Python From the Basic to Advanced"
     https://www.askpython.com/python/examples/create-minesweeper-using-python
 """
 import random
-
-#-------------------------------------------------------------------------------
-def neighbours(n, row, col, vis, apparent, numbers):
-    """
-    Recursive
-    """
-    # If the cell already not visited
-    if [row,col] not in vis:
-
-        # Mark the cell visited
-        vis.append([row,col])
-
-        # If the cell is zero-valued
-        if numbers[row][col] == 0:
-
-            # Display it to the user
-            apparent[row][col] = numbers[row][col]
-
-            # Recursive calls for the neighbouring cells
-            if row > 0:
-                neighbours(n, row-1, col, vis, apparent, numbers)
-
-            if row < n-1:
-                neighbours(n, row+1, col, vis, apparent, numbers)
-
-            if col > 0:
-                neighbours(n, row, col-1, vis, apparent, numbers)
-
-            if col < n-1:
-                neighbours(n, row, col+1, vis, apparent, numbers)
-
-            if row > 0 and col > 0:
-                neighbours(n, row-1, col-1, vis, apparent, numbers)
-
-            if row > 0 and col < n-1:
-                neighbours(n, row-1, col+1, vis, apparent, numbers)
-
-            if row < n-1 and col > 0:
-                neighbours(n, row+1, col-1, vis, apparent, numbers)
-
-            if row < n-1 and col < n-1:
-                neighbours(n, row+1, col+1, vis, apparent, numbers)
-
-        # If the cell is not zero-valued
-        if numbers[row][col] != 0:
-            apparent[row][col] = numbers[row][col]
-
-# neighbours
-
 
 #-------------------------------------------------------------------------------
 def set_mines(n, numbers, nr_mines):
@@ -132,3 +83,51 @@ def set_values(n, numbers):
 
     return numbers
 # set_values
+
+
+#-------------------------------------------------------------------------------
+def neighbours(n, row, col, vis, apparent, numbers):
+    """
+    Recursive
+    """
+    # If the cell already not visited
+    if [row,col] not in vis:
+
+        # Mark the cell visited
+        vis.append([row,col])
+
+        # If the cell is zero-valued
+        if numbers[row][col] == 0:
+
+            # Display it to the user
+            apparent[row][col] = numbers[row][col]
+
+            # Recursive calls for the neighbouring cells
+            if row > 0:
+                neighbours(n, row-1, col, vis, apparent, numbers)
+
+            if row < n-1:
+                neighbours(n, row+1, col, vis, apparent, numbers)
+
+            if col > 0:
+                neighbours(n, row, col-1, vis, apparent, numbers)
+
+            if col < n-1:
+                neighbours(n, row, col+1, vis, apparent, numbers)
+
+            if row > 0 and col > 0:
+                neighbours(n, row-1, col-1, vis, apparent, numbers)
+
+            if row > 0 and col < n-1:
+                neighbours(n, row-1, col+1, vis, apparent, numbers)
+
+            if row < n-1 and col > 0:
+                neighbours(n, row+1, col-1, vis, apparent, numbers)
+
+            if row < n-1 and col < n-1:
+                neighbours(n, row+1, col+1, vis, apparent, numbers)
+
+        # If the cell is not zero-valued
+        if numbers[row][col] != 0:
+            apparent[row][col] = numbers[row][col]
+# neighbours

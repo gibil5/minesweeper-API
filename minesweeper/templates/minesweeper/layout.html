@@ -3,51 +3,48 @@
 <html lang="en">
 <head>
     <title>{% block title %}{% endblock %}</title>
-    
-    <!--
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    -->
     <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
     <script defer src="{% static 'fontawesome/js/all.min.js' %}"></script>
-
-    <link href="{% static 'minesweeper/styles.css' %}" rel="stylesheet">
-
     <style media="screen">
-        .container_idx {
-            margin-top: 20px;    
-            margin-left: 35px;    
-            font-size: 18px;
-            line-height: 200%;
+    /*
+    .main {
+        padding: 10px;
+    }
+    */
+    .container_idx {
+        margin-top: 20px;    
+        margin-left: 35px;    
+        font-size: 18px;
+        line-height: 200%;
+    }
+    .container_show {
+        margin-top: 20px;    
+        margin-left: 20px;    
+        font-size: 17px;              
+        line-height: 150%;
+    }
+    .container_user {
+        padding: 20px;    
+        font-size: 17px;
+        color: blue;
+    }
+    .button_users {
+        font-size: 17px;
+        padding: 5px;
+    }
+    .container_users {
+        padding-left: 25px;
+    }
+    @media (max-width: 767px) {                  
+        .medium_screen {
+            display: none;
         }
-        .container_show {
-            margin-top: 20px;    
-            margin-left: 20px;    
-            font-size: 17px;              
-            line-height: 150%;
+    }        
+    @media (min-width: 767px) {                  
+        .small_screen {
+            display: none;
         }
-        .container_user {
-            padding: 20px;    
-            font-size: 17px;
-            color: blue;
-        }
-        .button_users {
-            font-size: 17px;
-            padding: 5px;
-        }
-        .container_users {
-            padding-left: 25px;
-        }
-        @media (max-width: 767px) {                  
-           .medium_screen {
-              display: none;
-           }
-        }        
-        @media (min-width: 767px) {                  
-           .small_screen {
-              display: none;
-           }
-        }        
+    }        
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>

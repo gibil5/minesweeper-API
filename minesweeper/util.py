@@ -3,7 +3,6 @@ from datetime import timedelta
 from .models import Board, Cell
 from django.contrib.auth.models import User
 
-
 # ---------------------------------- Users -------------------------------------
 def add_user(data):
     username = data[0]
@@ -24,7 +23,6 @@ def list_boards_user(user):
     print('list_boards_user')
     boards = Board.objects.filter(user=user)    
     return boards
-
 
 # ---------------------------------- Boards ------------------------------------
 def list_boards():
@@ -63,10 +61,8 @@ def add_cells(board_id):
     return board
 
 def update_board(id, name, rows, cols, nr_mines):
-    #print('update_board')
     boards = Board.objects.filter(id=id)
     ret = boards.update(
-        #id = id, 
         name = name, 
         rows = rows,
         cols = cols,
