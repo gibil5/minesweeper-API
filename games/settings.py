@@ -132,8 +132,8 @@ USE_TZ = True
 
 # Custom date format
 #DATETIME_FORMAT = "d N Y - P"
-#DATETIME_FORMAT = "d/m/y - P"
-DATETIME_FORMAT = "d/m/Y - P"
+DATETIME_FORMAT = "d/m/y - P"
+#DATETIME_FORMAT = "d/m/Y - P"
 #USE_L10N = True
 USE_L10N = False
 

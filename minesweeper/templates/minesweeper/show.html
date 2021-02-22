@@ -9,72 +9,60 @@ Minesweeper - Show
             <h2>{{ board.name }} - {{ request.user|title }}</h2>
         </div>
     </div>
+</div>
+
+<div class="container_users">    
+    <!-- Play -->
+    {% if board.state_sm != 3 %}
+    {% if board.state_sm != 4 %}
+    <div class="button_users">
+        <a href="{% url 'play' board.id %}">
+            Play
+        </a>  
+    </div>
+    {% endif %}
+    {% endif %}
+    <!-- Reset -->
+    {% if board.state_sm != 0 %}
+    <div class="button_users">
+        <a href="{% url 'reset' board.id %}">
+            Reset
+        </a>  
+    </div>
+    {% endif %}
+</div>
+
+<div class="container_idx">
     <ul>
-        <li>
-            State: {{ board.get_state }}
-        </li>
-        <li>
-            Rows: {{ board.rows }}
-        </li>
-        <li>
-            Cols: {{ board.cols }}
-        </li>
-        <li>
-            Mines: {{ board.nr_mines }}
-        </li>
-        <li>
-            Start: {{ board.start }}
-        </li>
-        <li>
-            End: {{ board.end }}
-        </li>
-        <li>
-            Duration: {{ board.get_duration }}
-        </li>
-        <li>
-            Game over: {{ board.game_over }}
-        </li>
-        <li>
-            Game win: {{ board.game_win }}
-        </li>
+        {% include 'minesweeper/partials/_field.html' with name='State' value=board.get_state %}
+        {% include 'minesweeper/partials/_field.html' with name='Rows' value=board.rows %}
+        {% include 'minesweeper/partials/_field.html' with name='Cols' value=board.cols %}
+        {% include 'minesweeper/partials/_field.html' with name='Mines' value=board.nr_mines %}
+        {% include 'minesweeper/partials/_field.html' with name='Start' value=board.start %}
+        {% include 'minesweeper/partials/_field.html' with name='End' value=board.end %}
+        {% include 'minesweeper/partials/_field.html' with name='Duration' value=board.get_duration %}
+        {% include 'minesweeper/partials/_field.html' with name='Over' value=board.game_over %}
+        {% include 'minesweeper/partials/_field.html' with name='Win' value=board.game_win %}
     </ul>    
-    <div class="container_users">    
-        <!-- Play -->
-        {% if board.state_sm != 3 %}
-        {% if board.state_sm != 4 %}
-        <div class="button_users">
-            <a href="{% url 'play' board.id %}">
-                Play
-            </a>  
-        </div>
-        {% endif %}
-        {% endif %}
-        <!-- Reset -->
-        {% if board.state_sm != 0 %}
-        <div class="button_users">
-            <a href="{% url 'reset' board.id %}">
-                Reset
-            </a>  
-        </div>
-        {% endif %}
-        <!-- Edit -->
-        <div class="button_users">
-            <a href="{% url 'edit' board.id %}">
-                Edit
-            </a>  
-        </div>
-        <!-- Games -->
-        <div class="button_users">
-            <a href="{% url 'games' %}">
-                Games
-            </a>
-        </div>
-        <!-- Home -->
-        <div class="button_users">
-            <a href="{% url 'index' %}">
-                Home
-            </a>
-        </div>
+</div>
+<div class="container_users">    
+    <!-- Edit -->
+    <div class="button_users">
+        <a href="{% url 'edit' board.id %}">
+            Edit
+        </a>  
+    </div>
+    <!-- Games -->
+    <div class="button_users">
+        <a href="{% url 'games' %}">
+            Games
+        </a>
+    </div>
+    <!-- Home -->
+    <div class="button_users">
+        <a href="{% url 'index' %}">
+            Home
+        </a>
     </div>
 </div>
 {% endblock %}
