@@ -52,26 +52,26 @@ Minesweeper
     }
     .game_element {        
         margin-top: 17px;
-        margin-left: 3em;
+        margin-left: 1em;
     }
     .container_stats {
-        font-size: 17px;
+        font-size: 19px;
         line-height: 150%;
     }
     .game_over {        
         font-size: 19px;
         display: none;
     }
-.btn {
-    background-color: blue;  
-    color: white; 
-}
-.btn:hover {
-    background-color: RoyalBlue;
-}
-.btn-test {
-    background-color: mediumseagreen;  
-}
+    .btn {
+        background-color: blue;  
+        color: white; 
+    }
+    .btn:hover {
+        background-color: RoyalBlue;
+    }
+    .btn-test {
+        background-color: mediumseagreen;  
+    }
 </style>
 <!-- Grid -->
 <div class="row">
@@ -79,9 +79,11 @@ Minesweeper
     <div class="col-12 col-md-6">
         <!-- Title -->
         <div class="row game_header">
+            <!--
             <div class="col-1"></div>
+            -->
             <!-- Title -->
-            <div class="col-7 col-md-5">
+            <div class="col-8 col-md-5">
                 <h3 id="play">Play - {{ board.name }}</h3>
             </div>
             <!-- Game over -->
@@ -91,9 +93,11 @@ Minesweeper
         </div>
         <!-- First line -->
         <div class="row game_header">
+            <!--
             <div class="col-1"></div>
+            -->
             <!-- Flagging -->
-            <div class="col-7 col-md-5">
+            <div class="col-8 col-md-5">
                 <button id="btn_flag" class="btn"><div class="fa fa-flag"></div></button>
             </div>
             <!-- Buttons -->
@@ -125,6 +129,7 @@ Minesweeper
             </div>
         </div>
         <br>
+        <br>
         <!-- Test -->
         <div class="row game_element">
             <h3>For testing purposes</h3>
@@ -143,4 +148,5 @@ Minesweeper
     <div class="medium_screen col-md-5">
     </div>
 </div>
+<br>
 {% endblock %}
