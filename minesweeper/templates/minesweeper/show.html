@@ -12,24 +12,52 @@ Minesweeper - Show
 </div>
 
 <div class="container_users">    
-    <!-- Play -->
-    {% if board.state_sm != 3 %}
-    {% if board.state_sm != 4 %}
-    <div class="button_users">
-        <a href="{% url 'play' board.id %}">
-            Play
-        </a>  
+    <div class="row">
+        <div class="col-4">
+            <!-- Play -->
+            {% if board.state_sm != 3 %}
+            {% if board.state_sm != 4 %}
+            <div class="button_users">
+                <a href="{% url 'play' board.id %}">
+                    Play
+                </a>  
+            </div>
+            {% endif %}
+            {% endif %}
+            <!-- Reset -->
+            {% if board.state_sm != 0 %}
+            <div class="button_users">
+                <a href="{% url 'reset' board.id %}">
+                    Reset
+                </a>  
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-4">
+            <!-- Edit -->
+            <div class="button_users">
+                <a href="{% url 'edit' board.id %}">
+                    Edit
+                </a>  
+            </div>
+        </div>
+
+        <div class="col-4">
+            <!-- Games -->
+            <div class="button_users">
+                <a href="{% url 'games' %}">
+                    Games
+                </a>
+            </div>
+            <!-- Home -->
+            <div class="button_users">
+                <a href="{% url 'index' %}">
+                    Home
+                </a>
+            </div>
+        </div>
     </div>
-    {% endif %}
-    {% endif %}
-    <!-- Reset -->
-    {% if board.state_sm != 0 %}
-    <div class="button_users">
-        <a href="{% url 'reset' board.id %}">
-            Reset
-        </a>  
-    </div>
-    {% endif %}
 </div>
 
 <div class="container_idx">
@@ -46,23 +74,5 @@ Minesweeper - Show
     </ul>    
 </div>
 <div class="container_users">    
-    <!-- Edit -->
-    <div class="button_users">
-        <a href="{% url 'edit' board.id %}">
-            Edit
-        </a>  
-    </div>
-    <!-- Games -->
-    <div class="button_users">
-        <a href="{% url 'games' %}">
-            Games
-        </a>
-    </div>
-    <!-- Home -->
-    <div class="button_users">
-        <a href="{% url 'index' %}">
-            Home
-        </a>
-    </div>
 </div>
 {% endblock %}
