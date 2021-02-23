@@ -13,9 +13,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 # Skip -------------------------------------------------------------------------
-SKIP_API_TESTS = 0
-SKIP_VIEW_TESTS = 0
-SKIP_MODEL_TESTS = 0
+SKIP_API_TESTS = (os.environ.get("SKIP_API_TESTS") == "True")
+SKIP_VIEW_TESTS = (os.environ.get("SKIP_VIEW_TESTS") == "True")
+SKIP_MODEL_TESTS = (os.environ.get("SKIP_MODEL_TESTS") == "True")
+
 
 # Const ------------------------------------------------------------------------
 PREFIX = '\n\n------------------------------------------------ '
@@ -65,6 +66,7 @@ class RestApiTestCase(unittest.TestCase):
         GET request
         """
         print(f"{self.prefix}test_rest_api_get")
+        print(SKIP_API_TESTS)
 
         requests = [
             # Board - Game
