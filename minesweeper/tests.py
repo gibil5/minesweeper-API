@@ -31,15 +31,67 @@ def reset_game(board):
     board.play_sm()
     board.init_game()
 
+# ------------------------------------------------------------------------------
+#                              Test REST API
+# ------------------------------------------------------------------------------
+#@unittest.skip
+class RestApiTestCase(unittest.TestCase):
+    """
+    Test REST API
+    """
+    def setUp(self):
+        """
+        Setup
+        """
+        self.prefix = PREFIX
+        self.client = Client()
+        self.cell_name = '0_0'
+        self.flag = '0'
+        self.board = get_test_board()
+        self.verbose = False 
+
+    #@unittest.skip
+    def test_rest_api_get(self):
+        """
+        Test REST-API
+        GET request
+        """
+        print(f"{self.prefix}test_rest_api_get")
+
+        requests = [
+            # Board - Game
+            f'/rest/boards/',
+            f'/rest/boards/{self.board.id}/',
+            f'/rest/board_init/?board_id={self.board.id}',
+            f'/rest/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}',
+            f'/rest/users/',
+            #f'/rest/groups/',
+        ]
+
+        # Login 
+        User = get_user_model()
+        self.client.login(username='harry', password='nyctal6+')
+        for url in requests:       
+            print(url)            
+
+            # Get request
+            response = self.client.get(url)
+            if self.verbose:            
+                print(response)
+                print()
+
+            # Check that the response is 200 OK.
+            self.assertEqual(response.status_code, 200)
+
 
 # ------------------------------------------------------------------------------
-#                              Test Requests
+#                              Test Views
 # ------------------------------------------------------------------------------
 #@unittest.skip
 class ViewsTestCase(unittest.TestCase):
     """
-    Test Requests
-    All urls
+    Test Views
+    All
     """
     def setUp(self):
         """
@@ -96,7 +148,6 @@ class ViewsTestCase(unittest.TestCase):
             self.assertIn(response.status_code, [200, 302])
             print()
 
-
     #@unittest.skip
     def test_view_post_all(self):
         """
@@ -128,62 +179,6 @@ class ViewsTestCase(unittest.TestCase):
             print()
 
 
-
-# ------------------------------------------------------------------------------
-#                              Test REST API
-# ------------------------------------------------------------------------------
-#@unittest.skip
-class RestApiTestCase(unittest.TestCase):
-    """
-    Test REST API
-    """
-    def setUp(self):
-        """
-        Setup
-        """
-        self.prefix = PREFIX
-        self.client = Client()
-        self.cell_name = '0_0'
-        self.flag = '0'
-        self.duration = '5555'
-        self.state = 'pause'
-        self.board = get_test_board()
-        self.verbose = False 
-
-
-    #@unittest.skip
-    def test_rest_api_get(self):
-        """
-        Test REST-API
-        GET request
-        """
-        print(f"{self.prefix}test_rest_api_get")
-
-        requests = [
-            # Board - Game
-            f'http://127.0.0.1:8000/rest/boards/',
-            f'http://127.0.0.1:8000/rest/boards/{self.board.id}/',
-            f'http://127.0.0.1:8000/rest/board_init/?board_id={self.board.id}',
-            f'http://127.0.0.1:8000/rest/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}',
-            f'http://127.0.0.1:8000/rest/users/',
-            #f'http://127.0.0.1:8000/rest/groups/',
-        ]
-
-        for url in requests:
-            if True:            
-                print(url)            
-
-            # Get request
-            response = self.client.get(url)
-            if self.verbose:            
-                print(response)
-                print()
-
-            # Check that the response is 200 OK.
-            self.assertEqual(response.status_code, 200)
-
-
-
 # ------------------------------------------------------------------------------
 #                              Test Models
 # ------------------------------------------------------------------------------
@@ -199,9 +194,6 @@ class GameEngineTestCase(unittest.TestCase):
         self.prefix = PREFIX
         self.board = get_test_board()
         self.verbose = False 
-
-    def tearDown(self):
-        pass
 
     #@unittest.skip
     def test_board_update(self):

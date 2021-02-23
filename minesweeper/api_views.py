@@ -13,6 +13,7 @@ class BoardUpdate(generics.ListAPIView):
     curl -H 'Accept: application/json; indent=4' -u admin:adminadmin url http://127.0.0.1:8000/cells_from/?board_id=19&cmd=update&cell_name=4_5
     """
     serializer_class = CellSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -41,6 +42,7 @@ class BoardInit(generics.ListAPIView):
     Board init
     """
     serializer_class = BoardSerializer
+    permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
         queryset = Board.objects.all()
         board_id = self.request.query_params.get('board_id', None)
@@ -55,6 +57,7 @@ class BoardCheck(generics.ListAPIView):
     Board check
     """
     serializer_class = BoardSerializer
+    permission_classes = [permissions.IsAuthenticated]
     def get_queryset(self):
         queryset = Board.objects.all()
         board_id = self.request.query_params.get('board_id', None)
@@ -72,7 +75,7 @@ class CellViewSet(viewsets.ModelViewSet):
     """
     queryset = Cell.objects.all().order_by('-name')
     serializer_class = CellSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 class BoardViewSet(viewsets.ModelViewSet):
     """
@@ -80,7 +83,7 @@ class BoardViewSet(viewsets.ModelViewSet):
     """
     queryset = Board.objects.all().order_by('name')
     serializer_class = BoardSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -88,7 +91,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
 
 #class GroupViewSet(viewsets.ModelViewSet):
 #    """
