@@ -2,6 +2,7 @@
 """
     Test Minesweeper
 """
+import os
 import time
 import random
 import unittest
@@ -10,6 +11,11 @@ from django.test import Client
 from .models import Board, Cell
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
+
+# Skip -------------------------------------------------------------------------
+SKIP_API_TESTS = 0
+SKIP_VIEW_TESTS = 0
+SKIP_MODEL_TESTS = 0
 
 # Const ------------------------------------------------------------------------
 PREFIX = '\n\n------------------------------------------------ '
@@ -34,7 +40,7 @@ def reset_game(board):
 # ------------------------------------------------------------------------------
 #                              Test REST API
 # ------------------------------------------------------------------------------
-#@unittest.skip
+@unittest.skipIf(SKIP_API_TESTS, 'x')
 class RestApiTestCase(unittest.TestCase):
     """
     Test REST API
@@ -49,6 +55,8 @@ class RestApiTestCase(unittest.TestCase):
         self.flag = '0'
         self.board = get_test_board()
         self.verbose = False 
+        self.username = os.environ.get('TEST_USERNAME')
+        self.password = os.environ.get('TEST_PASSWORD')
 
     #@unittest.skip
     def test_rest_api_get(self):
@@ -70,7 +78,7 @@ class RestApiTestCase(unittest.TestCase):
 
         # Login 
         User = get_user_model()
-        self.client.login(username='harry', password='nyctal6+')
+        self.client.login(username=self.username, password=self.password)
         for url in requests:       
             print(url)            
 
@@ -87,7 +95,7 @@ class RestApiTestCase(unittest.TestCase):
 # ------------------------------------------------------------------------------
 #                              Test Views
 # ------------------------------------------------------------------------------
-#@unittest.skip
+@unittest.skipIf(SKIP_VIEW_TESTS, 'x')
 class ViewsTestCase(unittest.TestCase):
     """
     Test Views
@@ -103,6 +111,8 @@ class ViewsTestCase(unittest.TestCase):
         self.board = get_test_board()
         self.user = get_test_user()
         self.verbose = False 
+        self.username = os.environ.get('TEST_USERNAME')
+        self.password = os.environ.get('TEST_PASSWORD')
 
     #@unittest.skip
     def test_view_get_all(self):
@@ -134,7 +144,7 @@ class ViewsTestCase(unittest.TestCase):
 
         # Login 
         User = get_user_model()
-        self.client.login(username='harry', password='nyctal6+')
+        self.client.login(username=self.username, password=self.password)
 
         for req in requests:
             request = req
@@ -182,7 +192,7 @@ class ViewsTestCase(unittest.TestCase):
 # ------------------------------------------------------------------------------
 #                              Test Models
 # ------------------------------------------------------------------------------
-#@unittest.skip
+@unittest.skipIf(SKIP_MODEL_TESTS, 'x')
 class GameEngineTestCase(unittest.TestCase):
     """
     Test Models
