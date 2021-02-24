@@ -7,3 +7,5 @@ djangorestframework
 django-fsm
 django-extensions
 django-bootstrap-static
+pyyaml
+uritemplate

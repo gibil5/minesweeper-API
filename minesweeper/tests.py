@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-    Test Minesweeper
+    Test
+        API
+        Views 
+        Model
 """
 import os
 import time
@@ -13,10 +16,12 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 
 # Skip -------------------------------------------------------------------------
-SKIP_API_TESTS = (os.environ.get("SKIP_API_TESTS") == "True")
-SKIP_VIEW_TESTS = (os.environ.get("SKIP_VIEW_TESTS") == "True")
-SKIP_MODEL_TESTS = (os.environ.get("SKIP_MODEL_TESTS") == "True")
-
+#SKIP_API_TESTS = (os.environ.get("SKIP_API_TESTS") == "True")
+#SKIP_VIEW_TESTS = (os.environ.get("SKIP_VIEW_TESTS") == "True")
+#SKIP_MODEL_TESTS = (os.environ.get("SKIP_MODEL_TESTS") == "True")
+SKIP_API_TESTS = 0
+SKIP_VIEW_TESTS = 1
+SKIP_MODEL_TESTS = 1
 
 # Const ------------------------------------------------------------------------
 PREFIX = '\n\n------------------------------------------------ '
@@ -37,6 +42,7 @@ def reset_game(board):
     board.reset_sm()
     board.play_sm()
     board.init_game()
+
 
 # ------------------------------------------------------------------------------
 #                              Test REST API
@@ -101,7 +107,6 @@ class RestApiTestCase(unittest.TestCase):
 class ViewsTestCase(unittest.TestCase):
     """
     Test Views
-    All
     """
     def setUp(self):
         """
@@ -197,7 +202,9 @@ class ViewsTestCase(unittest.TestCase):
 @unittest.skipIf(SKIP_MODEL_TESTS, 'x')
 class GameEngineTestCase(unittest.TestCase):
     """
-    Test Models
+    Test Model
+        Board 
+        Cell 
     """
     def setUp(self):
         """
