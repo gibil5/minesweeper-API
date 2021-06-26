@@ -1,8 +1,9 @@
 # Minesweeper API Documentation
 
-J. Revilla , 25 Feb 2021
+J. Revilla , 26 Jun 2021
 
-The goal of this document is to provide a reference for the RESTful API we have developed for the Minesweeper game. We have thought of the final user as s person using their mobile phone to play the game. Another goal of the document is to describe all important design and implementation decisions that have been taken. 
+The goal of this document is to provide Specifications for the Minesweeper Game RESTful API. We have thought of the final user as a person using their mobile phone to play the game. 
+Another goal of the document is to detail important design and implementation decisions. 
 
 ## Deliverables 
 The deliverables of the code challenge are:
@@ -14,7 +15,8 @@ The deliverables of the code challenge are:
 >https://github.com/gibil5/minesweeper-API
 
 ## Support of multiple users
-It is mandatory to login into a session, in order to play the game. The user and password have been sent to evaluators. 
+It is mandatory to login into a session, in order to play the game. 
+The user and password have been sent to evaluators. 
 
 ## Languages and frameworks
 We have used the following programming languages, frameworks and libraries:
