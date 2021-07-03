@@ -9,3 +9,5 @@ django-extensions
 django-bootstrap-static
 pyyaml
 uritemplate
+
+random_word
