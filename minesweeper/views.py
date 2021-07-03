@@ -15,7 +15,7 @@ PAGE_NOT_FOUND = 'The requested page was not found.'
 #------------------------------------ Forms ------------------------------------
 class BoardForm(forms.ModelForm):
     """
-    Board form
+    Used by: edit 
     """
     class Meta:
         """
@@ -30,7 +30,7 @@ class BoardForm(forms.ModelForm):
 
 class NewBoardForm(forms.Form):
     """
-    New Board form
+    Used by: update 
     """
     id = forms.IntegerField()
     name = forms.CharField(max_length=16)
@@ -46,7 +46,6 @@ def index(request):
     Index
     """
     print('*** index')
-    #return render(request, "minesweeper/index_flex.html",
     return render(request, "minesweeper/index.html",
         {
             "userx": request.user,
@@ -66,7 +65,7 @@ def show(request, board_id):
 
 def edit(request, board_id):
     """
-    Edit
+    Edit - GET
     """
     print('*** edit')
     if request.method == 'GET':
@@ -76,28 +75,9 @@ def edit(request, board_id):
             "form": form,
         })
 
-def delete(request, board_id):
-    """
-    Delete
-    """
-    print('*** delete')
-    util.delete_board(board_id)
-    return HttpResponseRedirect(reverse("games"))
-
-@login_required(login_url='/login')
-def add_board(request):
-    """
-    Add board
-    """
-    print('*** add_board')
-    user = request.user
-    util.add_board(user)
-    return HttpResponseRedirect(reverse("games"))
-
 def update(request):
     """
-    update
-    Post
+    Update - POST
     """
     print('*** update')
     #print(request)
@@ -120,6 +100,25 @@ def update(request):
             return render(request, "minesweeper/error.html", {
                 "message": 'Form is not valid !'
             })
+
+def delete(request, board_id):
+    """
+    Delete
+    """
+    print('*** delete')
+    util.delete_board(board_id)
+    return HttpResponseRedirect(reverse("games"))
+
+#------------------------------------- Add ------------------------------------
+@login_required(login_url='/login')
+def add_board(request):
+    """
+    Add board
+    """
+    print('*** add_board')
+    user = request.user
+    util.add_board(user)
+    return HttpResponseRedirect(reverse("games"))
 
 #------------------------------------- Game ------------------------------------
 def play(request, board_id):

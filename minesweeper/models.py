@@ -38,9 +38,12 @@ class Board(models.Model):
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    # new
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('name', )
+        ordering = ('created_at', )
 
     def __str__(self):
         return f"{self.name}"
