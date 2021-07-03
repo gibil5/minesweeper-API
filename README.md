@@ -1,6 +1,6 @@
 # Minesweeper API Documentation
 
-J. Revilla , 26 Jun 2021
+J. Revilla , 3 July 2021
 
 The goal of this document is to provide Specifications for the Minesweeper Game RESTful API. We have thought of the final user as a person using their mobile phone to play the game. 
 Another goal of the document is to detail important design and implementation decisions. 
