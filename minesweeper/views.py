@@ -3,40 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django import forms
 from django_fsm import TransitionNotAllowed
 from .models import Board
+from .forms import BoardForm, NewBoardForm
 from . import util
 
+#------------------------------------- Const -----------------------------------
 SUCCESS = '\nSUCCESS'
 ERROR = '\nERROR'
 PAGE_NOT_FOUND = 'The requested page was not found.'
-
-#------------------------------------ Forms ------------------------------------
-class BoardForm(forms.ModelForm):
-    """
-    Used by: edit 
-    """
-    class Meta:
-        """
-        Meta
-        """
-        model = Board
-        fields = ['id', 'name', 'rows', 'nr_mines']
-    id = forms.IntegerField()
-    name = forms.CharField(max_length=16)
-    rows = forms.IntegerField(min_value=0)
-    nr_mines = forms.IntegerField(min_value=0)
-
-class NewBoardForm(forms.Form):
-    """
-    Used by: update 
-    """
-    id = forms.IntegerField()
-    name = forms.CharField(max_length=16)
-    rows = forms.IntegerField()
-    nr_mines = forms.IntegerField()
-
 
 #------------------------------------- CRUD ------------------------------------
 # Create your views here.
