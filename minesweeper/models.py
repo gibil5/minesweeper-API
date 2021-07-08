@@ -83,17 +83,16 @@ class Board(models.Model):
         return not(self.state_sm == 4)
 
 
-#-------------------------------------------------------------------------------
+#---------------------------------- Getters ------------------------------------
+    def get_duration(self):
+        return str(self.duration).split('.')[0]
+
     def get_user(self):
         return self.user.username.capitalize() if self.user else None
 
     def get_state(self):
         return STATE_CHOICES[self.state_sm][1].capitalize()
 
-    def get_duration(self):
-        print(self.duration)
-        duration = str(self.duration).split('.')[0]
-        return duration
 
 #-------------------------------------------------------------------------------
     def get_cells(self):

@@ -6,7 +6,10 @@ Minesweeper - Show
 <div class="container_idx">
     <div class="row">
         <div class="col-12">
+<!--
             <h2>{{ board.name }} - {{ request.user|title }}</h2>
+-->
+            <h2>{{ request.user|title }}</h2>
         </div>
     </div>
 </div>
@@ -62,6 +65,7 @@ Minesweeper - Show
 
 <div class="container_idx">
     <ul>
+        {% include 'minesweeper/partials/_field.html' with name='Name' value=board.name %}
         {% include 'minesweeper/partials/_field.html' with name='State' value=board.get_state %}
         {% include 'minesweeper/partials/_field.html' with name='Rows' value=board.rows %}
         {% include 'minesweeper/partials/_field.html' with name='Cols' value=board.cols %}

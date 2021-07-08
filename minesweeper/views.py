@@ -4,8 +4,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django_fsm import TransitionNotAllowed
-from .models import Board
-from .forms import BoardForm, NewBoardForm
+from minesweeper.models import Board
+from minesweeper.forms import BoardForm
 from . import util
 
 #------------------------------------- Const -----------------------------------
@@ -38,6 +38,7 @@ def show(request, board_id):
             "cells": util.get_cells(board_id),
         })
 
+# Edit 
 def edit(request, board_id):
     """
     Edit - GET
@@ -50,6 +51,8 @@ def edit(request, board_id):
             "form": form,
         })
 
+
+# Update
 def update(request):
     """
     Update - POST
@@ -59,13 +62,12 @@ def update(request):
     #print(request.POST)
     if request.method == 'POST':
         #print('post')
-        form = NewBoardForm(request.POST)
+        form = BoardForm(request.POST)
         if form.is_valid():
             #print('form is valid')
             board_id = form.cleaned_data["id"]
             name = form.cleaned_data["name"]
             rows = form.cleaned_data["rows"]
-            #cols = form.cleaned_data["cols"]
             cols = rows
             nr_mines = form.cleaned_data["nr_mines"]
             util.update_board(id=board_id, name=name, rows=rows, cols=cols, nr_mines=nr_mines)
