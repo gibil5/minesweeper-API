@@ -1,6 +1,6 @@
 """
-    Minesweeper Engine
-    Can be used by any framework. 
+    This is the Minesweeper game Engine
+    It can be used by any framework. 
     
     From the article: 
     "Create Minesweeper using Python From the Basic to Advanced"
@@ -10,77 +10,111 @@
 import random
 
 #-------------------------------------------------------------------------------
-def set_mines(n, numbers, nr_mines):
+def set_mines(numbers, nr_mines):
     """
-    The actual values of the grid
-    The actual value for a mine is stored as -1,
-    whereas the values stored for display, denote the mine as 'M'.
+    Data: 
+        Numbers is a square 2d Matrix 
+        n is the number of rows or cols 
+        nr_mines is the number of mines 
+    Description:
+        Sets mines in the numbers matrix. 
+        The value for a mine is -1.
     """
-    # Track of number of mines already set up
+    # Init 
+    n = len(numbers[0])
     count = 0
+
+    # Place the mines 
     while count < nr_mines:
-
-        # Random number from all possible grid positions
-        val = random.randint(0, n*n-1)
-
-        # Generating row and column from the number
-        row = val // n
-        col = val % n
+        # Random mine position
+        val = random.randint(0, n*n-1)  
+        row = val // n  # integer division 
+        col = val % n   # remainder 
 
         # Place the mine, if it doesn't already have one
         if numbers[row][col] != -1:
-            count = count + 1
             numbers[row][col] = -1
+            count = count + 1
 
     return numbers
 # set_mines
 
 
 #-------------------------------------------------------------------------------
-def set_values(n, numbers):
+def set_values(numbers):
     """
-    Function for setting up the other grid values
-    These values are to be hidden from the player, therefore they are stored in numbers variable.
+    Set each cell's value.
+    Which is calculated using the nr of mines around each cell. 
     """
+    # Init 
+    n = len(numbers[0])
+
     # Loop for counting each cell value
-    for r in range(n):
+    for row in range(n):
         for col in range(n):
 
             # Skip, if it contains a mine
-            if numbers[r][col] == -1:
+            if numbers[row][col] == -1:
                 continue
 
-            # Check up
-            if r > 0 and numbers[r-1][col] == -1:
-                numbers[r][col] = numbers[r][col] + 1
+            #if row > 0 and numbers[row - 1][col] == -1:
+            #if row < n-1  and numbers[row + 1][col] == -1:
+            #if col > 0 and numbers[row][col - 1] == -1:
+            #if col < n-1 and numbers[row][col + 1] == -1:
 
-            # Check down
-            if r < n-1  and numbers[r+1][col] == -1:
-                numbers[r][col] = numbers[r][col] + 1
+            #if row > 0 and col > 0:
+            #if row > 0 and col < n-1:
+            #if row < n-1 and col > 0:
+            #if row < n-1 and col< n-1:
 
-            # Check left
-            if col > 0 and numbers[r][col-1] == -1:
-                numbers[r][col] = numbers[r][col] + 1
 
-            # Check right
-            if col < n-1 and numbers[r][col+1] == -1:
-                numbers[r][col] = numbers[r][col] + 1
+            # Check vertical 
+            # ----------------
+            # Up
+            if row != 0:                            # if not the first row 
+                if numbers[row-1][col] == -1:       # there is a mine up 
+                    numbers[row][col] += 1          # increase value 
 
-            # Check top-left
-            if r > 0 and col > 0 and numbers[r-1][col-1] == -1:
-                numbers[r][col] = numbers[r][col] + 1
+            # Down
+            if row != n-1:                          # if not the last row 
+                if numbers[row+1][col] == -1:       # there is a mine down  
+                    numbers[row][col] +=  1         # increase value 
 
-            # Check top-right
-            if r > 0 and col < n-1 and numbers[r-1][col+1]== -1:
-                numbers[r][col] = numbers[r][col] + 1
 
-            # Check below-left
-            if r < n-1 and col > 0 and numbers[r+1][col-1]== -1:
-                numbers[r][col] = numbers[r][col] + 1
+            # Check horizontal 
+            # -----------------
+            # Left
+            if col != 0:
+                if numbers[row][col-1] == -1:
+                    numbers[row][col] +=  1
 
-            # Check below-right
-            if r < n-1 and col< n-1 and numbers[r+1][col+1]==-1:
-                numbers[r][col] = numbers[r][col] + 1
+            # Right
+            if col != n-1:
+                if numbers[row][col+1] == -1:
+                    numbers[row][col] +=  1
+
+
+            # Check corners 
+            # ---------------
+            # Top left
+            if row != 0 and col != 0:
+                if numbers[row - 1][col - 1] == -1:
+                    numbers[row][col] += 1
+
+            # Top right
+            if row != 0 and col != n-1:
+                if numbers[row - 1][col + 1]== -1:
+                    numbers[row][col] += 1
+
+            # Below left
+            if row != n-1 and col != 0:
+                if numbers[row + 1][col - 1]== -1:
+                    numbers[row][col] += 1
+
+            # Below right
+            if row != n-1 and col != n-1:
+                if numbers[row + 1][col + 1]==-1:
+                    numbers[row][col] += 1
 
     return numbers
 # set_values
@@ -131,4 +165,5 @@ def neighbours(n, row, col, vis, apparent, numbers):
         # If the cell is not zero-valued
         if numbers[row][col] != 0:
             apparent[row][col] = numbers[row][col]
+
 # neighbours

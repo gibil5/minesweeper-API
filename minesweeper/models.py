@@ -36,7 +36,7 @@ from django.contrib.auth.models import User
 from django_fsm import transition, FSMIntegerField, TransitionNotAllowed
 from . import ms_engine as ms
 
-# FSM
+# FSM (Finite state machine)
 STATE_CREATED = 0
 STATE_STARTED = 1
 STATE_PAUSED = 2
@@ -52,6 +52,11 @@ STATE_CHOICES = (
 
 # Create your models here.
 class Board(models.Model):
+    """
+    Game board 
+    Is a 2d matrix of Cells 
+    Is owned by a User 
+    """
     name = models.CharField(max_length=16)
     rows = models.IntegerField(default=1)
     cols = models.IntegerField(default=1)
@@ -268,16 +273,15 @@ class Board(models.Model):
 
 
         # Bidimensional Arrays 
-        # ---------------------        
-        self.numbers = [[0 for y in range(n)] for x in range(n)]        #The actual values of the grid
-
-        self.apparent = [[None for y in range(n)] for x in range(n)]    #The apparent values of the grid
+        # ---------------------
+        self.numbers = [[0 for y in range(n)] for x in range(n)]        # The actual values of the grid
+        self.apparent = [[None for y in range(n)] for x in range(n)]    # The apparent values of the grid
 
         # Set the mines
-        self.numbers = ms.set_mines(n, self.numbers, self.nr_mines)
+        self.numbers = ms.set_mines(self.numbers, self.nr_mines)
 
-        # Set the actual values
-        self.numbers = ms.set_values(n, self.numbers)
+        # Set the board values, which are calculated using the mines positions 
+        self.numbers = ms.set_values(self.numbers)
 
 
         # Arrays 
@@ -455,19 +459,22 @@ class Board(models.Model):
 
 #-------------------------------------------------------------------------------
 class Cell(models.Model):
+    """
+    Cell 
+    Used by Board 
+    Board is a ForeignKey
+    """    
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+
     name = models.CharField(max_length=16)
     x = models.IntegerField()
     y = models.IntegerField()
-
     value = models.IntegerField()
     label = models.CharField(max_length=10, default='', blank=True, null=True)
-
     visible = models.BooleanField(default=False)
     mined = models.BooleanField(default=False)
     flagged = models.BooleanField(default=False)
     empty = models.BooleanField(default=False)
-
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
     game_over = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
 
