@@ -1,9 +1,10 @@
 """
-    Minesweeper engine
-
-    From the article:
-    Ask Python
+    Minesweeper Engine
+    Can be used by any framework. 
+    
+    From the article: 
     "Create Minesweeper using Python From the Basic to Advanced"
+    Ask Python web site 
     https://www.askpython.com/python/examples/create-minesweeper-using-python
 """
 import random

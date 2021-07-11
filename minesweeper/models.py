@@ -1,4 +1,33 @@
 #!/usr/bin/env python3
+"""
+The classic game of Minesweeper 
+A RESTful API
+
+Specs 
+-------
+- Design and develop a documented RESTful API.
+- Implement an API client, using a frontend language, ie Javascript.
+- The UI must be optimized for a mobile device user, it must be responsive.  
+- When a cell with no adjacent mines is revealed, all adjacent cells will be revealed, and repeat. 
+  This requires a recursive solution.
+- Ability to "flag" a cell with a question mark or a red flag.
+- Detect when the game is over.
+- Persistence.
+- Time tracking.
+- Ability to start a new game and preserve/resume the old ones.
+- Ability to select the game parameters: number of rows, columns, and mines.
+- Ability to support multiple users/accounts.
+
+Algorithm
+-----------
+We have used the following article:  
+"Create Minesweeper using Python From the Basic to Advanced". From the AskPython website
+
+API Documentation
+-------------------
+https://minesweeper-api-jr.herokuapp.com/redoc 
+
+"""
 import itertools
 from datetime import tzinfo, timedelta, datetime, timezone
 from django.db import models
@@ -216,11 +245,13 @@ class Board(models.Model):
     def init_game(self):
         """
         Called by views.py
-        Data
-            numbers - The actual values of the grid
-            apparent - The apparent values of the grid (shown to the player)
+        Data structures
+        Arrays 
             flags - The positions that have been flagged
             mines - The positions that have been mined
+        Bidimensional arrays 
+            numbers - The actual values of the grid
+            apparent - The apparent values of the grid (seen by the player)
         """
         print('*** init_game')
 
@@ -233,25 +264,26 @@ class Board(models.Model):
         self.nr_hidden = self.rows * self.cols
         self.start = datetime.now(timezone.utc)
         self.duration = timedelta(minutes=0)
+        n = self.rows   # Only square boards, for the moment
 
-        # Only square boards, for the moment
-        n = self.rows
 
-        # The positions that have been flagged
-        self.flags = []
+        # Bidimensional Arrays 
+        # ---------------------        
+        self.numbers = [[0 for y in range(n)] for x in range(n)]        #The actual values of the grid
 
-        #The actual values of the grid
-        self.numbers = [[0 for y in range(n)] for x in range(n)]
-
-        #The apparent values of the grid
-        self.apparent = [[None for y in range(n)] for x in range(n)]
+        self.apparent = [[None for y in range(n)] for x in range(n)]    #The apparent values of the grid
 
         # Set the mines
-        nr_mines = self.nr_mines
-        self.numbers = ms.set_mines(n, self.numbers, nr_mines)
+        self.numbers = ms.set_mines(n, self.numbers, self.nr_mines)
 
         # Set the actual values
         self.numbers = ms.set_values(n, self.numbers)
+
+
+        # Arrays 
+        # ---------
+        # The positions that have been flagged
+        self.flags = []
 
         # The positions that have been mined
         self.mines = []
@@ -260,12 +292,8 @@ class Board(models.Model):
                 value = self.numbers[x][y]
                 if value == -1:
                     self.mines.append([x, y])
-
         self.save()
 
-
-        # Reset
-        #self.reset_cells()
 
         # Initialize the board
         cells = self.get_cells()
@@ -279,17 +307,13 @@ class Board(models.Model):
             if self.numbers[x][y] == -1:
                 cell.mined = True
             cell.flagged = False
-
             if value == 0:
                 cell.empty = True 
-
             cell.game_over = False
             cell.success = False
             cell.save()
 
-        #print('Mines')
-        #print(self.mines)
-
+    # init_game
 
 #-------------------------------------------------------------------------------
     def check_game(self, cell_name):
