@@ -29,14 +29,14 @@ https://minesweeper-api-jr.herokuapp.com/redoc 
 
 """
 import itertools
-from datetime import tzinfo, timedelta, datetime, timezone
+from datetime import timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 from django_fsm import transition, FSMIntegerField, TransitionNotAllowed
 from . import ms_engine as ms
 
-# FSM (Finite state machine)
+# FSM (Finite state machine) - Init 
 STATE_CREATED = 0
 STATE_STARTED = 1
 STATE_PAUSED = 2
@@ -84,7 +84,7 @@ class Board(models.Model):
         return f"{self.name}"
 
     
-#-------------------------------------------------------------------------------
+# FSM transitions --------------------------------------------------------------
     # Play
     @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
     def play_sm(self):
@@ -196,30 +196,25 @@ class Board(models.Model):
             cell.save()
 
 #-------------------------------------------------------------------------------
-    def nr_flags_ok(self, x, y):
+    #def nr_flags_ok(self, x, y):
         #return len(self.flags) < self.nr_mines
-        return True
+    #    return True
 
     def flagging_ok(self, x, y):
-        return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y) and self.nr_flags_ok(x, y)
+        #return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y) and self.nr_flags_ok(x, y)
+        return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y)
         
     def short_win(self):
-        """
-        Win condition - 1
-        """
+        'Win condition nr 1'
         self.flags.sort()
         return self.flags == self.mines
 
     def fast_win(self):
-        """
-        Win condition - 2
-        """
+        'Win condition nr 2'
         return self.nr_cells_hidden() == self.nr_mines
 
     def mined_defeat(self, cell):
-        """
-        Mined - Game over
-        """
+        'Mined - Game over'
         return cell.mined and cell.visible
 
 
@@ -238,10 +233,7 @@ class Board(models.Model):
             cell.flagged = False       
             cell.game_over = False
             cell.success = False
-
             cell.empty = False
-            #cell.empty = True
-
             cell.save()
 
 
@@ -286,14 +278,9 @@ class Board(models.Model):
 
         # Arrays 
         # ---------
-        # The positions that have been flagged
-        self.flags = []
+        self.flags = []    # Positions that have been flagged
+        self.mines = []    # Positions that have been mined
 
-        # The positions that have been mined
-        self.mines = []
-        #for x in range(self.rows):
-        #    for y in range(self.cols):
-            #value = self.numbers[x][y]
         for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
             if self.numbers[x][y] == -1:
                 self.mines.append([x, y])
