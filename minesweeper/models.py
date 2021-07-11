@@ -291,11 +291,13 @@ class Board(models.Model):
 
         # The positions that have been mined
         self.mines = []
-        for x in range(self.rows):
-            for y in range(self.cols):
-                value = self.numbers[x][y]
-                if value == -1:
-                    self.mines.append([x, y])
+        #for x in range(self.rows):
+        #    for y in range(self.cols):
+            #value = self.numbers[x][y]
+        for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
+            if self.numbers[x][y] == -1:
+                self.mines.append([x, y])
+
         self.save()
 
 
