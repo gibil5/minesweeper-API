@@ -13,6 +13,7 @@
         https://www.askpython.com/python/examples/create-minesweeper-using-python
 """
 import random
+import itertools
 
 #-------------------------------------------------------------------------------
 def set_mines(numbers, nr_mines):
@@ -56,58 +57,59 @@ def set_values(numbers):
     n = len(numbers[0])
 
     # Loop for counting each cell value
-    for row in range(n):
-        for col in range(n):
+    #for row in range(n):
+    #    for col in range(n):
+    for row, col in itertools.product(list(range(n)), list(range(n))):
 
-            # Skip, if it contains a mine
-            if numbers[row][col] == -1:
-                continue
+        # Skip, if it contains a mine
+        if numbers[row][col] == -1:
+            continue
 
-            # Check vertical 
-            # ----------------
-            # Up
-            if row != 0:                            # if not the first row 
-                if numbers[row-1][col] == -1:       # there is a mine up 
-                    numbers[row][col] += 1          # increase value 
+        # Check vertical 
+        # ----------------
+        # Up
+        if row != 0:                            # if not the first row 
+            if numbers[row-1][col] == -1:       # there is a mine up 
+                numbers[row][col] += 1          # increase value 
 
-            # Down
-            if row != n-1:                          # if not the last row 
-                if numbers[row+1][col] == -1:       # there is a mine down  
-                    numbers[row][col] +=  1         # increase value 
+        # Down
+        if row != n-1:                          # if not the last row 
+            if numbers[row+1][col] == -1:       # there is a mine down  
+                numbers[row][col] +=  1         # increase value 
 
-            # Check horizontal 
-            # -----------------
-            # Left
-            if col != 0:
-                if numbers[row][col-1] == -1:
-                    numbers[row][col] +=  1
+        # Check horizontal 
+        # -----------------
+        # Left
+        if col != 0:
+            if numbers[row][col-1] == -1:
+                numbers[row][col] +=  1
 
-            # Right
-            if col != n-1:
-                if numbers[row][col+1] == -1:
-                    numbers[row][col] +=  1
+        # Right
+        if col != n-1:
+            if numbers[row][col+1] == -1:
+                numbers[row][col] +=  1
 
-            # Check corners 
-            # ---------------
-            # Top left
-            if row != 0 and col != 0:
-                if numbers[row - 1][col - 1] == -1:
-                    numbers[row][col] += 1
+        # Check corners 
+        # ---------------
+        # Top left
+        if row != 0 and col != 0:
+            if numbers[row - 1][col - 1] == -1:
+                numbers[row][col] += 1
 
-            # Top right
-            if row != 0 and col != n-1:
-                if numbers[row - 1][col + 1]== -1:
-                    numbers[row][col] += 1
+        # Top right
+        if row != 0 and col != n-1:
+            if numbers[row - 1][col + 1]== -1:
+                numbers[row][col] += 1
 
-            # Below left
-            if row != n-1 and col != 0:
-                if numbers[row + 1][col - 1]== -1:
-                    numbers[row][col] += 1
+        # Below left
+        if row != n-1 and col != 0:
+            if numbers[row + 1][col - 1]== -1:
+                numbers[row][col] += 1
 
-            # Below right
-            if row != n-1 and col != n-1:
-                if numbers[row + 1][col + 1]==-1:
-                    numbers[row][col] += 1
+        # Below right
+        if row != n-1 and col != n-1:
+            if numbers[row + 1][col + 1]==-1:
+                numbers[row][col] += 1
 
     return numbers
 
