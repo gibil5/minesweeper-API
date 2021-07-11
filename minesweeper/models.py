@@ -381,8 +381,6 @@ class Board(models.Model):
                         cell.save()
 
 
-
-
         # Check win conditions
         cell = self.get_cell_name(cell_name)
 
