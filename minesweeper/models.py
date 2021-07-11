@@ -117,34 +117,35 @@ class Board(models.Model):
     def can_end_loose(self):
         return not(self.state_sm == 4)
 
+    def get_state(self):
+        return STATE_CHOICES[self.state_sm][1].capitalize()
 
-#---------------------------------- Getters ------------------------------------
+
+# Tools ------------------------------------------------------------------------
     def get_duration(self):
         return str(self.duration).split('.')[0]
 
     def get_user(self):
         return self.user.username.capitalize() if self.user else None
 
-    def get_state(self):
-        return STATE_CHOICES[self.state_sm][1].capitalize()
-
-
-#-------------------------------------------------------------------------------
     def get_cells(self):
         """
         Get cells
         """
         count = Cell.objects.filter(board=self.id).count()
         if count != self.get_nr_cells():    
-            print('Cleaning cells')
+
+            print('Clean cells')
             cells = Cell.objects.filter(board=self.id).order_by('name')
             for cell in cells:
                 cell.delete()
+
             print('\n\n***Creating cells !!!\n\n')
-            for x in range(self.rows):
-                for y in range(self.cols):
-                    c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
-                    c.save()
+            # Create cells
+            for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
+                c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
+                c.save()
+
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 
@@ -196,12 +197,7 @@ class Board(models.Model):
             cell.save()
 
 #-------------------------------------------------------------------------------
-    #def nr_flags_ok(self, x, y):
-        #return len(self.flags) < self.nr_mines
-    #    return True
-
     def flagging_ok(self, x, y):
-        #return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y) and self.nr_flags_ok(x, y)
         return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y)
         
     def short_win(self):
