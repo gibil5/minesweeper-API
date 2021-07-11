@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import itertools
 from datetime import tzinfo, timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
@@ -363,21 +364,22 @@ class Board(models.Model):
                 n = self.rows
                 # Looks for adjacent cells that can be cleared - Recursive
                 ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
+
                 # Update cells
-                for x in range(self.rows):
-                    for y in range(self.cols):
-                        value = self.apparent[x][y]
-                        if value != None:
-                            cell = self.get_cell(x, y)
-                            cell.visible = True
-                            if value == 0:
-                                #jx
-                                cell.label = '.'
-                                cell.empty = True
-                            else:
-                                cell.label = str(value)
-                            cell.value = self.apparent[x][y]
-                            cell.save()
+                # Avoid nested loops 
+                for x, y in itertools.product( list(range(self.rows)), list(range(self.cols)) ):
+                    value = self.apparent[x][y]
+                    if value != None:
+                        cell = self.get_cell(x, y)
+                        cell.visible = True
+                        if value == 0:
+                            cell.label = '.'
+                            cell.empty = True
+                        else:
+                            cell.label = str(value)
+                        cell.value = self.apparent[x][y]
+                        cell.save()
+
 
 
 
