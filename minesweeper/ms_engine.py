@@ -1,11 +1,16 @@
 """
     This is the Minesweeper game Engine
     It can be used by any framework. 
-    
-    From the article: 
-    "Create Minesweeper using Python From the Basic to Advanced"
-    Ask Python web site 
-    https://www.askpython.com/python/examples/create-minesweeper-using-python
+
+    Functions:
+        set_mines
+        set_values
+        neighbours
+
+    Origin: 
+        "Create Minesweeper using Python From the Basic to Advanced"
+        Ask Python web site 
+        https://www.askpython.com/python/examples/create-minesweeper-using-python
 """
 import random
 
@@ -37,6 +42,7 @@ def set_mines(numbers, nr_mines):
             count = count + 1
 
     return numbers
+
 # set_mines
 
 
@@ -44,7 +50,7 @@ def set_mines(numbers, nr_mines):
 def set_values(numbers):
     """
     Set each cell's value.
-    Which is calculated using the nr of mines around each cell. 
+    Which is the nr of mines around each cell. 
     """
     # Init 
     n = len(numbers[0])
@@ -56,17 +62,6 @@ def set_values(numbers):
             # Skip, if it contains a mine
             if numbers[row][col] == -1:
                 continue
-
-            #if row > 0 and numbers[row - 1][col] == -1:
-            #if row < n-1  and numbers[row + 1][col] == -1:
-            #if col > 0 and numbers[row][col - 1] == -1:
-            #if col < n-1 and numbers[row][col + 1] == -1:
-
-            #if row > 0 and col > 0:
-            #if row > 0 and col < n-1:
-            #if row < n-1 and col > 0:
-            #if row < n-1 and col< n-1:
-
 
             # Check vertical 
             # ----------------
@@ -80,7 +75,6 @@ def set_values(numbers):
                 if numbers[row+1][col] == -1:       # there is a mine down  
                     numbers[row][col] +=  1         # increase value 
 
-
             # Check horizontal 
             # -----------------
             # Left
@@ -92,7 +86,6 @@ def set_values(numbers):
             if col != n-1:
                 if numbers[row][col+1] == -1:
                     numbers[row][col] +=  1
-
 
             # Check corners 
             # ---------------
@@ -117,13 +110,18 @@ def set_values(numbers):
                     numbers[row][col] += 1
 
     return numbers
+
 # set_values
 
 
 #-------------------------------------------------------------------------------
 def neighbours(n, row, col, vis, apparent, numbers):
     """
-    Recursive
+    The most complex algorith in the game *****
+    This requires a recursive solution.
+    .
+    When a cell with no adjacent mines is revealed (value = 0), 
+    all adjacent cells must be revealed, and repeat. 
     """
     # If the cell already not visited
     if [row,col] not in vis:
