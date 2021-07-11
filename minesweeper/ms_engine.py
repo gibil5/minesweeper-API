@@ -57,8 +57,6 @@ def set_values(numbers):
     n = len(numbers[0])
 
     # Loop for counting each cell value
-    #for row in range(n):
-    #    for col in range(n):
     for row, col in itertools.product(list(range(n)), list(range(n))):
 
         # Skip, if it contains a mine
