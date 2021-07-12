@@ -1,7 +1,8 @@
 from rest_framework import viewsets, permissions, generics
-from .serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
 from django.contrib.auth.models import User, Group
-from .models import Board, Cell
+from django_fsm import TransitionNotAllowed
+from minesweeper.serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
+from minesweeper.models import Board, Cell
 
 #-------------------------------------------------------------------------------
 class BoardUpdate(generics.ListAPIView):

@@ -189,12 +189,6 @@ class Board(models.Model):
                 count += 1
         return count
 
-    def cells_update(self, game_over, game_win):
-        cells = Cell.objects.filter(board=self.id).order_by('name')
-        for cell in cells:
-            cell.game_over = game_over
-            cell.success = game_win
-            cell.save()
 
 #-------------------------------------------------------------------------------
     def flagging_ok(self, x, y):
@@ -209,12 +203,16 @@ class Board(models.Model):
         'Win condition nr 2'
         return self.nr_cells_hidden() == self.nr_mines
 
+
+
+#-------------------------------------------------------------------------------
+# Cell funcs -------------------------------------------------------------------
+
     def mined_defeat(self, cell):
         'Mined - Game over'
         return cell.mined and cell.visible
 
 
-#-------------------------------------------------------------------------------
     def reset_cells(self):
         """
         Reset cells
@@ -232,8 +230,15 @@ class Board(models.Model):
             cell.empty = False
             cell.save()
 
+    def cells_update(self, game_over, game_win):
+        cells = Cell.objects.filter(board=self.id).order_by('name')
+        for cell in cells:
+            cell.game_over = game_over
+            cell.success = game_win
+            cell.save()
 
-#-------------------------------------------------------------------------------
+
+
 #-------------------------------------------------------------------------------
     def init_game(self):
         """
@@ -344,17 +349,14 @@ class Board(models.Model):
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
                 cell.flagged = True     # Set cell for flag display
-                #cell.label = '?'
                 cell.save()
                 self.save()
-
             elif not cell.visible:
                 print('** Unflag')
                 cell = self.get_cell(x, y)
                 self.flags.remove([x, y])
                 cell.flagged = False
                 cell.visible = False
-                #cell.label = 'u'
                 cell.save()
                 self.save()
 

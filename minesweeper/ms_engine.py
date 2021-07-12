@@ -115,19 +115,20 @@ def set_values(numbers):
 
 
 #-------------------------------------------------------------------------------
-def neighbours(n, row, col, vis, apparent, numbers):
+def neighbours(n, row, col, visited, apparent, numbers):
     """
     The most complex algorith in the game *****
     This requires a recursive solution.
-    .
     When a cell with no adjacent mines is revealed (value = 0), 
     all adjacent cells must be revealed, and repeat. 
+    Data 
+        numbers is a square 2d matrix
     """
     # If the cell already not visited
-    if [row,col] not in vis:
+    if [row, col] not in visited:
 
         # Mark the cell visited
-        vis.append([row,col])
+        visited.append([row, col])
 
         # If the cell is zero-valued
         if numbers[row][col] == 0:
@@ -137,28 +138,28 @@ def neighbours(n, row, col, vis, apparent, numbers):
 
             # Recursive calls for the neighbouring cells
             if row > 0:
-                neighbours(n, row-1, col, vis, apparent, numbers)
+                neighbours(n, row-1, col, visited, apparent, numbers)
 
             if row < n-1:
-                neighbours(n, row+1, col, vis, apparent, numbers)
+                neighbours(n, row+1, col, visited, apparent, numbers)
 
             if col > 0:
-                neighbours(n, row, col-1, vis, apparent, numbers)
+                neighbours(n, row, col-1, visited, apparent, numbers)
 
             if col < n-1:
-                neighbours(n, row, col+1, vis, apparent, numbers)
+                neighbours(n, row, col+1, visited, apparent, numbers)
 
             if row > 0 and col > 0:
-                neighbours(n, row-1, col-1, vis, apparent, numbers)
+                neighbours(n, row-1, col-1, visited, apparent, numbers)
 
             if row > 0 and col < n-1:
-                neighbours(n, row-1, col+1, vis, apparent, numbers)
+                neighbours(n, row-1, col+1, visited, apparent, numbers)
 
             if row < n-1 and col > 0:
-                neighbours(n, row+1, col-1, vis, apparent, numbers)
+                neighbours(n, row+1, col-1, visited, apparent, numbers)
 
             if row < n-1 and col < n-1:
-                neighbours(n, row+1, col+1, vis, apparent, numbers)
+                neighbours(n, row+1, col+1, visited, apparent, numbers)
 
         # If the cell is not zero-valued
         if numbers[row][col] != 0:
