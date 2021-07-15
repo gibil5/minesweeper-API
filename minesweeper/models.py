@@ -66,10 +66,13 @@ class Board(models.Model):
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
     state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
+    
     numbers = ArrayField(ArrayField(models.IntegerField()))
+
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
+    
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -267,20 +270,20 @@ class Board(models.Model):
 
         # Bidimensional Arrays 
         # ---------------------
-        self.numbers = [[0 for y in range(n)] for x in range(n)]        # The actual values of the grid
-        self.apparent = [[None for y in range(n)] for x in range(n)]    # The apparent values of the grid
+        
+        # The visible number on the board
+        self.apparent = [[None for y in range(n)] for x in range(n)]        # Init
 
-        # Set the mines
-        self.numbers = ms.set_mines(self.numbers, self.nr_mines)
+        # The actual numbers on the board 
+        self.numbers = [[0 for y in range(n)] for x in range(n)]            # Init 
+        self.numbers = ms.set_mines(self.numbers, self.nr_mines)            # Set the mines
+        self.numbers = ms.set_values(self.numbers)     # Set the board values, which are calculated using the mines positions 
 
-        # Set the board values, which are calculated using the mines positions 
-        self.numbers = ms.set_values(self.numbers)
-
-
-        # Arrays 
-        # ---------
-        self.flags = []    # Positions that have been flagged
-        self.mines = []    # Positions that have been mined
+        # Positions flagged
+        self.flags = []
+        
+        # Positions mined
+        self.mines = []
 
         for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
             if self.numbers[x][y] == -1:
