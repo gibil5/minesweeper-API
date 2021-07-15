@@ -67,7 +67,8 @@ class Board(models.Model):
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
     state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
     
-    numbers = ArrayField(ArrayField(models.IntegerField()))
+    #numbers = ArrayField(ArrayField(models.IntegerField()))
+    numbers = ArrayField(ArrayField(models.IntegerField(null=True)))
 
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
@@ -75,6 +76,7 @@ class Board(models.Model):
     
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     # new
     created_at = models.DateTimeField(auto_now_add=True)
@@ -91,7 +93,7 @@ class Board(models.Model):
     # Play
     @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
     def play_sm(self):
-        print('*** fsm - play_sm')
+        print('\n*** fsm - play_sm')
 
     # End win
     @transition(field=state_sm, source=STATE_STARTED, target=STATE_END_WIN)
@@ -111,7 +113,7 @@ class Board(models.Model):
     # Reset
     @transition(field=state_sm, source='*', target=STATE_CREATED)
     def reset_sm(self):
-        print('*** fsm - reset_sm')
+        print('\n*** fsm - reset_sm')
 
     # Helpers
     def can_end_win(self):
@@ -247,14 +249,13 @@ class Board(models.Model):
         """
         Called by views.py
         Data structures
-        Arrays 
-            flags - The positions that have been flagged
-            mines - The positions that have been mined
         Bidimensional arrays 
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (seen by the player)
+            flags - The positions that have been flagged
+            mines - The positions that have been mined
         """
-        print('*** init_game')
+        print('\n*** init_game')
 
         # Reset
         self.reset_cells()
@@ -326,11 +327,20 @@ class Board(models.Model):
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
-        Called by grid.js
+        Bidimensional arrays 
+            numbers - The actual values of the grid
+            apparent - The apparent values of the grid (seen by the player)
+            flags - The positions that have been flagged
+            mines - The positions that have been mined
+
+        Data 
+            numbers is an array of arrays 
 
         Actions:
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
+
+        Called by grid.js
         """
         print('*** update_game')
         #print(f'cell_name: {cell_name}')

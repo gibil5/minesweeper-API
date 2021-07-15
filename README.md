@@ -1,7 +1,7 @@
 # The classic game of Minesweeper 
 ## A RESTful API
 
-J. Revilla , 11 July 2021
+J. Revilla , 14 July 2021
 
 ### Specifications
 - Design and develop a documented RESTful API.
