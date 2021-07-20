@@ -12,7 +12,41 @@ import itertools
 
 
 # -------------------------------- Board funcs ---------------------------------
+def short_win(board):
+    """
+    Win condition 1
+    All mines have been flagged
+    """
+    print('funcs - short_win')
+    print('All mines have been flagged')
+    board.flags.sort()
+    return board.flags == board.mines
 
+def long_win(board):
+    """
+    Win condition 2
+    Nr mines is equal to nr of hidden cells 
+    """
+    print('funcs - long_win')
+    print('Nr mines is equal to nr of hidden cells')
+    cells = board.get_cells()
+    return nr_cells_hidden(cells) == board.nr_mines
+
+
+def not_cell_flagged(board, x, y):
+    """
+    used by flagging_ok
+    """
+    return [x, y] not in board.flags
+    
+def not_cell_displayed(board, x, y):
+    """
+    used by flagging_ok
+    """
+    return board.apparent[x][y] == None
+
+def flagging_ok(board, x, y):
+    return not_cell_flagged(board, x, y) and not_cell_displayed(board, x, y)
 
 
 # -------------------------------- Cell funcs ----------------------------------

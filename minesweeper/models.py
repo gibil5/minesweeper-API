@@ -134,66 +134,11 @@ class Board(models.Model):
         return STATE_CHOICES[self.state_sm][1].capitalize()
 
 
-# Tools ------------------------------------------------------------------------        
-    def short_win(self):
-        """
-        Win condition 1
-        All mines have been flagged
-        """
-        self.flags.sort()
-        return self.flags == self.mines
 
-    def fast_win(self):
-        """
-        Win condition 2
-        Nr mines is equal to nr of hidden cells 
-        """
-        #return self.nr_cells_hidden() == self.nr_mines
-        cells = self.get_cells()
-        return funcs.nr_cells_hidden(cells) == self.nr_mines
-
-    def not_cell_flagged(self, x, y):
-        return [x, y] not in self.flags
-        
-    def not_cell_displayed(self, x, y):
-        return self.apparent[x][y] == None
-
-    def flagging_ok(self, x, y):
-        return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y)
+# Tools ------------------------------------------------------------------------
 
 
-
-#-------------------------------------------------------------------------------
 # Cell funcs -------------------------------------------------------------------
-
-    #def reset_cells(self):
-    #    """
-    #    Reset cells
-    #    """
-    #    print('reset_cells')
-    #    cells = self.get_cells()
-    #    for cell in cells:
-    #        cell.value = 0
-    #        cell.label = ''
-    #        cell.mined = False
-    #        cell.visible = False
-    #        cell.flagged = False       
-    #        cell.game_over = False
-    #        cell.success = False
-    #        cell.empty = False
-    #        cell.save()
-
-    #def update_cells(self, game_over, game_win):
-    #    cells = Cell.objects.filter(board=self.id).order_by('name')
-    #    for cell in cells:
-    #        cell.game_over = game_over
-    #        cell.success = game_win
-    #        cell.save()
-
-    #def mined_defeat(self, cell):
-    #    'Mined - Game over'
-    #    return cell.mined and cell.visible
-
 
     # Get one cell
     def get_cell(self, x, y):
@@ -234,6 +179,7 @@ class Board(models.Model):
                 c.save()
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
+
 
 
 #-------------------------------------------------------------------------------
@@ -342,7 +288,8 @@ class Board(models.Model):
         if flag == '1':
             print('** Toggle cell')
             # Check if flagging ok
-            if self.flagging_ok(x, y):
+            #if self.flagging_ok(x, y):
+            if funcs.flagging_ok(self, x, y):
                 print('** Flag cell')
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
@@ -410,7 +357,8 @@ class Board(models.Model):
                 self.save()
 
         # Game over - win
-        elif (self.short_win() or self.fast_win()):
+        #elif (self.short_win() or self.fast_win()):
+        elif (funcs.short_win(self) or funcs.long_win(self)):
             self.game_over = True
             self.game_win = True
             # FSM - win 

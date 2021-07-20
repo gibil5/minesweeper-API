@@ -15,6 +15,11 @@
 
 
 
+
+
+
+# Cell funcs -------------------------------------------------------------------
+
     #def nr_cells_hidden(self):
     #    cells = self.get_cells()
     #    count = 0
@@ -34,4 +39,31 @@
     #            count += 1
     #    return count
 
+    #def reset_cells(self):
+    #    """
+    #    Reset cells
+    #    """
+    #    print('reset_cells')
+    #    cells = self.get_cells()
+    #    for cell in cells:
+    #        cell.value = 0
+    #        cell.label = ''
+    #        cell.mined = False
+    #        cell.visible = False
+    #        cell.flagged = False       
+    #        cell.game_over = False
+    #        cell.success = False
+    #        cell.empty = False
+    #        cell.save()
+
+    #def update_cells(self, game_over, game_win):
+    #    cells = Cell.objects.filter(board=self.id).order_by('name')
+    #    for cell in cells:
+    #        cell.game_over = game_over
+    #        cell.success = game_win
+    #        cell.save()
+
+    #def mined_defeat(self, cell):
+    #    'Mined - Game over'
+    #    return cell.mined and cell.visible
 
