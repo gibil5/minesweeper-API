@@ -245,12 +245,80 @@ class Board(models.Model):
 
     # init_game
 
+    # Toggle flag
+    def toggle_flag(self, cell):
+        print('** Toggle cell')
+        x = cell.x
+        y = cell.y
+
+        # Check if flagging ok
+        if funcs.flagging_ok(self, x, y):
+            print('** Flag cell')
+            cell = self.get_cell(x, y)
+            self.flags.append([x, y])
+            cell.flagged = True     # Set cell for flag display
+            cell.save()
+            self.save()
+
+        elif not cell.visible:
+            print('** Unflag cell')
+            cell = self.get_cell(x, y)
+            self.flags.remove([x, y])
+            cell.flagged = False
+            cell.visible = False
+            cell.save()
+            self.save()
+    # toggle_flag
+
+    # Analyse and discover
+    def analyse_and_discover(self, cell):
+        print('** Analyse and discover cells')
+        x = cell.x
+        y = cell.y
+
+        # Render the cell visible
+        cell.visible = True
+        self.apparent[x][y] = self.numbers[x][y]
+        self.save()
+        cell.save()
+
+        # If landing on a cell with value equal to 0 (no mines in neighboring cells)
+        if cell.value == 0:
+            # Init
+            vis = []
+            self.apparent[x][y] = 0
+            n = self.rows
+            # Looks for adjacent cells that can be cleared - Recursive
+            ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
+
+            # Update cells
+            # Avoid nested loops
+            for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
+                value = self.apparent[x][y]
+                if value is not None:
+                    cell = self.get_cell(x, y)
+                    cell.visible = True
+                    if value == 0:
+                        cell.label = '.'
+                        cell.empty = True
+                    else:
+                        cell.label = str(value)
+                    cell.value = self.apparent[x][y]
+                    cell.save()
+    # analyse_and_discover
+
+
+    # Check win conditions
+    def check_win_conditions(self, cell):
+        pass
+    # check_win_conditions
+
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
         Algorithm
             if flag Toggle
-            else 
+            else
                 Analyse and discover
             Check win conditions
             Build Macro Stats
@@ -290,62 +358,16 @@ class Board(models.Model):
 
         # Init
         cell = self.get_cell_by_name(cell_name)
-        x = cell.x
-        y = cell.y
 
-        # Flag cell
+
+        # Toggle Flag
         if flag == '1':
-            print('** Toggle cell')
-            # Check if flagging ok
-            if funcs.flagging_ok(self, x, y):
-                print('** Flag cell')
-                cell = self.get_cell(x, y)
-                self.flags.append([x, y])
-                cell.flagged = True     # Set cell for flag display
-                cell.save()
-                self.save()
-            elif not cell.visible:
-                print('** Unflag cell')
-                cell = self.get_cell(x, y)
-                self.flags.remove([x, y])
-                cell.flagged = False
-                cell.visible = False
-                cell.save()
-                self.save()
+            self.toggle_flag(cell)
 
         # Analyse and discover cells
         elif not cell.flagged:
-            print('** Analyse and discover cells')
+            self.analyse_and_discover(cell)
 
-            # Render the cell visible
-            cell.visible = True
-            self.apparent[x][y] = self.numbers[x][y]
-            self.save()
-            cell.save()
-
-            # If landing on a cell with 0 mines in neighboring cells
-            if cell.value == 0:
-                # Init
-                vis = []
-                self.apparent[x][y] = 0
-                n = self.rows
-                # Looks for adjacent cells that can be cleared - Recursive
-                ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
-
-                # Update cells
-                # Avoid nested loops
-                for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
-                    value = self.apparent[x][y]
-                    if value is not None:
-                        cell = self.get_cell(x, y)
-                        cell.visible = True
-                        if value == 0:
-                            cell.label = '.'
-                            cell.empty = True
-                        else:
-                            cell.label = str(value)
-                        cell.value = self.apparent[x][y]
-                        cell.save()
 
         # Check win conditions
         print('** Check win conditions')
@@ -378,9 +400,8 @@ class Board(models.Model):
             self.game_over = False
             self.game_win = False
             cell.success = False
-        
-        cell.save()
 
+        cell.save()
 
         # Build Macro Stats
         # self.nr_hidden = self.nr_cells_hidden()
