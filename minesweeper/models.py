@@ -133,6 +133,7 @@ class Board(models.Model):
     def get_state(self):
         return STATE_CHOICES[self.state_sm][1].capitalize()
 
+
 # Cell funcs -------------------------------------------------------------------
     def get_cell(self, x, y):
         """
@@ -173,7 +174,8 @@ class Board(models.Model):
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 
-#-------------------------------------------------------------------------------
+
+# Second level -----------------------------------------------------------------
     def init_game(self):
         """
         Called by views.py
@@ -310,8 +312,49 @@ class Board(models.Model):
 
     # Check win conditions
     def check_win_conditions(self, cell):
-        pass
+        print('** Check win conditions')
+
+        # Game over - Loose
+        if funcs.mined_defeat(cell):
+            self.game_over = True
+            self.game_win = False
+            # FSM - loose
+            if self.can_end_loose():
+                print(self.state_sm)
+                self.end_loose_sm()
+                print(self.state_sm)
+                self.save()
+        # Game over - Win
+        elif (funcs.short_win(self) or funcs.long_win(self)):
+            self.game_over = True
+            self.game_win = True
+            # FSM - win
+            if self.can_end_win():
+                print(self.state_sm)
+                self.end_win_sm()
+                print(self.state_sm)
+                self.save()
+        # Not game over - Continue
+        else:
+            self.game_over = False
+            self.game_win = False
+            cell.success = False
     # check_win_conditions
+
+
+    # Build macro stats
+    def buid_macro_stats(self):
+        print('** Build macro stats')
+
+        # self.nr_hidden = self.nr_cells_hidden()
+        cells = self.get_cells()
+        self.nr_hidden = funcs.nr_cells_hidden(cells)
+        if self.start is None:
+            self.start = datetime.now(timezone.utc)
+        self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
+        self.end = datetime.now(timezone.utc)
+    # buid_macro_stats
+
 
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
@@ -336,82 +379,32 @@ class Board(models.Model):
             if value is equal to zero, adjacent cells also.
 
         Called by grid.js
-
-        # Flag cell
-        if flag == '1':
-
-        # Analyse and discover cells
-        elif not cell.flagged:
-
-        # Game over - loose
-        if funcs.mined_defeat(cell):
-
-        # Game over - win
-        elif (funcs.short_win(self) or funcs.long_win(self)):
-
-        # Not game over - continue
-        else:
         """
         print('\n*** update_game')
-        # print(f'cell_name: {cell_name}')
-        # print(f'flag: {flag}')
+        print(f'cell_name: {cell_name}')
+        print(f'flag: {flag}')
 
         # Init
         cell = self.get_cell_by_name(cell_name)
-
 
         # Toggle Flag
         if flag == '1':
             self.toggle_flag(cell)
 
         # Analyse and discover cells
-        elif not cell.flagged:
+        #elif not cell.flagged:
+        else:
             self.analyse_and_discover(cell)
-
 
         # Check win conditions
         print('** Check win conditions')
         cell = self.get_cell_by_name(cell_name)
-
-        # Game over - Loose
-        if funcs.mined_defeat(cell):
-            self.game_over = True
-            self.game_win = False
-            # FSM - loose
-            if self.can_end_loose():
-                print(self.state_sm)
-                self.end_loose_sm()
-                print(self.state_sm)
-                self.save()
-
-        # Game over - Win
-        elif (funcs.short_win(self) or funcs.long_win(self)):
-            self.game_over = True
-            self.game_win = True
-            # FSM - win
-            if self.can_end_win():
-                print(self.state_sm)
-                self.end_win_sm()
-                print(self.state_sm)
-                self.save()
-
-        # Not game over - Continue
-        else:
-            self.game_over = False
-            self.game_win = False
-            cell.success = False
-
+        self.check_win_conditions(cell)
         cell.save()
 
         # Build Macro Stats
-        # self.nr_hidden = self.nr_cells_hidden()
-        cells = self.get_cells()
-        self.nr_hidden = funcs.nr_cells_hidden(cells)
-        if self.start is None:
-            self.start = datetime.now(timezone.utc)
-        self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
-        self.end = datetime.now(timezone.utc)
-
+        print('** Build Macro Stats')
+        self.buid_macro_stats()
         #cell.save()
         self.save()
 
