@@ -35,6 +35,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 from django_fsm import transition, FSMIntegerField, TransitionNotAllowed
 from . import ms_engine as ms
+from . import funcs 
 
 # FSM (Finite state machine) - Init 
 STATE_CREATED = 0
@@ -88,7 +89,14 @@ class Board(models.Model):
     def __str__(self):
         return f"{self.name}"
 
-    
+
+# Used by template  ------------------------------------------------------------
+    def get_nr_cells(self):
+        """
+        Used by template
+        """
+        return self.rows * self.cols
+
 # FSM transitions --------------------------------------------------------------
     # Play
     @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
@@ -126,51 +134,23 @@ class Board(models.Model):
         return STATE_CHOICES[self.state_sm][1].capitalize()
 
 
-# Tools ------------------------------------------------------------------------
-    def get_duration(self):
-        return str(self.duration).split('.')[0]
-
-    def get_user(self):
-        return self.user.username.capitalize() if self.user else None
-
-    def get_cells(self):
+# Tools ------------------------------------------------------------------------        
+    def short_win(self):
         """
-        Get cells
+        Win condition 1
+        All mines have been flagged
         """
-        count = Cell.objects.filter(board=self.id).count()
-        if count != self.get_nr_cells():    
+        self.flags.sort()
+        return self.flags == self.mines
 
-            print('Clean cells')
-            cells = Cell.objects.filter(board=self.id).order_by('name')
-            for cell in cells:
-                cell.delete()
-
-            print('\n\n***Creating cells !!!\n\n')
-            # Create cells
-            for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
-                c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
-                c.save()
-
-        cells = Cell.objects.filter(board=self.id).order_by('name')
-        return cells
-
-    def get_cell(self, x, y):
+    def fast_win(self):
         """
-        Get cell
+        Win condition 2
+        Nr mines is equal to nr of hidden cells 
         """
-        cell = Cell.objects.get(board=self.id, x=x, y=y)
-        return cell
-
-    def get_cell_name(self, name):
-        """
-        Get cell by name
-        """
-        cell = Cell.objects.get(board=self.id, name=name)
-        return cell
-
-    def get_nr_cells(self):
-        count = self.rows * self.cols
-        return count
+        #return self.nr_cells_hidden() == self.nr_mines
+        cells = self.get_cells()
+        return funcs.nr_cells_hidden(cells) == self.nr_mines
 
     def not_cell_flagged(self, x, y):
         return [x, y] not in self.flags
@@ -178,70 +158,82 @@ class Board(models.Model):
     def not_cell_displayed(self, x, y):
         return self.apparent[x][y] == None
 
-    def nr_cells_visible(self):
-        cells = self.get_cells()
-        count = 0
-        for cell in cells:
-            if cell.visible:
-                count += 1
-        return count
-
-    def nr_cells_hidden(self):
-        cells = self.get_cells()
-        count = 0
-        for cell in cells:
-            if not cell.visible:
-                count += 1
-        return count
-
-
-#-------------------------------------------------------------------------------
     def flagging_ok(self, x, y):
         return self.not_cell_flagged(x, y) and self.not_cell_displayed(x, y)
-        
-    def short_win(self):
-        'Win condition nr 1'
-        self.flags.sort()
-        return self.flags == self.mines
-
-    def fast_win(self):
-        'Win condition nr 2'
-        return self.nr_cells_hidden() == self.nr_mines
 
 
 
 #-------------------------------------------------------------------------------
 # Cell funcs -------------------------------------------------------------------
 
-    def mined_defeat(self, cell):
-        'Mined - Game over'
-        return cell.mined and cell.visible
+    #def reset_cells(self):
+    #    """
+    #    Reset cells
+    #    """
+    #    print('reset_cells')
+    #    cells = self.get_cells()
+    #    for cell in cells:
+    #        cell.value = 0
+    #        cell.label = ''
+    #        cell.mined = False
+    #        cell.visible = False
+    #        cell.flagged = False       
+    #        cell.game_over = False
+    #        cell.success = False
+    #        cell.empty = False
+    #        cell.save()
+
+    #def update_cells(self, game_over, game_win):
+    #    cells = Cell.objects.filter(board=self.id).order_by('name')
+    #    for cell in cells:
+    #        cell.game_over = game_over
+    #        cell.success = game_win
+    #        cell.save()
+
+    #def mined_defeat(self, cell):
+    #    'Mined - Game over'
+    #    return cell.mined and cell.visible
 
 
-    def reset_cells(self):
+    # Get one cell
+    def get_cell(self, x, y):
         """
-        Reset cells
+        Get cell
         """
-        print('reset_cells')
-        cells = self.get_cells()
-        for cell in cells:
-            cell.value = 0
-            cell.label = ''
-            cell.mined = False
-            cell.visible = False
-            cell.flagged = False       
-            cell.game_over = False
-            cell.success = False
-            cell.empty = False
-            cell.save()
+        cell = Cell.objects.get(board=self.id, x=x, y=y)
+        return cell
 
-    def cells_update(self, game_over, game_win):
+    def get_cell_by_name(self, name):
+        """
+        Get cell by name
+        """
+        cell = Cell.objects.get(board=self.id, name=name)
+        return cell
+
+    # Get cells 
+    def get_cells(self):
+        """
+        Get cells
+        """
+        print('* get_cells')
+
+        count = Cell.objects.filter(board=self.id).count()
+        nr_cells = self.rows * self.cols
+
+        #if count != self.get_nr_cells():    
+        if count != nr_cells:
+            #print('Clean cells')
+            # Clean cells 
+            cells = Cell.objects.filter(board=self.id).order_by('name')
+            for cell in cells:
+                cell.delete()
+            #print('\n\n***Creating cells !!!\n\n')
+            # Create cells
+            for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
+                c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
+                c.save()
         cells = Cell.objects.filter(board=self.id).order_by('name')
-        for cell in cells:
-            cell.game_over = game_over
-            cell.success = game_win
-            cell.save()
-
+        return cells
 
 
 #-------------------------------------------------------------------------------
@@ -258,7 +250,10 @@ class Board(models.Model):
         print('\n*** init_game')
 
         # Reset
-        self.reset_cells()
+        #self.reset_cells()
+        #cells = funcs.get_cells(self, Cell)
+        cells = self.get_cells()
+        funcs.reset_cells(cells)
 
         # Init 
         self.game_over = False
@@ -268,10 +263,8 @@ class Board(models.Model):
         self.duration = timedelta(minutes=0)
         n = self.rows   # Only square boards, for the moment
 
-
         # Bidimensional Arrays 
-        # ---------------------
-        
+        # ------------------------
         # The visible number on the board
         self.apparent = [[None for y in range(n)] for x in range(n)]        # Init
 
@@ -293,36 +286,29 @@ class Board(models.Model):
         self.save()
 
 
+
         # Initialize the board
+        #cells = funcs.get_cells(self, Cell)
         cells = self.get_cells()
-        for cell in cells:
-            x = cell.x
-            y = cell.y
-            value = self.numbers[x][y]
-            cell.value = value
-            cell.label = str(value)
-            cell.visible = False 
-            if self.numbers[x][y] == -1:
-                cell.mined = True
-            cell.flagged = False
-            if value == 0:
-                cell.empty = True 
-            cell.game_over = False
-            cell.success = False
-            cell.save()
+
+        funcs.init_cells(cells, self.numbers)
+        #for cell in cells:
+        #    x = cell.x
+        #    y = cell.y
+        #    value = self.numbers[x][y]
+        #    cell.value = value
+        #    cell.label = str(value)
+        #    cell.visible = False 
+        #    if self.numbers[x][y] == -1:
+        #        cell.mined = True
+        #    cell.flagged = False
+        #    if value == 0:
+        #        cell.empty = True 
+        #    cell.game_over = False
+        #    cell.success = False
+        #    cell.save()
 
     # init_game
-
-#-------------------------------------------------------------------------------
-    def check_game(self, cell_name):
-        print('*** check_game')
-        # Check 
-        cell = self.get_cell_name(cell_name)
-        if cell.mined and self.nr_cells_visible() == 0 :
-            print('Re-init the game !!!')
-            self.init_game()
-            self.save()
-
 
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
@@ -342,30 +328,29 @@ class Board(models.Model):
 
         Called by grid.js
         """
-        print('*** update_game')
+        print('\n*** update_game')
         #print(f'cell_name: {cell_name}')
         #print(f'flag: {flag}')
 
         # Init
-        cell = self.get_cell_name(cell_name)
+        cell = self.get_cell_by_name(cell_name)
         x = cell.x
         y = cell.y
 
 
         # Flag cell
         if flag == '1':
-            print('** Flag cell')
-
+            print('** Toggle cell')
             # Check if flagging ok
             if self.flagging_ok(x, y):
-                print('** Flagging ok')
+                print('** Flag cell')
                 cell = self.get_cell(x, y)
                 self.flags.append([x, y])
                 cell.flagged = True     # Set cell for flag display
                 cell.save()
                 self.save()
             elif not cell.visible:
-                print('** Unflag')
+                print('** Unflag cell')
                 cell = self.get_cell(x, y)
                 self.flags.remove([x, y])
                 cell.flagged = False
@@ -374,7 +359,7 @@ class Board(models.Model):
                 self.save()
 
 
-        # Analyse cell
+        # Analyse and discover cells
         elif not cell.flagged:
 
             # Render the cell visible
@@ -410,13 +395,13 @@ class Board(models.Model):
 
 
         # Check win conditions
-        cell = self.get_cell_name(cell_name)
+        cell = self.get_cell_by_name(cell_name)
 
         # Game over - loose
-        if self.mined_defeat(cell):
+        #if self.mined_defeat(cell):
+        if funcs.mined_defeat(cell):
             self.game_over = True
             self.game_win = False
-
             # FSM - loose
             if self.can_end_loose():
                 print(self.state_sm)
@@ -428,7 +413,6 @@ class Board(models.Model):
         elif (self.short_win() or self.fast_win()):
             self.game_over = True
             self.game_win = True
-
             # FSM - win 
             if self.can_end_win():
                 print(self.state_sm)
@@ -444,7 +428,9 @@ class Board(models.Model):
 
 
         # Stats
-        self.nr_hidden = self.nr_cells_hidden()
+        #self.nr_hidden = self.nr_cells_hidden()
+        cells = self.get_cells()
+        self.nr_hidden = funcs.nr_cells_hidden(cells)
         if self.start == None:
              self.start = datetime.now(timezone.utc)
         self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
@@ -453,8 +439,27 @@ class Board(models.Model):
         cell.save()
         self.save()
 
+
         # Update all cells
-        self.cells_update(self.game_over, self.game_win)
+        #self.update_cells(self.game_over, self.game_win)
+        cells = Cell.objects.filter(board=self.id).order_by('name')
+        funcs.update_cells(cells, self.game_over, self.game_win)
+
+
+#-------------------------------------------------------------------------------
+    def check_game(self, cell_name):
+        """
+        Executed only once, at the beginning of the game. 
+        Checks the first cell chosen. If mined, restarts the game. 
+        """
+        print('*** check_game')
+        cell = self.get_cell_by_name(cell_name)
+        cells = self.get_cells()
+        # Check
+        if cell.mined and funcs.nr_cells_visible(cells) == 0 :
+            print('Re-init the game !!!')
+            self.init_game()
+            self.save()
 
 
 #-------------------------------------------------------------------------------

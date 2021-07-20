@@ -59,7 +59,7 @@ class GameEngineTestCase(unittest.TestCase):
             print()
 
             # Cell
-            cell = self.board.get_cell_name(cell_name)
+            cell = self.board.get_cell_by_name(cell_name)
             if self.verbose:            
                 print(cell)
                 print(f'State SM:{self.board.state_sm}')
