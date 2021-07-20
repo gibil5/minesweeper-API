@@ -52,7 +52,7 @@ STATE_CHOICES = (
 )
 
 
-# Create your models here.
+# Model ------------------------------------------------------------------------
 class Board(models.Model):
     """
     Game board
@@ -175,22 +175,22 @@ class Board(models.Model):
         return cells
 
 
-# Second level -----------------------------------------------------------------
+# First level ------------------------------------------------------------------
     def init_game(self):
         """
         Called by views.py
-        Data structures
-        Bidimensional arrays
+        Data - Bidimensional arrays
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (seen by the player)
             flags - The positions that have been flagged
             mines - The positions that have been mined
+        Called by 
+            the fronted (grid.js),
+            via the BoardUpdate.get_queryset() method in api_view.py
         """
         print('\n*** init_game')
 
         # Reset
-        #self.reset_cells()
-        #cells = funcs.get_cells(self, Cell)
         cells = self.get_cells()
         funcs.reset_cells(cells)
 
@@ -225,27 +225,12 @@ class Board(models.Model):
         self.save()
 
         # Initialize the board
-        #cells = funcs.get_cells(self, Cell)
         cells = self.get_cells()
-
         funcs.init_cells(cells, self.numbers)
-        #for cell in cells:
-        #    x = cell.x
-        #    y = cell.y
-        #    value = self.numbers[x][y]
-        #    cell.value = value
-        #    cell.label = str(value)
-        #    cell.visible = False
-        #    if self.numbers[x][y] == -1:
-        #        cell.mined = True
-        #    cell.flagged = False
-        #    if value == 0:
-        #        cell.empty = True
-        #    cell.game_over = False
-        #    cell.success = False
-        #    cell.save()
-
     # init_game
+
+
+# Second level -----------------------------------------------------------------
 
     # Toggle flag
     def toggle_flag(self, cell):
@@ -309,11 +294,9 @@ class Board(models.Model):
                     cell.save()
     # analyse_and_discover
 
-
     # Check win conditions
     def check_win_conditions(self, cell):
         print('** Check win conditions')
-
         # Game over - Loose
         if funcs.mined_defeat(cell):
             self.game_over = True
@@ -341,11 +324,9 @@ class Board(models.Model):
             cell.success = False
     # check_win_conditions
 
-
     # Build macro stats
     def buid_macro_stats(self):
         print('** Build macro stats')
-
         # self.nr_hidden = self.nr_cells_hidden()
         cells = self.get_cells()
         self.nr_hidden = funcs.nr_cells_hidden(cells)
@@ -356,7 +337,8 @@ class Board(models.Model):
     # buid_macro_stats
 
 
-#-------------------------------------------------------------------------------
+# First level ------------------------------------------------------------------
+
     def update_game(self, cell_name, flag):
         """
         Algorithm
@@ -367,18 +349,19 @@ class Board(models.Model):
             Build Macro Stats
             Update all cells
 
-        Bidimensional arrays
+        Bidimensional arrays (matrixes)
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (seen by the player)
             flags - The positions that have been flagged
             mines - The positions that have been mined
-        Data
-            numbers is an array of arrays
+
         Actions:
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
 
-        Called by grid.js
+        Called by 
+            the fronted (grid.js),
+            via the BoardUpdate.get_queryset() method in api_view.py
         """
         print('\n*** update_game')
         print(f'cell_name: {cell_name}')
@@ -414,7 +397,9 @@ class Board(models.Model):
 
     # update_game
 
-# ------------------------------------------------------------------------------
+
+# First level ------------------------------------------------------------------
+
     def check_game(self, cell_name):
         """
         Executed only once, at the beginning of the game.
@@ -430,7 +415,7 @@ class Board(models.Model):
             self.save()
 
 
-# ------------------------------------------------------------------------------
+# Model ------------------------------------------------------------------------
 class Cell(models.Model):
     """
     Cell
