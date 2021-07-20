@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-The classic game of Minesweeper 
+The classic game of Minesweeper
 A RESTful API
 
-Specs 
+Specs
 -------
 - Design and develop a documented RESTful API.
 - Implement an API client, using a frontend language, ie Javascript.
-- The UI must be optimized for a mobile device user, it must be responsive.  
-- When a cell with no adjacent mines is revealed, all adjacent cells will be revealed, and repeat. 
+- The UI must be optimized for a mobile device user, it must be responsive. 
+- When a cell with no adjacent mines is revealed, all adjacent cells will be revealed, and repeat.
   This requires a recursive solution.
 - Ability to "flag" a cell with a question mark or a red flag.
 - Detect when the game is over.
@@ -20,7 +20,7 @@ Specs
 
 Algorithm
 -----------
-We have used the following article:  
+We have used the following article: 
 "Create Minesweeper using Python From the Basic to Advanced". From the AskPython website
 
 API Documentation
@@ -33,30 +33,31 @@ from datetime import timedelta, datetime, timezone
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
-from django_fsm import transition, FSMIntegerField, TransitionNotAllowed
+from django_fsm import transition, FSMIntegerField
 from . import ms_engine as ms
-from . import funcs 
+from . import funcs
 
-# FSM (Finite state machine) - Init 
+# FSM (Finite state machine) - Init
 STATE_CREATED = 0
 STATE_STARTED = 1
 STATE_PAUSED = 2
 STATE_END_WIN = 3
 STATE_END_LOOSE = 4
 STATE_CHOICES = (
-        (STATE_CREATED, 'init'),
-        (STATE_STARTED, 'start'),
-        (STATE_PAUSED, 'pause'),
-        (STATE_END_WIN, 'end win'),
-        (STATE_END_LOOSE, 'end lose'),
-) 
+    (STATE_CREATED, 'init'),
+    (STATE_STARTED, 'start'),
+    (STATE_PAUSED, 'pause'),
+    (STATE_END_WIN, 'end win'),
+    (STATE_END_LOOSE, 'end lose'),
+)
+
 
 # Create your models here.
 class Board(models.Model):
     """
-    Game board 
-    Is a 2d matrix of Cells 
-    Is owned by a User 
+    Game board
+    Is a 2d matrix of Cells
+    Is owned by a User
     """
     name = models.CharField(max_length=16)
     rows = models.IntegerField(default=1)
@@ -67,17 +68,17 @@ class Board(models.Model):
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
     state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
-    
-    #numbers = ArrayField(ArrayField(models.IntegerField()))
+
+    # numbers = ArrayField(ArrayField(models.IntegerField()))
     numbers = ArrayField(ArrayField(models.IntegerField(null=True)))
 
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
-    
+
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
-    
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     # new
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,7 +89,6 @@ class Board(models.Model):
 
     def __str__(self):
         return f"{self.name}"
-
 
 # Used by template  ------------------------------------------------------------
     def get_nr_cells(self):
@@ -133,17 +133,10 @@ class Board(models.Model):
     def get_state(self):
         return STATE_CHOICES[self.state_sm][1].capitalize()
 
-
-
-# Tools ------------------------------------------------------------------------
-
-
 # Cell funcs -------------------------------------------------------------------
-
-    # Get one cell
     def get_cell(self, x, y):
         """
-        Get cell
+        Get one cell
         """
         cell = Cell.objects.get(board=self.id, x=x, y=y)
         return cell
@@ -155,7 +148,7 @@ class Board(models.Model):
         cell = Cell.objects.get(board=self.id, name=name)
         return cell
 
-    # Get cells 
+    # Get cells
     def get_cells(self):
         """
         Get cells
@@ -165,10 +158,10 @@ class Board(models.Model):
         count = Cell.objects.filter(board=self.id).count()
         nr_cells = self.rows * self.cols
 
-        #if count != self.get_nr_cells():    
+        #if count != self.get_nr_cells():
         if count != nr_cells:
-            #print('Clean cells')
-            # Clean cells 
+            # print('Clean cells')
+            # Clean cells
             cells = Cell.objects.filter(board=self.id).order_by('name')
             for cell in cells:
                 cell.delete()
@@ -180,14 +173,12 @@ class Board(models.Model):
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 
-
-
 #-------------------------------------------------------------------------------
     def init_game(self):
         """
         Called by views.py
         Data structures
-        Bidimensional arrays 
+        Bidimensional arrays
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (seen by the player)
             flags - The positions that have been flagged
@@ -201,7 +192,7 @@ class Board(models.Model):
         cells = self.get_cells()
         funcs.reset_cells(cells)
 
-        # Init 
+        # Init
         self.game_over = False
         self.game_win = False
         self.nr_hidden = self.rows * self.cols
@@ -209,19 +200,19 @@ class Board(models.Model):
         self.duration = timedelta(minutes=0)
         n = self.rows   # Only square boards, for the moment
 
-        # Bidimensional Arrays 
+        # Bidimensional Arrays
         # ------------------------
         # The visible number on the board
         self.apparent = [[None for y in range(n)] for x in range(n)]        # Init
 
-        # The actual numbers on the board 
-        self.numbers = [[0 for y in range(n)] for x in range(n)]            # Init 
+        # The actual numbers on the board
+        self.numbers = [[0 for y in range(n)] for x in range(n)]            # Init
         self.numbers = ms.set_mines(self.numbers, self.nr_mines)            # Set the mines
-        self.numbers = ms.set_values(self.numbers)     # Set the board values, which are calculated using the mines positions 
+        self.numbers = ms.set_values(self.numbers)     # Set the board values, which are calculated using the mines positions
 
         # Positions flagged
         self.flags = []
-        
+
         # Positions mined
         self.mines = []
 
@@ -230,8 +221,6 @@ class Board(models.Model):
                 self.mines.append([x, y])
 
         self.save()
-
-
 
         # Initialize the board
         #cells = funcs.get_cells(self, Cell)
@@ -244,12 +233,12 @@ class Board(models.Model):
         #    value = self.numbers[x][y]
         #    cell.value = value
         #    cell.label = str(value)
-        #    cell.visible = False 
+        #    cell.visible = False
         #    if self.numbers[x][y] == -1:
         #        cell.mined = True
         #    cell.flagged = False
         #    if value == 0:
-        #        cell.empty = True 
+        #        cell.empty = True
         #    cell.game_over = False
         #    cell.success = False
         #    cell.save()
@@ -259,36 +248,55 @@ class Board(models.Model):
 #-------------------------------------------------------------------------------
     def update_game(self, cell_name, flag):
         """
-        Bidimensional arrays 
+        Algorithm
+            if flag Toggle
+            else 
+                Analyse and discover
+            Check win conditions
+            Build Macro Stats
+            Update all cells
+
+        Bidimensional arrays
             numbers - The actual values of the grid
             apparent - The apparent values of the grid (seen by the player)
             flags - The positions that have been flagged
             mines - The positions that have been mined
-
-        Data 
-            numbers is an array of arrays 
-
+        Data
+            numbers is an array of arrays
         Actions:
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
 
         Called by grid.js
+
+        # Flag cell
+        if flag == '1':
+
+        # Analyse and discover cells
+        elif not cell.flagged:
+
+        # Game over - loose
+        if funcs.mined_defeat(cell):
+
+        # Game over - win
+        elif (funcs.short_win(self) or funcs.long_win(self)):
+
+        # Not game over - continue
+        else:
         """
         print('\n*** update_game')
-        #print(f'cell_name: {cell_name}')
-        #print(f'flag: {flag}')
+        # print(f'cell_name: {cell_name}')
+        # print(f'flag: {flag}')
 
         # Init
         cell = self.get_cell_by_name(cell_name)
         x = cell.x
         y = cell.y
 
-
         # Flag cell
         if flag == '1':
             print('** Toggle cell')
             # Check if flagging ok
-            #if self.flagging_ok(x, y):
             if funcs.flagging_ok(self, x, y):
                 print('** Flag cell')
                 cell = self.get_cell(x, y)
@@ -305,9 +313,9 @@ class Board(models.Model):
                 cell.save()
                 self.save()
 
-
         # Analyse and discover cells
         elif not cell.flagged:
+            print('** Analyse and discover cells')
 
             # Render the cell visible
             cell.visible = True
@@ -315,7 +323,6 @@ class Board(models.Model):
             self.save()
             cell.save()
 
-                
             # If landing on a cell with 0 mines in neighboring cells
             if cell.value == 0:
                 # Init
@@ -326,10 +333,10 @@ class Board(models.Model):
                 ms.neighbours(n, x, y, vis, self.apparent, self.numbers)
 
                 # Update cells
-                # Avoid nested loops 
-                for x, y in itertools.product( list(range(self.rows)), list(range(self.cols)) ):
+                # Avoid nested loops
+                for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
                     value = self.apparent[x][y]
-                    if value != None:
+                    if value is not None:
                         cell = self.get_cell(x, y)
                         cell.visible = True
                         if value == 0:
@@ -340,12 +347,11 @@ class Board(models.Model):
                         cell.value = self.apparent[x][y]
                         cell.save()
 
-
         # Check win conditions
+        print('** Check win conditions')
         cell = self.get_cell_by_name(cell_name)
 
-        # Game over - loose
-        #if self.mined_defeat(cell):
+        # Game over - Loose
         if funcs.mined_defeat(cell):
             self.game_over = True
             self.game_win = False
@@ -356,67 +362,67 @@ class Board(models.Model):
                 print(self.state_sm)
                 self.save()
 
-        # Game over - win
-        #elif (self.short_win() or self.fast_win()):
+        # Game over - Win
         elif (funcs.short_win(self) or funcs.long_win(self)):
             self.game_over = True
             self.game_win = True
-            # FSM - win 
+            # FSM - win
             if self.can_end_win():
                 print(self.state_sm)
                 self.end_win_sm()
                 print(self.state_sm)
                 self.save()
 
-        # Not game over - continue
+        # Not game over - Continue
         else:
             self.game_over = False
             self.game_win = False
             cell.success = False
+        
+        cell.save()
 
 
-        # Stats
-        #self.nr_hidden = self.nr_cells_hidden()
+        # Build Macro Stats
+        # self.nr_hidden = self.nr_cells_hidden()
         cells = self.get_cells()
         self.nr_hidden = funcs.nr_cells_hidden(cells)
-        if self.start == None:
-             self.start = datetime.now(timezone.utc)
+        if self.start is None:
+            self.start = datetime.now(timezone.utc)
         self.duration = datetime.now(timezone.utc).replace(microsecond=0) - self.start.replace(microsecond=0)
         self.end = datetime.now(timezone.utc)
 
-        cell.save()
+        #cell.save()
         self.save()
 
-
         # Update all cells
-        #self.update_cells(self.game_over, self.game_win)
         cells = Cell.objects.filter(board=self.id).order_by('name')
         funcs.update_cells(cells, self.game_over, self.game_win)
 
+    # update_game
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
     def check_game(self, cell_name):
         """
-        Executed only once, at the beginning of the game. 
-        Checks the first cell chosen. If mined, restarts the game. 
+        Executed only once, at the beginning of the game.
+        Checks the first cell chosen. If mined, restarts the game.
         """
         print('*** check_game')
         cell = self.get_cell_by_name(cell_name)
         cells = self.get_cells()
         # Check
-        if cell.mined and funcs.nr_cells_visible(cells) == 0 :
+        if cell.mined and funcs.nr_cells_visible(cells) == 0:
             print('Re-init the game !!!')
             self.init_game()
             self.save()
 
 
-#-------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 class Cell(models.Model):
     """
-    Cell 
-    Used by Board 
+    Cell
+    Used by Board
     Board is a ForeignKey
-    """    
+    """
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
 
     name = models.CharField(max_length=16)

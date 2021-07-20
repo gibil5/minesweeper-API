@@ -10,31 +10,6 @@ API
 """
 import itertools
 
-# -------------------------------- Cell model funcs ----------------------------
-#-------------------------------------------------------------------------------
-def d_get_cells(board, model):
-    """
-    Get cells
-    """
-    print('* get_cells')
-    # Count
-    count = model.objects.filter(board=board.id).count()
-    if count != board.get_nr_cells():    
-        # Delete cells 
-        cells = model.objects.filter(board=board.id).order_by('name')
-        for cell in cells:
-            cell.delete()
-        # Create cells
-        for x, y in itertools.product(list(range(board.rows)), list(range(board.cols))):
-            c = model(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=board)
-            c.save()
-    # Get and order 
-    cells = model.objects.filter(board=board.id).order_by('name')
-    return cells
-
-
-
-
 # -------------------------------- Board funcs ---------------------------------
 def short_win(board):
     """
@@ -42,7 +17,7 @@ def short_win(board):
     All mines have been flagged
     """
     print('funcs - short_win')
-    print('All mines have been flagged')
+    #print('All mines have been flagged')
     board.flags.sort()
     return board.flags == board.mines
 
@@ -52,7 +27,7 @@ def long_win(board):
     Nr mines is equal to nr of hidden cells 
     """
     print('funcs - long_win')
-    print('Nr mines is equal to nr of hidden cells')
+    #print('Nr mines is equal to nr of hidden cells')
     cells = board.get_cells()
     return nr_cells_hidden(cells) == board.nr_mines
 
@@ -154,3 +129,26 @@ def update_cells(cells, game_over, game_win):
 
 
 
+
+
+# -------------------------------- Cell model funcs ----------------------------
+#-------------------------------------------------------------------------------
+def d_get_cells(board, model):
+    """
+    Get cells
+    """
+    print('* get_cells')
+    # Count
+    count = model.objects.filter(board=board.id).count()
+    if count != board.get_nr_cells():    
+        # Delete cells 
+        cells = model.objects.filter(board=board.id).order_by('name')
+        for cell in cells:
+            cell.delete()
+        # Create cells
+        for x, y in itertools.product(list(range(board.rows)), list(range(board.cols))):
+            c = model(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=board)
+            c.save()
+    # Get and order 
+    cells = model.objects.filter(board=board.id).order_by('name')
+    return cells
