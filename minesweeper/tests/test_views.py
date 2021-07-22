@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-    Test View
+Test Views
+
+Tests 
+    test_view_get_all
+    test_view_post_all
 """
 import os
 import unittest
@@ -10,8 +14,8 @@ from django.contrib.auth import get_user_model
 from . import funcs 
 
 # Const ------------------------------------------------------------------------
-SKIP_VIEW_TESTS = 0
-PREFIX = '\n\n------------------------------------------------ '
+SKIP_VIEW_TESTS = 1
+PREFIX = '\n\n---------------------------------------------------------------- '
 
 # ------------------------------------------------------------------------------
 #                              Test Views
@@ -22,10 +26,7 @@ class ViewsTestCase(unittest.TestCase):
     Test Views
     """
     def setUp(self):
-        """
-        Setup
-        """
-        print('setUp')
+        'Setup'
         self.prefix = PREFIX
         self.client = Client()
         self.board = funcs.get_test_board()
@@ -49,7 +50,6 @@ class ViewsTestCase(unittest.TestCase):
             '/users/login/',
             '/users/logout/',
             f'/users/show/{self.user.id}/',
-
             # Boards
             f'/boards/reset/{self.board.id}/',
             f'/boards/play/{self.board.id}/',
@@ -86,17 +86,16 @@ class ViewsTestCase(unittest.TestCase):
         """
         print(f"{self.prefix}test_view_post_all")
 
+        # Init
         requests = [
             # Board
             '/boards/update/',
         ]
-
         id = self.board.id
         name = 'Test'
         rows = '7'
         cols = '7'
         nr_mines = '7'
-
         for req in requests:
             request = req
             if self.verbose:

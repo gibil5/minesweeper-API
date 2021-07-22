@@ -68,21 +68,17 @@ class Board(models.Model):
     end = models.DateTimeField(blank=True, null=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
     state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
-
-    # numbers = ArrayField(ArrayField(models.IntegerField()))
-    numbers = ArrayField(ArrayField(models.IntegerField(null=True)))
-
+    game_over = models.BooleanField(default=False)
+    game_win = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    # Matrices
+    numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
-
-    game_over = models.BooleanField(default=False)
-    game_win = models.BooleanField(default=False)
-
+    # User
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    # new
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ('created_at', )
@@ -137,7 +133,7 @@ class Board(models.Model):
 # Cell funcs -------------------------------------------------------------------
     def get_cell(self, x, y):
         """
-        Get one cell
+        Get cell by position
         """
         cell = Cell.objects.get(board=self.id, x=x, y=y)
         return cell
@@ -152,25 +148,22 @@ class Board(models.Model):
     # Get cells
     def get_cells(self):
         """
-        Get cells
+        Get or create cells
         """
         print('* get_cells')
-
         count = Cell.objects.filter(board=self.id).count()
         nr_cells = self.rows * self.cols
-
-        #if count != self.get_nr_cells():
+        # Create if necessary
         if count != nr_cells:
-            # print('Clean cells')
             # Clean cells
             cells = Cell.objects.filter(board=self.id).order_by('name')
             for cell in cells:
                 cell.delete()
-            #print('\n\n***Creating cells !!!\n\n')
             # Create cells
             for x, y in itertools.product(list(range(self.rows)), list(range(self.cols))):
                 c = Cell(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=self)
                 c.save()
+        # Get cells
         cells = Cell.objects.filter(board=self.id).order_by('name')
         return cells
 
@@ -338,7 +331,6 @@ class Board(models.Model):
 
 
 # First level ------------------------------------------------------------------
-
     def update_game(self, cell_name, flag):
         """
         Algorithm
@@ -375,7 +367,6 @@ class Board(models.Model):
             self.toggle_flag(cell)
 
         # Analyse and discover cells
-        #elif not cell.flagged:
         else:
             self.analyse_and_discover(cell)
 
@@ -388,18 +379,15 @@ class Board(models.Model):
         # Build Macro Stats
         print('** Build Macro Stats')
         self.buid_macro_stats()
-        #cell.save()
         self.save()
 
         # Update all cells
         cells = Cell.objects.filter(board=self.id).order_by('name')
         funcs.update_cells(cells, self.game_over, self.game_win)
-
     # update_game
 
 
 # First level ------------------------------------------------------------------
-
     def check_game(self, cell_name):
         """
         Executed only once, at the beginning of the game.
@@ -413,6 +401,7 @@ class Board(models.Model):
             print('Re-init the game !!!')
             self.init_game()
             self.save()
+    # check_game
 
 
 # Model ------------------------------------------------------------------------
@@ -423,7 +412,6 @@ class Cell(models.Model):
     Board is a ForeignKey
     """
     board = models.ForeignKey(Board, on_delete=models.CASCADE)
-
     name = models.CharField(max_length=16)
     x = models.IntegerField()
     y = models.IntegerField()

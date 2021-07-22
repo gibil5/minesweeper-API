@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 """
-    Test API
+Test API
+
+Tests
+    test_rest_api_get
+
+GET Endpoints
+    /rest/users/
+
+    /rest/boards/
+    /rest/boards/{self.board.id}/
+    /rest/board_init/?board_id={self.board.id}
+    /rest/board_update/?board_id={self.board.id}&cell_name={self.cell_name}&flag={self.flag}
 """
 import os
 import unittest
@@ -11,7 +22,7 @@ from . import funcs
 
 # Const ------------------------------------------------------------------------
 SKIP_API_TESTS = 0
-PREFIX = '\n\n------------------------------------------------ '
+PREFIX = '\n\n---------------------------------------------------------------- '
 
 # ------------------------------------------------------------------------------
 #                              Test REST API

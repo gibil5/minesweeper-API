@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """
-    Test
-        API
-        Views 
-        Model
+    Test Model
 """
 import random
 import unittest
@@ -11,8 +8,8 @@ from django.test import TestCase
 from . import funcs 
 
 # Const ------------------------------------------------------------------------
-SKIP_MODEL_TESTS = 0
-PREFIX = '\n\n------------------------------------------------ '
+SKIP_MODEL_TESTS = 1
+PREFIX = '\n\n---------------------------------------------------------------- '
 
 # ------------------------------------------------------------------------------
 #                              Test Models
