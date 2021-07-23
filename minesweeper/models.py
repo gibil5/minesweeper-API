@@ -53,6 +53,19 @@ STATE_CHOICES = (
 
 
 # Model ------------------------------------------------------------------------
+def default_rows():
+    return 7
+
+def default_cols():
+    return 7
+
+def default_nr_hidden():
+    return 49
+
+def default_nr_mines():
+    return 7
+
+
 class Board(models.Model):
     """
     Game board
@@ -60,23 +73,35 @@ class Board(models.Model):
     Is owned by a User
     """
     name = models.CharField(max_length=16)
-    rows = models.IntegerField(default=1)
-    cols = models.IntegerField(default=1)
-    nr_mines = models.IntegerField(default=1)
-    nr_hidden = models.IntegerField(default=0)
-    start = models.DateTimeField(blank=True, null=True)
-    end = models.DateTimeField(blank=True, null=True)
-    duration = models.DurationField(default=timedelta(minutes=0), blank=True)
+
+    # Int
+    #rows = models.IntegerField(default=1)
+    #cols = models.IntegerField(default=1)
+    #nr_mines = models.IntegerField(default=1)
+    #nr_hidden = models.IntegerField(default=0)
+    rows = models.IntegerField(default=default_rows)
+    cols = models.IntegerField(default=default_cols)
+    nr_mines = models.IntegerField(default=default_nr_mines)
+    nr_hidden = models.IntegerField(default=default_nr_hidden)
     state_sm = FSMIntegerField(choices=STATE_CHOICES, default=STATE_CREATED)
+
+    # Boolean
     game_over = models.BooleanField(default=False)
     game_win = models.BooleanField(default=False)
+
+    # Dates
+    start = models.DateTimeField(blank=True, null=True)
+    end = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    # Matrices
+    duration = models.DurationField(default=timedelta(minutes=0), blank=True)
+
+    # Matrixes
     numbers = ArrayField(ArrayField(models.IntegerField()))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
+
     # User
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
@@ -85,6 +110,8 @@ class Board(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
 
 # Used by template  ------------------------------------------------------------
     def get_nr_cells(self):

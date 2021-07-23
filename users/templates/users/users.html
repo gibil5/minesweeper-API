@@ -11,10 +11,13 @@
             <div class="col-3">
                 username
             </div>
-            <div class="col-6">
+            <div class="col-3">
+                id
+            </div>
+            <div class="col-3">
                 email
             </div>
-            <div class="col-1">
+            <div class="col-3">
                 super
             </div>
         </div>
@@ -24,10 +27,13 @@
         <div class="col-3">
             {{ user.username }}
         </div>
-        <div class="col-6">
+        <div class="col-3">
+            {{ user.id }}
+        </div>
+        <div class="col-3">
             {{ user.email }}
         </div>
-        <div class="col-1">
+        <div class="col-3">
             {{ user.is_superuser }}
         </div>
     </div>

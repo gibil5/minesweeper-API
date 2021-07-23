@@ -1,7 +1,8 @@
 from rest_framework import viewsets, permissions, generics
 from django.contrib.auth.models import User, Group
 from django_fsm import TransitionNotAllowed
-from minesweeper.serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
+#from minesweeper.serializers import UserSerializer, GroupSerializer, BoardSerializer, CellSerializer
+from minesweeper.serializers import UserSerializer, BoardSerializer, CellSerializer
 from minesweeper.models import Board, Cell
 
 #-------------------------------------------------------------------------------
@@ -70,20 +71,20 @@ class BoardCheck(generics.ListAPIView):
         return queryset
 
 #-------------------------------------------------------------------------------
-class CellViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows cells to be viewed or edited.
-    """
-    queryset = Cell.objects.all().order_by('-name')
-    serializer_class = CellSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
 class BoardViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows Boards to be viewed or edited.
     """
     queryset = Board.objects.all().order_by('name')
     serializer_class = BoardSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class CellViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows cells to be viewed or edited.
+    """
+    queryset = Cell.objects.all().order_by('-name')
+    serializer_class = CellSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 class UserViewSet(viewsets.ModelViewSet):
