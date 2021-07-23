@@ -52,7 +52,7 @@ STATE_CHOICES = (
 )
 
 
-# Model ------------------------------------------------------------------------
+# Defaults ---------------------------------------------------------------------
 def default_rows():
     return 7
 
@@ -65,12 +65,19 @@ def default_nr_hidden():
 def default_nr_mines():
     return 7
 
+def default_matrix():
+    return {}
 
+def default_numbers():
+    return 0
+
+# Model ------------------------------------------------------------------------
 class Board(models.Model):
     """
     Game board
     Is a 2d matrix of Cells
-    Is owned by a User
+    #Is owned by a User
+    Is owned by a []
     """
     name = models.CharField(max_length=16)
 
@@ -96,14 +103,22 @@ class Board(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     duration = models.DurationField(default=timedelta(minutes=0), blank=True)
 
-    # Matrixes
-    numbers = ArrayField(ArrayField(models.IntegerField()))
+    # User
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+    # Matrixes - Array of Array
+    #numbers = ArrayField(ArrayField(models.IntegerField()))
+    numbers = ArrayField(ArrayField(models.IntegerField(default=default_numbers)))
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
+    
+    # Matrixes - Json
+    matrix_numbers = models.JSONField(default=default_matrix)
+    matrix_apparent = models.JSONField(default=default_matrix)
+    matrix_mines = models.JSONField(default=default_matrix)
+    matrix_flags = models.JSONField(default=default_matrix)
 
-    # User
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     class Meta:
         ordering = ('created_at', )

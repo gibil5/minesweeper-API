@@ -32,10 +32,13 @@ class BoardSerializer(serializers.Serializer):
     updated_at = serializers.DateTimeField(required=False)
     duration = serializers.DurationField(default="0")
 
-    #numbers = ArrayField(ArrayField(serializers.IntegerField()))
-    #apparent = ArrayField(ArrayField(serializers.IntegerField()))
-    #flags = ArrayField(ArrayField(serializers.IntegerField()))
-    #mines = ArrayField(ArrayField(serializers.IntegerField()))
+    matrix_numbers = serializers.JSONField(default={"key": "value"})
+
+    numbers = serializers.ListField(default=[0])
+    apparent = serializers.ListField(default=[0])
+    flags = serializers.ListField(default=[0])
+    mines = serializers.ListField(default=[0])
+    
     #user = serializers.ForeignKey(User, on_delete=models.CASCADE, null=True)
 
     def create(self, validated_data):
