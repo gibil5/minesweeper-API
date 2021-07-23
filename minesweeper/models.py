@@ -34,8 +34,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 from django_fsm import transition, FSMIntegerField
-from . import ms_engine as ms
-from . import funcs
+from minesweeper import ms_engine as ms
+from minesweeper import funcs
 
 # FSM (Finite state machine) - Init
 STATE_CREATED = 0
@@ -49,7 +49,7 @@ STATE_CHOICES = (
     (STATE_PAUSED, 'pause'),
     (STATE_END_WIN, 'end win'),
     (STATE_END_LOOSE, 'end lose'),
-)
+)   #pylint: disable=invalid-sequence-index
 
 
 # Defaults ---------------------------------------------------------------------
@@ -72,7 +72,7 @@ def default_numbers():
     return 0
 
 # Model ------------------------------------------------------------------------
-class Board(models.Model):
+class Board(models.Model):  #pylint: disable=too-many-instance-attributes
     """
     Game board
     Is a 2d matrix of Cells
@@ -82,10 +82,6 @@ class Board(models.Model):
     name = models.CharField(max_length=16)
 
     # Int
-    #rows = models.IntegerField(default=1)
-    #cols = models.IntegerField(default=1)
-    #nr_mines = models.IntegerField(default=1)
-    #nr_hidden = models.IntegerField(default=0)
     rows = models.IntegerField(default=default_rows)
     cols = models.IntegerField(default=default_cols)
     nr_mines = models.IntegerField(default=default_nr_mines)
@@ -112,7 +108,7 @@ class Board(models.Model):
     apparent = ArrayField(ArrayField(models.IntegerField()))
     flags = ArrayField(ArrayField(models.IntegerField()))
     mines = ArrayField(ArrayField(models.IntegerField()))
-    
+
     # Matrixes - Json
     matrix_numbers = models.JSONField(default=default_matrix)
     matrix_apparent = models.JSONField(default=default_matrix)
@@ -120,7 +116,7 @@ class Board(models.Model):
     matrix_flags = models.JSONField(default=default_matrix)
 
 
-    class Meta:
+    class Meta: #pylint: disable=missing-class-docstring,too-few-public-methods
         ordering = ('created_at', )
 
     def __str__(self):
@@ -138,35 +134,37 @@ class Board(models.Model):
 # FSM transitions --------------------------------------------------------------
     # Play
     @transition(field=state_sm, source=[STATE_CREATED, STATE_PAUSED], target=STATE_STARTED)
-    def play_sm(self):
+    def play_sm(self):  #pylint: disable=no-self-use
         print('\n*** fsm - play_sm')
 
     # End win
     @transition(field=state_sm, source=STATE_STARTED, target=STATE_END_WIN)
-    def end_win_sm(self):
+    def end_win_sm(self):   #pylint: disable=no-self-use
         print('*** fsm - end_win_sm')
 
     # End loose
     @transition(field=state_sm, source=STATE_STARTED, target=STATE_END_LOOSE)
-    def end_loose_sm(self):
+    def end_loose_sm(self): #pylint: disable=no-self-use
         print('*** fsm - end_loose_sm')
 
     # Pause
     @transition(field=state_sm, source=STATE_STARTED, target=STATE_PAUSED)
-    def pause_sm(self):
+    def pause_sm(self): #pylint: disable=no-self-use
         print('*** fsm - pause_sm')
 
     # Reset
     @transition(field=state_sm, source='*', target=STATE_CREATED)
-    def reset_sm(self):
+    def reset_sm(self): #pylint: disable=no-self-use
         print('\n*** fsm - reset_sm')
 
     # Helpers
     def can_end_win(self):
-        return not(self.state_sm == 3)
+        #return not self.state_sm == 3
+        return self.state_sm != 3
 
     def can_end_loose(self):
-        return not(self.state_sm == 4)
+        #return not self.state_sm == 4
+        return self.state_sm != 4
 
     def get_state(self):
         return STATE_CHOICES[self.state_sm][1].capitalize()
@@ -219,7 +217,7 @@ class Board(models.Model):
             apparent - The apparent values of the grid (seen by the player)
             flags - The positions that have been flagged
             mines - The positions that have been mined
-        Called by 
+        Called by
             the fronted (grid.js),
             via the BoardUpdate.get_queryset() method in api_view.py
         """
@@ -393,7 +391,7 @@ class Board(models.Model):
             clicked cell is rendered visible,
             if value is equal to zero, adjacent cells also.
 
-        Called by 
+        Called by
             the fronted (grid.js),
             via the BoardUpdate.get_queryset() method in api_view.py
         """
@@ -466,7 +464,7 @@ class Cell(models.Model):
     game_over = models.BooleanField(default=False)
     success = models.BooleanField(default=False)
 
-    class Meta:
+    class Meta: #pylint: disable=missing-class-docstring,too-few-public-methods
         ordering = ('name', )
 
     def __str__(self):
