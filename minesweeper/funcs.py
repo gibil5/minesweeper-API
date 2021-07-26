@@ -1,5 +1,5 @@
 """
-Funcs 
+Funcs
 Library for the Minesweeper game
 
 API
@@ -24,7 +24,7 @@ def short_win(board):
 def long_win(board):
     """
     Win condition 2
-    Nr mines is equal to nr of hidden cells 
+    Nr mines is equal to nr of hidden cells
     """
     print('funcs - long_win')
     #print('Nr mines is equal to nr of hidden cells')
@@ -37,12 +37,12 @@ def not_cell_flagged(board, x, y):
     used by flagging_ok
     """
     return [x, y] not in board.flags
-    
+
 def not_cell_displayed(board, x, y):
     """
     used by flagging_ok
     """
-    return board.apparent[x][y] == None
+    return board.apparent[x][y] is None
 
 def flagging_ok(board, x, y):
     return not_cell_flagged(board, x, y) and not_cell_displayed(board, x, y)
@@ -69,7 +69,7 @@ def nr_cells_visible(cells):
         if cell.visible:
             count += 1
     return count
-    
+
 #-------------------------------------------------------------------------------
 def reset_cells(cells):
     """
@@ -82,7 +82,7 @@ def reset_cells(cells):
         cell.label = ''
         cell.mined = False
         cell.visible = False
-        cell.flagged = False       
+        cell.flagged = False
         cell.game_over = False
         cell.success = False
         cell.empty = False
@@ -104,7 +104,7 @@ def init_cells(cells, vec):
 
         cell.value = value
         cell.label = str(value)
-        cell.visible = False 
+        cell.visible = False
 
         #if self.numbers[x][y] == -1:
         if vec[x][y] == -1:
@@ -112,7 +112,7 @@ def init_cells(cells, vec):
 
         cell.flagged = False
         if value == 0:
-            cell.empty = True 
+            cell.empty = True
         cell.game_over = False
         cell.success = False
         cell.save()
@@ -140,8 +140,8 @@ def d_get_cells(board, model):
     print('* get_cells')
     # Count
     count = model.objects.filter(board=board.id).count()
-    if count != board.get_nr_cells():    
-        # Delete cells 
+    if count != board.get_nr_cells():
+        # Delete cells
         cells = model.objects.filter(board=board.id).order_by('name')
         for cell in cells:
             cell.delete()
@@ -149,6 +149,6 @@ def d_get_cells(board, model):
         for x, y in itertools.product(list(range(board.rows)), list(range(board.cols))):
             c = model(id=None, name=f'{x}_{y}', x=x, y=y, value='0', label='', visible=False, mined=False, flagged=False, board=board)
             c.save()
-    # Get and order 
+    # Get and order
     cells = model.objects.filter(board=board.id).order_by('name')
     return cells

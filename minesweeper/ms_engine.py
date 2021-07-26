@@ -1,16 +1,16 @@
 """
-    This is the Minesweeper game Engine
-    It can be used by any framework. 
+Ms Engine
+Engine for the Minesweeper game
 
-    Functions:
-        set_mines
-        set_values
-        neighbours
+Functions:
+    set_mines
+    set_values
+    neighbours
 
-    Origin: 
-        "Create Minesweeper using Python From the Basic to Advanced"
-        Ask Python web site 
-        https://www.askpython.com/python/examples/create-minesweeper-using-python
+Origin:
+    "Create Minesweeper using Python From the Basic to Advanced"
+    Ask Python web site
+    https://www.askpython.com/python/examples/create-minesweeper-using-python
 """
 import random
 import itertools
@@ -18,24 +18,24 @@ import itertools
 #-------------------------------------------------------------------------------
 def set_mines(numbers, nr_mines):
     """
-    Data: 
-        Numbers is a square 2d Matrix 
-        n is the number of rows or cols 
-        nr_mines is the number of mines 
+    Data:
+        Numbers is a square 2d Matrix
+        n is the number of rows or cols
+        nr_mines is the number of mines
     Description:
-        Sets mines in the numbers matrix. 
+        Sets mines in the numbers matrix.
         The value for a mine is -1.
     """
-    # Init 
+    # Init
     n = len(numbers[0])
     count = 0
 
-    # Place the mines 
+    # Place the mines
     while count < nr_mines:
         # Random mine position
-        val = random.randint(0, n*n-1)  
-        row = val // n  # integer division 
-        col = val % n   # remainder 
+        val = random.randint(0, n*n-1)
+        row = val // n  # integer division
+        col = val % n   # remainder
 
         # Place the mine, if it doesn't already have one
         if numbers[row][col] != -1:
@@ -51,9 +51,9 @@ def set_mines(numbers, nr_mines):
 def set_values(numbers):
     """
     Set each cell's value.
-    Which is the nr of mines around each cell. 
+    Which is the nr of mines around each cell.
     """
-    # Init 
+    # Init
     n = len(numbers[0])
 
     # Loop for counting each cell value
@@ -63,19 +63,19 @@ def set_values(numbers):
         if numbers[row][col] == -1:
             continue
 
-        # Check vertical 
+        # Check vertical
         # ----------------
         # Up
-        if row != 0:                            # if not the first row 
-            if numbers[row-1][col] == -1:       # there is a mine up 
-                numbers[row][col] += 1          # increase value 
+        if row != 0:                            # if not the first row
+            if numbers[row-1][col] == -1:       # there is a mine up
+                numbers[row][col] += 1          # increase value
 
         # Down
-        if row != n-1:                          # if not the last row 
-            if numbers[row+1][col] == -1:       # there is a mine down  
-                numbers[row][col] +=  1         # increase value 
+        if row != n-1:                          # if not the last row
+            if numbers[row+1][col] == -1:       # there is a mine down
+                numbers[row][col] +=  1         # increase value
 
-        # Check horizontal 
+        # Check horizontal
         # -----------------
         # Left
         if col != 0:
@@ -87,7 +87,7 @@ def set_values(numbers):
             if numbers[row][col+1] == -1:
                 numbers[row][col] +=  1
 
-        # Check corners 
+        # Check corners
         # ---------------
         # Top left
         if row != 0 and col != 0:
@@ -115,13 +115,13 @@ def set_values(numbers):
 
 
 #-------------------------------------------------------------------------------
-def neighbours(n, row, col, visited, apparent, numbers):
+def neighbours(n, row, col, visited, apparent, numbers):    #pylint: disable=too-many-arguments
     """
     The most complex algorith in the game *****
     This requires a recursive solution.
-    When a cell with no adjacent mines is revealed (value = 0), 
-    all adjacent cells must be revealed, and repeat. 
-    Data 
+    When a cell with no adjacent mines is revealed (value = 0),
+    all adjacent cells must be revealed, and repeat.
+    Data
         numbers is a square 2d matrix
     """
     # If the cell already not visited

@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
+"""
+Utils
+Utility library
+"""
 from datetime import timedelta
-from .models import Board, Cell
+from random_word import RandomWords
 from django.contrib.auth.models import User
+from .models import Board, Cell
 
 # ---------------------------------- Users -------------------------------------
 def add_user(data):
@@ -21,7 +26,7 @@ def get_users():
 
 def list_boards_user(user):
     print('list_boards_user')
-    boards = Board.objects.filter(user=user)    
+    boards = Board.objects.filter(user=user)
     return boards
 
 # ---------------------------------- Boards ------------------------------------
@@ -29,7 +34,7 @@ def list_boards():
     """
     Returns a list of boards.
     """
-    boards = Board.objects.all()    
+    boards = Board.objects.all()
     return boards
 
 def get_board(board_id):
@@ -63,15 +68,15 @@ def add_cells(board_id):
 def update_board(id, name, rows, cols, nr_mines):
     boards = Board.objects.filter(id=id)
     ret = boards.update(
-        name = name, 
+        name = name,
         rows = rows,
         cols = cols,
-        nr_mines = nr_mines,        
+        nr_mines = nr_mines,
         numbers = [],
         apparent = [],
         flags = [],
         mines = [],
-        state_sm = 0, 
+        state_sm = 0,
         start=None,
         end=None,
         duration=timedelta(0),
@@ -82,7 +87,6 @@ def update_board(id, name, rows, cols, nr_mines):
     print(ret)
 
 # ----------------------------------- Tools ------------------------------------
-from random_word import RandomWords
 def get_board_name(kind = 'single'):
     r = RandomWords()
     if kind == 'single':
